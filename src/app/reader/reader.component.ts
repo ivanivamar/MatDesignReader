@@ -1,6 +1,6 @@
 import {Component, HostListener, OnInit} from '@angular/core';
 import {AppComponentBase} from "../common/AppComponentBase";
-import {Epub, EpubDto, Page} from "../../interfaces/models";
+import {Epub, EpubDto, Page, Toc} from "../../interfaces/models";
 import {FirebaseService} from "../../services/firebase.service";
 import {from, Observable} from "rxjs";
 import {Router} from "@angular/router";
@@ -27,6 +27,7 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
         content: []
     }
     currentFile = '';
+    showToc = false;
 
     constructor(
         private firebaseService: FirebaseService,
@@ -282,6 +283,7 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
             this.book.currentPage! = this.book.currentPage! + 1;
         }
         this.book.lastRead = new Date();
+        this.setChapter();
         this.getPercentageRead(this.book);
         this.updateBook();
         // scroll to top of page
@@ -293,9 +295,49 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
             this.book.currentPage = this.book.currentPage! - 1;
         }
         this.book.lastRead = new Date();
+        this.setChapter();
         this.getPercentageRead(this.book);
         this.updateBook();
         window.scrollTo(0, 0);
+    }
+
+    toggleTocMenu() {
+        this.showToc = !this.showToc;
+        if (this.showToc) {
+            let myElement = document.getElementById(this.book.currentChapter.file);
+            console.log("myElement", myElement);
+            document.getElementById('toc')!.scrollTop = myElement!.offsetTop;
+        }
+    }
+
+    setChapter(): void {
+        const page = this.pages[this.book.currentPage].file.split('/')[this.pages[this.book.currentPage].file.split('/').length - 1];
+        // get chapter
+        let q: Toc | null = null;
+        this.book.toc.forEach((x) => {
+            if (x.subItems.length > 0) {
+                x.subItems.forEach((y) => {
+                    if (y.file.split('/')[y.file.split('/').length - 1] === page && q == null) {
+                        q = y;
+                    }
+                });
+            }
+            if (x.file.split('/')[x.file.split('/').length - 1] === page && q == null) {
+                q = x;
+            }
+        });
+        if (q != null) {
+            this.book.currentChapter = q;
+        }
+    }
+
+    navigateToChapter(chapter: Toc): void {
+        // find in this.pages the page that matches the chapter.file
+        const page = this.pages.find(x => x.file.split('/')[x.file.split('/').length - 1] === chapter.file.split('/')[chapter.file.split('/').length - 1]);
+        // set this.book.currentPage to the index of the page
+        this.book.currentPage = this.pages.indexOf(page!);
+        this.setChapter();
+        this.book.lastRead = new Date();
     }
 
     updateBook(): void {

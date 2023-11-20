@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {from, Observable} from "rxjs";
-import {Content, Epub, EpubDto, Page} from "../../interfaces/models";
+import {Content, Epub, EpubDto, Page, Toc} from "../../interfaces/models";
 import * as JSZip from "jszip";
 import {FirebaseService} from "../../services/firebase.service";
 import {HttpClient} from "@angular/common/http";
@@ -29,9 +29,13 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
         images: [],
         currentPage: 0,
         totalCurrentPage: 0,
-        currentChapter: null,
+        currentChapter: {
+            title: '',
+            file: '',
+            subItems: []
+        },
         percentageRead: 0,
-        toc: null,
+        toc: [],
         lastRead: new Date()
     }
     pages: Page[] = [];
@@ -96,7 +100,11 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
             images: [],
             currentPage: 0,
             totalCurrentPage: 0,
-            currentChapter: null,
+            currentChapter: {
+                title: '',
+                file: '',
+                subItems: []
+            },
             percentageRead: 0,
             toc: [],
             lastRead: new Date()
@@ -158,7 +166,7 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
         this.loadingMessage = 'Getting pages...';
 
         this.selectedEpup.files = await this.GetPageLocationOrder(opfFileContent, opfFileParentFolder);
-        //await this.ParsePages(this.selectedEpup.files, epubDataArrayBuffer);
+        await this.ParseToc(epubDataArrayBuffer);
         console.log('selectedEpup', this.selectedEpup);
     }
     async GetOpfFilePath(containerXmlContent: string) {
@@ -302,7 +310,75 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
             return [];
         }
     }
+    async ParseToc(epubDataArrayBuffer: ArrayBuffer) {
+        // search for .ncx file
+        const zip = new JSZip();
+        let ncxFile: string = '';
+        const epubData = await zip.loadAsync(epubDataArrayBuffer);
+        await zip.loadAsync(epubDataArrayBuffer).then((epub) => {
+            epub.forEach((relativePath, zipEntry) => {
+                if (zipEntry.name.endsWith('.ncx')) {
+                    ncxFile = zipEntry.name;
+                }
+            });
+        });
+        if (ncxFile === '') {
+            return;
+        }
+        const tocFile = await epubData.file(ncxFile)!.async('string');
+        if (!tocFile) {
+            return;
+        }
 
+        const parser = new DOMParser();
+        const ncxXmlDoc = parser.parseFromString(tocFile, 'application/xml');
+        console.log("ncxXmlDoc:", ncxXmlDoc);
+        const navMap = ncxXmlDoc.querySelector('navMap');
+        if (!navMap) {
+            return;
+        }
+        // format for object Toc
+        const toc: Toc[] = [];
+        // loop children of navMap
+        if (navMap.children.length > 0) {
+            for (let i = 0; i < navMap.children.length; i++) {
+                const navPoint = navMap.children[i];
+                if (navPoint.children.length > 0) {
+                    const tocItem: Toc = {
+                        title: '',
+                        file: '',
+                        subItems: []
+                    };
+                    for (let j = 0; j < navPoint.children.length; j++) {
+                        const navPointChild = navPoint.children[j];
+                        if (navPointChild.nodeName === 'navLabel') {
+                            tocItem.title = navPointChild.children[0].textContent!;
+                        } else if (navPointChild.nodeName === 'content') {
+                            tocItem.file = navPointChild.getAttribute('src')!;
+                        } else if (navPointChild.nodeName === 'navPoint') {
+                            const subItem: Toc = {
+                                title: '',
+                                file: '',
+                                subItems: []
+                            };
+                            for (let k = 0; k < navPointChild.children.length; k++) {
+                                const navPointChildChild = navPointChild.children[k];
+                                if (navPointChildChild.nodeName === 'navLabel') {
+                                    subItem.title = navPointChildChild.children[0].textContent!;
+                                } else if (navPointChildChild.nodeName === 'content') {
+                                    subItem.file = navPointChildChild.getAttribute('src')!;
+                                }
+                            }
+                            tocItem.subItems.push(subItem);
+                        }
+                    }
+                    this.selectedEpup.toc.push(tocItem);
+                }
+            }
+        }
+
+        this.selectedEpup.currentChapter = this.selectedEpup.toc[0];
+    }
     async downloadEpub(epubUrl: string): Promise<Observable<ArrayBuffer>> {
         return this.http.get(epubUrl, {responseType: 'arraybuffer'});
     }

@@ -31,16 +31,46 @@
     </div>
 
     <div class="fixed bg-color-light w-full" style="bottom: 0; left: 0">
-        <div class="flex align-items-center gap-5 p-3">
-            <button class="btn-icon btn-text" (click)="GoToHome()">
-                <i class="material-symbols-rounded">
-                    arrow_back
-                </i>
-            </button>
+        <div class="flex align-items-center justify-content-between p-2 px-5">
+            <div class="flex align-items-center gap-3">
+                <button class="btn-icon btn-text" (click)="GoToHome()">
+                    <i class="material-symbols-rounded">
+                        arrow_back
+                    </i>
+                </button>
+                <div class="dropdown" [class.open]="showToc">
+                    <button class="dropbtn" (click)="toggleTocMenu()">
+                        {{book.currentChapter.title}}
+
+                        <i class="material-symbols-rounded">
+                            arrow_drop_up
+                        </i>
+                    </button>
+                    <div class="dropdown-content top left" id="toc">
+                        <div *ngFor="let chapter of book.toc">
+                            <div
+                                class="dropdown-item"
+                                [id]="chapter.file"
+                                [class.active]="chapter.file === book.currentChapter.file"
+                                (click)="navigateToChapter(chapter)">
+                                {{chapter.title}}
+                            </div>
+
+                            <div class="flex flex-column pl-3" *ngIf="chapter.subItems.length > 0">
+                                <div
+                                    class="dropdown-subitem"
+                                    [class.active]="subItem.file === book.currentChapter.file"
+                                    [id]="subItem.file"
+                                    *ngFor="let subItem of chapter.subItems"
+                                    (click)="navigateToChapter(subItem)">
+                                    {{subItem.title}}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <span>
-                {{pages[book.currentPage].file}}
-            </span>
-                <span>
                 {{book.currentPage + 1}} / {{pages.length}}
             </span>
         </div>
