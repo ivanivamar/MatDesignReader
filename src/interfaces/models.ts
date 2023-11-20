@@ -10,9 +10,9 @@ export interface Epub {
     images: any[];
     currentPage: number;
     totalCurrentPage: number;
-    currentChapter: number | null;
+    currentChapter: Toc;
     percentageRead: number;
-    toc: any[] | null;
+    toc: Toc[];
     lastRead: Date;
 }
 
@@ -28,9 +28,9 @@ export class EpubDto implements Epub {
     images!: any[];
     currentPage!: number;
     totalCurrentPage!: number;
-    currentChapter!: number | null;
     percentageRead!: number;
-    toc!: any[] | null;
+    currentChapter!: Toc;
+    toc!: Toc[];
     lastRead!: Date;
 
     constructor(data?: Epub) {
@@ -49,4 +49,9 @@ export interface Page {
 export interface Content {
     type: string;
     value: string;
+}
+export interface Toc {
+    title: string;
+    file: string;
+    subItems: Toc[];
 }
