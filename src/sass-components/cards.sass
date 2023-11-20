@@ -1,0 +1,61 @@
+.card
+    border-radius: $border-radius
+    background-color: $bg-color-dark
+    color: $font-color
+    font-family: $font-family
+    display: flex
+    flex-direction: column
+    transition: all 0.3s ease-in-out
+    cursor: pointer
+    min-width: 250px
+
+    .image-container
+        position: relative
+        height: 250px
+        overflow: hidden
+        border-top-left-radius: $border-radius
+        border-top-right-radius: $border-radius
+        background-color: $bg-color-light
+        display: flex
+        justify-content: center
+        align-items: center
+        border-radius: $border-radius
+        img
+            width: 100%
+            height: 100%
+            object-fit: cover
+            object-position: center
+            position: absolute
+            top: 0
+            left: 0
+            right: 0
+            bottom: 0
+            z-index: 1
+            border-radius: $border-radius
+
+    .card-body
+        padding: 12px
+        display: flex
+        flex-direction: column
+        gap: 6px
+        height: 150px
+
+        .card-title
+            font-size: 18px
+            font-weight: 600
+            margin: 0
+            color: $font-color
+            text-transform: capitalize
+
+        .card-text
+            font-size: 14px
+            margin: 0
+            color: $font-color-secondary
+            text-transform: capitalize
+
+    &:hover
+        transform: scale(1.02)
+
+@media (max-width: 768px)
+    .card
+        min-width: 100%

@@ -1,0 +1,49 @@
+<div *ngIf="!loading">
+    <div id="prev-btn" style="position: fixed; top:0; left:0" class="h-full w-6" (click)="prevPage()">
+
+    </div>
+    <div id="next-btn" style="position: fixed; top:0; right:0" class="h-full w-6" (click)="nextPage()">
+
+    </div>
+    <div class="flex align-items-middle justify-content-center px-5 mb-8">
+        <div style="width: 900px">
+            <div class="inline" *ngFor="let element of pages[book.currentPage].content">
+                <p *ngIf="element.type === 'text'">
+                    {{element.value}}
+                </p>
+                <div *ngIf="element.type === 'image'" class="flex justify-content-center">
+                    <img [src]="getImageByName(element.value)" alt="" style="height: auto; width: 50%">
+                </div>
+                <i *ngIf="element.type === 'italic'">
+                    {{element.value}}
+                </i>
+                <em class="font-light" *ngIf="element.type === 'em'">
+                    {{element.value}}
+                </em>
+                <h1 *ngIf="element.type === 'heading1'" class="text-center">
+                    {{element.value}}
+                </h1>
+                <h2 *ngIf="element.type === 'heading2'" class="text-center">
+                    {{element.value}}
+                </h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="fixed bg-color-light w-full" style="bottom: 0; left: 0">
+        <div class="flex align-items-center gap-5 p-3">
+            <button class="btn-icon btn-text" (click)="GoToHome()">
+                <i class="material-symbols-rounded">
+                    arrow_back
+                </i>
+            </button>
+            <span>
+                {{pages[book.currentPage].file}}
+            </span>
+                <span>
+                {{book.currentPage + 1}} / {{pages.length}}
+            </span>
+        </div>
+    </div>
+</div>
+

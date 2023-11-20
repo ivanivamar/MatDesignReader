@@ -1,0 +1,8 @@
+<button
+    class="border-0 rounded-md px-3 py-2 bg-primary hover:bg-primary-light active:bg-primary-lighter flex align-middle gap-3"
+    (click)="onClicked()">
+    <i class="material-symbols-rounded" [class.hidden]="IsNullOrEmpty(icon)">
+        {{ icon }}
+    </i>
+    <span class="font-display font-medium text-base antialiased">{{ text }}</span>
+</button>

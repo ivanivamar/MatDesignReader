@@ -1,0 +1,40 @@
+.btn
+    display: flex
+    height: 40px
+    padding: 10px 16px
+    justify-content: center
+    align-items: center
+    gap: 8px
+    align-self: stretch
+    border: 0
+    outline: none
+
+    &.btn-filled
+        border-radius: 25px 25px 25px 25px
+        background-color: $primary
+        color: $primary-text
+
+        &:hover
+            background-color: $primary-hover
+            cursor: pointer
+
+        &:active
+            background-color: $primary-active
+
+.btn-icon
+    display: flex
+    justify-content: center
+    align-items: center
+    height: 40px
+    width: 40px
+    border-radius: 50%
+    background-color: transparent
+    color: $font-color
+    border: 0
+
+    &:hover
+        background-color: $bg-color-dark
+        cursor: pointer
+
+    &:active
+        background-color: $bg-color

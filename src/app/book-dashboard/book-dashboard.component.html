@@ -1,0 +1,45 @@
+<div class="p-5 flex align-items-center justify-content-between">
+    <h1 class="headline-lg">Your Library</h1>
+
+    <div class="flex align-items-center">
+        <button class="btn btn-filled" (click)="fileInput.click()">
+            <i class="material-symbols-rounded">cloud_upload</i>
+            Upload
+        </button>
+        <input type="file" #fileInput class="hidden" name="epub" id="epub" accept=".epub" (change)="Upload($event)">
+    </div>
+</div>
+
+<div class="p-5 pt-0 grid">
+    <div class="col-12 xs:col-12 sm:col-6 md:col-4 lg:col-3" *ngFor="let book of books">
+        <div
+            class="card h-full"
+            (click)="GoToReader(book)">
+            <div class="image-container">
+                <img [src]="book.cover" alt="{{book.title}}">
+            </div>
+            <div class="card-body justify-content-between">
+                <div class="flex flex-column">
+                    <span class="card-title">{{book.title}}</span>
+                    <span class="card-text">{{book.creator}}</span>
+                    <span class="card-text">{{book.publisher}}</span>
+                </div>
+
+                <div class="flex align-items-center justify-content-between mt-3">
+                    <span class="card-text">{{getDateFromTimestamp(book.lastRead)}}</span>
+                    <span class="card-text">{{book.percentageRead}}%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div *ngIf="loading" class="spinner-container">
+    <div class="spinner"></div>
+    <div class="flex flex-column gap-3">
+        <div class="progress-bar-container">
+            <div class="progress-bar" [className]="'progress-bar width-' + loadingProgress"></div>
+        </div>
+        <span class="text-center">{{loadingMessage}}</span>
+    </div>
+</div>
