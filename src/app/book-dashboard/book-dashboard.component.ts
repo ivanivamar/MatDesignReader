@@ -54,10 +54,12 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
                 this.loggedUser = user;
                 this.photoUrl = user.photoURL ? user.photoURL : '';
                 console.log("USER:", this.loggedUser);
-                this.titleService.setTitle('Your Library');
                 await this.getEpubsFromFirestore();
                 await this.getShelves();
                 await this.getLocalizationFileData();
+                let title = this.l('YourLibrary');
+                console.log("title:", title);
+                this.titleService.setTitle(title);
                 this.loading = false;
             }
         });

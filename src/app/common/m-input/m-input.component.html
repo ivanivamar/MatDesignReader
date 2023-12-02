@@ -4,7 +4,7 @@
             <i class="material-symbols-rounded" *ngIf="icon !== ''">{{ icon }}</i>
             <div class="flex flex-column gap-2 w-full">
                 <label class="floating-label" *ngIf="label">
-                    {{ label }}
+                    {{ label | localize }}
                     <span class="required-asterisk" *ngIf="required">*</span>
                 </label>
                 <input #inputRef [type]="inputType" class="input" [placeholder]="placeholder" [ngModel]="value" (ngModelChange)="valueChange.emit($event)" name="{{ name }}"
@@ -12,12 +12,12 @@
             </div>
         </div>
         <div class="input-actions">
-            <button class="icon-btn text-btn" (click)="togglePassword()" *ngIf="showPassword">
-                <i class="material-symbols-outlined" *ngIf="showingPassword">visibility_off</i>
-                <i class="material-symbols-outlined" *ngIf="!showingPassword">visibility</i>
+            <button class="btn-icon btn-text" (click)="togglePassword()" *ngIf="showPassword">
+                <i class="material-symbols-rounded" *ngIf="showingPassword">visibility_off</i>
+                <i class="material-symbols-rounded" *ngIf="!showingPassword">visibility</i>
             </button>
-            <button class="icon-btn text-btn" *ngIf="showClear && value.length > 0" (click)="clear()">
-                <i class="material-symbols-outlined">close</i>
+            <button class="btn-icon btn-text" *ngIf="showClear && value.length > 0" (click)="clear()">
+                <i class="material-symbols-rounded">close</i>
             </button>
         </div>
     </div>

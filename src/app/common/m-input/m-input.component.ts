@@ -1,11 +1,12 @@
-import {Component, ElementRef, EventEmitter, Input, Output, ViewChild} from '@angular/core';
+import {Component, ElementRef, EventEmitter, Injector, Input, Output, ViewChild} from '@angular/core';
+import {AppComponentBase} from "../AppComponentBase";
 
 @Component({
   selector: 'm-input',
   templateUrl: './m-input.component.html',
   styleUrls: ['./m-input.component.css']
 })
-export class MInputComponent {
+export class MInputComponent extends AppComponentBase {
     @ViewChild('inputRef') inputRef!: ElementRef;
 
     @Input() value: any = null;
@@ -28,7 +29,11 @@ export class MInputComponent {
     isFocused: boolean = false;
     showingPassword: boolean = false;
 
-    constructor() { }
+    constructor(
+        injector: Injector
+    ) {
+        super(injector);
+    }
 
     clear() {
         this.value = this.inputType === 'number' ? 0 : '';

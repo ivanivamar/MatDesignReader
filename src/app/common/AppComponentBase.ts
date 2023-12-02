@@ -35,7 +35,7 @@ export class AppComponentBase {
         // format dd/mm/yyyy HH:mm
         return date.getDate() + '/' + date.getMonth() + '/' + date.getFullYear() + ' ' + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds();
     }
-    
+
     async getLocalizationFileData() {
         this.localizationService.loadLocalizationData().subscribe(() => {
             // Localization data is now loaded
@@ -44,8 +44,10 @@ export class AppComponentBase {
         });
     }
 
-    l(key: string): Observable<string> {
-        return this.localizationService.localizationData$.pipe(
+    l(key: string): string {
+        // pass Observable to string
+        let value = '';
+        this.localizationService.localizationData$.pipe(
             map((data) => {
                 if (data && data.hasOwnProperty(key)) {
                     return data[key];
@@ -53,6 +55,13 @@ export class AppComponentBase {
                     return key; // Return the original key if translation not found
                 }
             })
-        );
+        ).subscribe((res) => {
+            value = res;
+        });
+        return value;
+    }
+
+    toUnderScore(str: string): string {
+        return str.toLowerCase();
     }
 }

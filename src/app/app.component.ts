@@ -29,6 +29,7 @@ export class AppComponent extends AppComponentBase implements OnInit {
         this.loading = true;
         this.firebaseService.isLoggedIn().then(async user => {
             this.user = user;
+            await this.getLocalizationFileData();
             this.loading = false;
         });
     }

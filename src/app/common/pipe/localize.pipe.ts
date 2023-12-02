@@ -11,8 +11,13 @@ export class LocalizePipe implements PipeTransform {
     constructor(private localizationService: LocalizationService) {
     }
 
-    transform(key: string): Observable<string> {
-        return this.l(key);
+    transform(key: string): string {
+        // pass Observable to string
+        let value = '';
+        this.l(key).subscribe((res) => {
+            value = res;
+        });
+        return value;
     }
 
     l(key: string): Observable<string> {

@@ -3,12 +3,12 @@
         <a class="sidebar-item h-full md:h-auto" [routerLink]="['/books']" [routerLinkActive]="['active']">
             <i class="material-symbols-rounded">library_books</i>
             <span class="sidebar-item-text">
-                {{ 'Library' | localize | async }}
+                {{ 'Library' | localize }}
             </span>
         </a>
         <a class="sidebar-item h-full md:h-auto" [routerLink]="['/shelves']" [routerLinkActive]="['active']">
             <i class="material-symbols-rounded">shelves</i>
-            <span class="sidebar-item-text">{{ 'Shelves' | localize | async }}</span>
+            <span class="sidebar-item-text">{{ 'Shelves' | localize }}</span>
         </a>
     </div>
 
@@ -22,11 +22,15 @@
         <div class="dropdown-content top right-0 md:left-0">
             <div class="dropdown-item flex align-items-center gap-3">
                 <i class="material-symbols-rounded">account_circle</i>
-                <span>Profile</span>
+                <span>
+                    {{ 'Profile' | localize }}
+                </span>
             </div>
             <div class="dropdown-item flex align-items-center gap-3" (click)="logout()">
                 <i class="material-symbols-rounded">logout</i>
-                <span>Logout</span>
+                <span>
+                    {{ 'Logout' | localize }}
+                </span>
             </div>
         </div>
     </div>

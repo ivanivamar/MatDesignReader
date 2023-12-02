@@ -64,6 +64,7 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
                     this.epubData = await this.downloadEpub(this.book.url);
                     await this.DynamicParser(this.epubData);
                     this.updateBook();
+                    await this.getLocalizationFileData();
                     this.loading = false;
                 });
             }
