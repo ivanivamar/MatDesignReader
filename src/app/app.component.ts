@@ -1,20 +1,41 @@
-import {Component, HostListener} from '@angular/core';
+import {Component, Injector, OnInit} from '@angular/core';
+import {User} from "firebase/auth";
+import {FirebaseService} from "./common/services/firebase.service";
+import {Router} from "@angular/router";
+import {LocalizationService} from "./common/services/localization.service";
 import {AppComponentBase} from "./common/AppComponentBase";
-import {FirebaseService} from "../services/firebase.service";
-import {Epub, EpubDto} from "../interfaces/models";
-import {from, Observable} from "rxjs";
-import {HttpClient} from "@angular/common/http";
-import * as JSZip from 'jszip';
 
 @Component({
     selector: 'app-root',
     templateUrl: './app.component.html',
     styleUrls: ['./app.component.css'],
+    providers: [FirebaseService, LocalizationService]
 })
-export class AppComponent {
+export class AppComponent extends AppComponentBase implements OnInit {
     title = 'MaterialReader';
+    loading = false;
+    showProfileMenu = false;
+    user: User | null = null;
 
     constructor(
+        injector: Injector,
+        private firebaseService: FirebaseService,
+        public router: Router,
     ) {
+        super(injector);
+    }
+
+    ngOnInit(): void {
+        this.loading = true;
+        this.firebaseService.isLoggedIn().then(async user => {
+            this.user = user;
+            this.loading = false;
+        });
+    }
+
+    logout(): void {
+        this.firebaseService.logout().then(() => {
+            this.router.navigate(['login']);
+        });
     }
 }

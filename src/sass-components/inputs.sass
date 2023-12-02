@@ -1,0 +1,205 @@
+input[type="text"],
+input[type="password"],
+input[type="email"],
+textarea
+    border: 2px solid $color-utility-outline
+    border-radius: 4px
+    padding: 12px 16px
+    font-size: 16px
+    font-family: 'Roboto', sans-serif
+    background-color: transparent
+    color: $color-on-surface
+    width: 100%
+    box-sizing: border-box
+    transition: border-color 0.2s ease
+    outline: none !important
+
+    &:focus,
+    &:hover,
+    &:active
+        border-color: $color-primary
+        outline: none !important
+
+label
+    display: block
+    font-size: 16px
+    font-weight: 600
+    font-family: $font-family
+    color: $color-on-surface
+    cursor: pointer
+
+input[type="checkbox"]
+    appearance: none
+    width: 24px
+    height: 24px
+    position: relative
+    cursor: pointer
+
+    &::before
+        content: ""
+        display: block
+        position: absolute
+        top: -9px
+        left: -9px
+        width: 42px
+        height: 42px
+        border-radius: 50%
+        background-color: $color-surface-1
+        transition-timing-function: linear
+        transform: scale(.32)
+        opacity: 0
+        transition-duration: .2s
+        transition-property: transform,opacity
+
+    &::after
+        position: absolute
+        inset: 0px
+        -webkit-font-smoothing: antialiased
+        font-feature-settings: "liga"
+        direction: ltr
+        overflow-wrap: normal
+        white-space: nowrap
+        text-transform: none
+        letter-spacing: normal
+        line-height: 1
+        font-weight: normal
+        font-family: 'Material Symbols Rounded'
+        content: "check_box_outline_blank"
+        color: $color-on-surface
+        font-size: 24px
+
+    &:hover
+        &::before
+            transform: scale(1)
+            opacity: 1
+
+    &:checked
+        &::after
+            content: "check_box"
+            color: $color-primary
+
+    &:disabled
+        cursor: not-allowed
+        pointer-events: none
+        &::after
+            color: $color-on-surface-variant
+            opacity: 0.5
+
+.input-container
+    background-color: transparent
+    border: 1px solid $color-utility-outline
+    padding: 8px 12px
+    display: flex
+    align-items: center
+    justify-content: space-between
+    border-radius: 8px
+    height: 48px
+    transition: all 0.2s ease-in-out
+
+    &:disabled
+        opacity: 0.5
+        cursor: not-allowed
+        pointer-events: none
+
+    .input-text-container
+        display: flex
+        width: 100%
+        position: relative
+
+        i
+            color: $color-on-surface
+            font-size: 20px
+
+        .floating-label
+            color: $color-on-surface
+            font-family: 'Readex Pro', sans-serif
+            font-size: 14px
+            font-weight: 500
+            transition: all 0.2s ease-in-out
+            margin-bottom: 0
+            position: absolute
+            top: 50%
+            left: 0
+            transform: translateY(-50%)
+            transition: all 0.2s ease-in-out
+            z-index: 0
+
+            .required-asterisk
+                color: #DC2626
+                font-size: 16px
+
+        input
+            padding: 0
+            border: 0
+            color: $color-on-surface
+            background-color: transparent
+            font-size: 14px
+            font-weight: 400
+            line-height: 20px
+            letter-spacing: 0.25px
+            transition: all 0.2s ease-in-out
+            font-family: 'Readex Pro', sans-serif
+            z-index: 1
+
+            &::placeholder
+                color: $color-on-surface-variant
+
+        .input-actions
+            button
+                background-color: transparent
+                height: 24px
+                width: 24px
+
+                i
+                    font-size: 16px
+                    color: $color-on-surface
+                    font-weight: bold
+
+    &.active
+        border-color: $color-primary
+        border-width: 2px
+
+        .floating-label
+            transform: translate(-4px,-35px)!important
+            font-size: 11px !important
+            background-color: $color-on-primary-container
+            padding: 4px
+
+    &.error
+        border-color: $color-utility-on-error
+
+        .floating-label
+            color: $color-utility-on-error !important
+
+.input-helpers
+    display: flex
+    align-items: center
+    justify-content: space-between
+    padding: 4px 16px
+
+    &.error
+        .helper-text
+            color: #DC2626
+
+    .helper-text
+        color: $color-on-surface-variant
+        font-size: 12px
+        font-weight: 400
+        line-height: 16px
+        letter-spacing: 0.4px
+        font-family: monospace, sans-serif
+
+    .counter-container
+        display: flex
+        justify-content: flex-end
+        align-items: center
+        gap: 4px
+
+        .counter-text
+            color: $color-on-surface-variant
+            font-size: 12px
+            font-weight: 400
+            line-height: 16px
+            letter-spacing: 0.4px
+            font-family: monospace, sans-serif
+

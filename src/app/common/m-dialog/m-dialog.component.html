@@ -1,0 +1,23 @@
+<div *ngIf="visible" class="dialog-container">
+    <div
+        class="overlay"
+        *ngIf="dismissibleMask"
+        (click)="closeDialog()"
+    ></div>
+    <div class="dialog" [style.width]="width" [style.height]="height">
+        <div class="dialog-header">
+            <span class="dialog-title">
+                {{ header }}
+            </span>
+            <button class="btn-icon btn-text" (click)="closeDialog()">
+                <i class="material-symbols-rounded">close</i>
+            </button>
+        </div>
+        <div class="dialog-content">
+            <ng-content select="[content]"></ng-content>
+        </div>
+        <div class="dialog-footer">
+            <ng-content select="[footer]"></ng-content>
+        </div>
+    </div>
+</div>

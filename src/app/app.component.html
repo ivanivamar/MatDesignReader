@@ -1,4 +1,35 @@
+<div class="sidebar justify-content-between" *ngIf="!loading" [class.hidden]="router.url.includes('reader') || router.url.includes('login')">
+    <div class="section ml-3 md:ml-0 md:mt-3 flex flex-row md:flex-column gap-3">
+        <a class="sidebar-item h-full md:h-auto" [routerLink]="['/books']" [routerLinkActive]="['active']">
+            <i class="material-symbols-rounded">library_books</i>
+            <span class="sidebar-item-text">
+                {{ 'Library' | localize | async }}
+            </span>
+        </a>
+        <a class="sidebar-item h-full md:h-auto" [routerLink]="['/shelves']" [routerLinkActive]="['active']">
+            <i class="material-symbols-rounded">shelves</i>
+            <span class="sidebar-item-text">{{ 'Shelves' | localize | async }}</span>
+        </a>
+    </div>
 
-<main>
-    <router-outlet></router-outlet>
-</main>
+    <div class="dropdown flex mr-3 md:mr-0" [class.open]="showProfileMenu">
+        <div
+            (click)="showProfileMenu = !showProfileMenu"
+            class="dropbtn border-circle p-0 align-items-center justify-content-center"
+            style="width: 50px; height: 50px">
+            <img [src]="user?.photoURL" alt="Profile Picture" class="border-circle" style="width: 40px; height: 40px">
+        </div>
+        <div class="dropdown-content top right-0 md:left-0">
+            <div class="dropdown-item flex align-items-center gap-3">
+                <i class="material-symbols-rounded">account_circle</i>
+                <span>Profile</span>
+            </div>
+            <div class="dropdown-item flex align-items-center gap-3" (click)="logout()">
+                <i class="material-symbols-rounded">logout</i>
+                <span>Logout</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<router-outlet></router-outlet>

@@ -1,0 +1,33 @@
+<div class="input-container" [class.disabled]="disabled" [class.active]="isFocus()" [class.error]="error">
+    <div class="input-text-container gap-4 align-items-center justify-content-between">
+        <div class="flex gap-2 w-full">
+            <i class="material-symbols-rounded" *ngIf="icon !== ''">{{ icon }}</i>
+            <div class="flex flex-column gap-2 w-full">
+                <label class="floating-label" *ngIf="label">
+                    {{ label }}
+                    <span class="required-asterisk" *ngIf="required">*</span>
+                </label>
+                <input #inputRef [type]="inputType" class="input" [placeholder]="placeholder" [ngModel]="value" (ngModelChange)="valueChange.emit($event)" name="{{ name }}"
+                       [disabled]="disabled" (focus)="onFocus()" (blur)="onBlur()" (ngModelChange)="verifyInput()" />
+            </div>
+        </div>
+        <div class="input-actions">
+            <button class="icon-btn text-btn" (click)="togglePassword()" *ngIf="showPassword">
+                <i class="material-symbols-outlined" *ngIf="showingPassword">visibility_off</i>
+                <i class="material-symbols-outlined" *ngIf="!showingPassword">visibility</i>
+            </button>
+            <button class="icon-btn text-btn" *ngIf="showClear && value.length > 0" (click)="clear()">
+                <i class="material-symbols-outlined">close</i>
+            </button>
+        </div>
+    </div>
+</div>
+<div class="input-helpers" *ngIf="helperText.length > 0 || showCounter || maxLength > 0" [class.error]="error">
+    <span class="helper-text" *ngIf="helperText.length > 0">{{ helperText }}</span>
+
+    <div class="counter-container">
+        <span class="counter-text" *ngIf="showCounter">{{ value.length }}</span>
+        <span class="counter-text" *ngIf="showCounter && maxLength > 0">/</span>
+        <span class="counter-text" *ngIf="maxLength > 0">{{ maxLength }}</span>
+    </div>
+</div>

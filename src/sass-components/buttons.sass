@@ -8,18 +8,92 @@
     align-self: stretch
     border: 0
     outline: none
+    transition: all .2s ease-in-out
+    border-radius: 48px
 
     &.btn-filled
-        border-radius: 25px 25px 25px 25px
-        background-color: $primary
-        color: $primary-text
+        background-color: $color-primary
+        color: $color-on-primary
 
         &:hover
-            background-color: $primary-hover
+            opacity: .8
             cursor: pointer
 
         &:active
-            background-color: $primary-active
+            border-radius: 8px
+
+    &.btn-text
+        background-color: transparent
+        color: $color-primary
+        position: relative
+
+        &:before
+            content: ''
+            position: absolute
+            top: 0
+            left: 0
+            right: 0
+            bottom: 0
+            background-color: $color-primary
+            z-index: -1
+            border-radius: 48px
+            opacity: 0
+            transition: all .2s cubic-bezier(.2,0,0,1)
+
+        &:hover
+            cursor: pointer
+
+            &:before
+                opacity: .08
+
+        &:active
+
+            &:before
+                opacity: .1
+
+    &.btn-outlined
+        background-color: transparent
+        color: $color-primary
+        outline: 1px solid $color-utility-outline
+        position: relative
+
+        &:before
+            content: ''
+            position: absolute
+            top: 0
+            left: 0
+            right: 0
+            bottom: 0
+            background-color: $color-primary
+            z-index: -1
+            border-radius: 48px
+            opacity: 0
+            transition: all .2s cubic-bezier(.2,0,0,1)
+
+        &:hover
+            cursor: pointer
+
+            &:before
+                opacity: .08
+
+        &:active
+            outline: 1px solid $color-primary
+
+            &:before
+                opacity: .1
+
+    &.tonal-btn
+        background-color: $color-secondary-container
+        color: $color-on-secondary-container
+
+        &:hover
+            cursor: pointer
+            box-shadow: $elevation-1
+            background-color: rgba($color-on-secondary-container, .08)
+
+        &:active
+            background-color: rgba($color-on-secondary-container, .1)
+            box-shadow: none
 
 .btn-icon
     display: flex
@@ -29,12 +103,133 @@
     width: 40px
     border-radius: 50%
     background-color: transparent
-    color: $font-color
+    color: $color-primary
     border: 0
+    transition: all 0.3s ease-in-out
+
+    &.btn-filled
+        background-color: $color-primary
+        color: $color-on-primary
+
+        &:hover
+            background-color: rgba($color-on-primary, .08)
+            cursor: pointer
+
+        &:active
+            background-color: rgba($color-on-primary, .1)
+
+        &.danger
+            color: $color-on-danger
+            background-color: $color-danger
+
+            &:hover
+                background-color: rgba($color-danger, .08)
+
+            &:active
+                background-color: rgba($color-danger, .1)
+
+    &.btn-text
+        background-color: transparent
+        color: $color-primary
+        position: relative
+
+        &:before
+            content: ''
+            position: absolute
+            top: 0
+            left: 0
+            right: 0
+            bottom: 0
+            background-color: $color-primary
+            z-index: 0
+            border-radius: 50%
+            opacity: 0
+            transition: all .2s cubic-bezier(.2,0,0,1)
+
+        &:hover
+            cursor: pointer
+
+            &:before
+                opacity: .08
+
+        &:active
+            &:before
+                opacity: .1
+
+        &.danger
+            color: $color-danger
+
+            &:before
+                background-color: $color-danger
+
+            &:active
+                outline: 1px solid $color-danger
+
+    &.btn-outlined
+        background-color: transparent
+        color: $color-primary
+        outline: 1px solid $color-utility-outline
+        position: relative
+
+        &:before
+            content: ''
+            position: absolute
+            top: 0
+            left: 0
+            right: 0
+            bottom: 0
+            background-color: $color-primary
+            z-index: -1
+            border-radius: 50%
+            opacity: 0
+            transition: all .2s cubic-bezier(.2,0,0,1)
+
+        &:hover
+            cursor: pointer
+
+            &:before
+                opacity: .08
+
+        &:active
+            outline: 1px solid $color-primary
+
+            &:before
+                opacity: .1
+
+        &.danger
+            color: $color-danger
+
+            &:before
+                background-color: $color-danger
+
+            &:active
+                outline: 1px solid $color-danger
+
+
+.fab
+    position: fixed
+    bottom: 24px
+    right: 24px
+    z-index: 99999
+    border-radius: 48px
+    background-color: $color-on-tertiary-container
+    color: $color-tertiary-container
+    box-shadow: $elevation-1
+    transition: all .2s ease-in-out
+    width: 56px
+    height: 56px
+    border: 0
+    outline: none
 
     &:hover
-        background-color: $bg-color-dark
         cursor: pointer
+        filter: brightness(0.9)
 
     &:active
-        background-color: $bg-color
+        box-shadow: none
+        border-radius: 8px
+
+@media (max-width: 768px)
+    .fab
+        bottom: 72px
+        right: 16px

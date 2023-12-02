@@ -13,20 +13,20 @@
         justify-content: space-between
         padding: 8px 12px
         border-radius: 12px
-        color: $font-color
+        color: $color-on-surface
         cursor: pointer
         transition: background-color 0.2s ease-in-out
 
         &:hover
-            background-color: $bg-color-dark
+            background-color: $color-surface-variant
 
     .dropdown-content
         position: absolute
         top: 100%
         right: 0
-        background-color: $bg-color-light
+        background-color: $color-surface-1
         min-width: 250px
-        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2)
+        box-shadow: $elevation-1
         z-index: 1
         display: none
         flex-direction: column
@@ -53,16 +53,19 @@
             font-family: $font-family
             font-size: 14px
             cursor: pointer
-            color: $font-color
+            color: $color-on-surface
             transition: background-color 0.2s ease-in-out
+            display: flex
+            align-items: center
+            gap: 12px
 
             &:hover
-                background-color: $bg-color-dark
+                background-color: $color-surface-variant
             &.disabled
                 cursor: not-allowed
                 opacity: 0.5
                 pointer-events: none
             &.active
-                background-color: $bg-color-dark
+                background-color: $color-surface-variant
                 font-weight: bold
-                color: $primary
+                color: $color-primary

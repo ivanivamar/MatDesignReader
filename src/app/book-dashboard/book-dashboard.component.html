@@ -1,38 +1,207 @@
-<div class="p-5 flex align-items-center justify-content-between">
-    <h1 class="headline-lg">Your Library</h1>
-
-    <div class="flex align-items-center">
-        <button class="btn btn-filled" (click)="fileInput.click()">
-            <i class="material-symbols-rounded">cloud_upload</i>
-            Upload
-        </button>
-        <input type="file" #fileInput class="hidden" name="epub" id="epub" accept=".epub" (change)="Upload($event)">
+<input type="file" #fileInput class="hidden" name="epub" id="epub" accept=".epub" (change)="Upload($event)">
+<button class="fab" (click)="fileInput.click()">
+    <i class="material-symbols-rounded">cloud_upload</i>
+</button>
+<main *ngIf="!loading">
+    <div class="flex align-items-center justify-content-between mb-3">
+        <div class="flex align-items-center gap-3">
+            <img src="assets/android-chrome-512x512.png" alt="Logo" class="" style="width: 50px; height: 50px;">
+            <h1 class="headline-lg">
+                {{ 'YourLibrary' | localize | async }}
+            </h1>
+        </div>
     </div>
-</div>
 
-<div class="p-5 pt-0 grid">
-    <div class="col-12 xs:col-12 sm:col-6 md:col-4 lg:col-3" *ngFor="let book of books">
-        <div
-            class="card h-full"
-            (click)="GoToReader(book)">
-            <div class="image-container">
-                <img [src]="book.cover" alt="{{book.title}}">
-            </div>
-            <div class="card-body justify-content-between">
-                <div class="flex flex-column">
-                    <span class="card-title">{{book.title}}</span>
-                    <span class="card-text">{{book.creator}}</span>
-                    <span class="card-text">{{book.publisher}}</span>
+    <!-- Last Read special section -->
+    <div class="flex flex-column" *ngIf="lastReadBooks.length > 0">
+        <h3 class="headline-sm">
+            {{ 'ContinueReading' | localize | async }}
+        </h3>
+
+        <div class="grid mt-3 grid-nogutter">
+            <div class="col-12 md:col-6 grid grid-nogutter" *ngFor="let lastReadBook of lastReadBooks">
+                <div class="image-container border-round-xl shadow-1 col-12 md:col-6">
+                    <img [src]="lastReadBook.cover" alt="{{lastReadBook.title}}" />
                 </div>
 
-                <div class="flex align-items-center justify-content-between mt-3">
-                    <span class="card-text">{{getDateFromTimestamp(book.lastRead)}}</span>
-                    <span class="card-text">{{book.percentageRead}}%</span>
+                <div class="flex flex-column justify-content-between gap-3 col-12 md:col-6 px-0 md:px-3">
+                    <div class="flex flex-column gap-3">
+                        <div class="flex flex-column gap-2" id="bookInfo">
+                            <h3 class="title-lg">
+                                {{lastReadBook.title}}
+                            </h3>
+                            <div class="flex align-items-center gap-3">
+                                <span class="text-sm">{{lastReadBook.creator}}</span>
+                                <span class="text-xs">·</span>
+                                <span class="text-sm">{{lastReadBook.publisher}}</span>
+                            </div>
+                        </div>
+
+                        <div id="bookProgress">
+                            <div class="flex align-items-center justify-content-between">
+                                <span class="text-sm">{{getDateFromTimestamp(lastReadBook.lastRead)}}</span>
+                                <span class="text-sm">{{lastReadBook.percentageRead}}%</span>
+                            </div>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar" [style.width]="lastReadBook.percentageRead + '%'"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex align-items-center gap-3" id="actions">
+                        <button class="btn btn-filled" [routerLink]="['/reader/', lastReadBook.id]">
+                            <i class="material-symbols-rounded">play_arrow</i>
+                            <span>{{ 'Continue' | localize | async }}</span>
+                        </button>
+                        <button class="btn-icon btn-outlined" (click)="showBookDialog = true; selectedEpup = lastReadBook">
+                            <i class="material-symbols-rounded">edit</i>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+
+    <svg style="opacity: 0.2; margin: 20px 0" width="100%" height="8" fill="none" xmlns="http://www.w3.org/2000/svg" *ngIf="lastReadBooks.length > 0">
+        <pattern _ngcontent-sjp-c18="" id="a" width="91" height="8" patternUnits="userSpaceOnUse">
+            <g _ngcontent-sjp-c18="" clip-path="url(#clip0_2426_11367)">
+                <path _ngcontent-sjp-c18=""
+                      d="M114 4c-5.067 4.667-10.133 4.667-15.2 0S88.667-.667 83.6 4 73.467 8.667 68.4 4 58.267-.667 53.2 4 43.067 8.667 38 4 27.867-.667 22.8 4 12.667 8.667 7.6 4-2.533-.667-7.6 4s-10.133 4.667-15.2 0S-32.933-.667-38 4s-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0"
+                      stroke="#E1E3E1" stroke-linecap="square"></path>
+            </g>
+        </pattern>
+        <rect _ngcontent-sjp-c18="" width="100%" height="100%" fill="url(#a)"></rect>
+    </svg>
+
+    <div class="card-set">
+        <ng-container
+            *ngFor="let book of books; let index = index">
+            <a
+                class="card h-full no-underline"
+                [routerLink]="['/reader/', book.id]"
+                *ngIf="index >= maxElementsPerSize">
+                <div class="image-container">
+                    <div class="dropdown absolute" style="top: 4px; right: 4px; z-index: 999999999"
+                         [class.open]="book.showMenu">
+                        <button class="btn-icon btn-text" (click)="toggleMenu($event, book)">
+                            <i class="material-symbols-rounded">more_vert</i>
+                        </button>
+                        <div class="dropdown-content bottom right-0">
+                            <div class="dropdown-item" (click)="editShelves($event, book)">
+                                <i class="material-symbols-rounded">shelves</i>
+                                <span>
+                                    {{ 'Shelves' | localize | async }}
+                                </span>
+                            </div>
+                            <div class="dropdown-item" (click)="book.showMenu = false;deleteBook($event, book); ">
+                                <i class="material-symbols-rounded">delete</i>
+                                <span>
+                                    {{ 'Delete' | localize | async }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <img [src]="book.cover" alt="{{book.title}}">
+                </div>
+                <div class="card-body justify-content-between">
+                    <div class="flex flex-column">
+                        <span class="card-title">{{book.title}}</span>
+                        <span class="card-text">{{book.creator}}</span>
+                        <span class="card-text">{{book.publisher}}</span>
+                    </div>
+                    <svg style="opacity: 0.2; margin: 10px 0" width="100%" height="8" fill="none"
+                         xmlns="http://www.w3.org/2000/svg">
+                        <pattern _ngcontent-sjp-c18="" id="a" width="91" height="8" patternUnits="userSpaceOnUse">
+                            <g _ngcontent-sjp-c18="" clip-path="url(#clip0_2426_11367)">
+                                <path _ngcontent-sjp-c18=""
+                                      d="M114 4c-5.067 4.667-10.133 4.667-15.2 0S88.667-.667 83.6 4 73.467 8.667 68.4 4 58.267-.667 53.2 4 43.067 8.667 38 4 27.867-.667 22.8 4 12.667 8.667 7.6 4-2.533-.667-7.6 4s-10.133 4.667-15.2 0S-32.933-.667-38 4s-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0"
+                                      stroke="#E1E3E1" stroke-linecap="square"></path>
+                            </g>
+                        </pattern>
+                        <rect _ngcontent-sjp-c18="" width="100%" height="100%" fill="url(#a)"></rect>
+                    </svg>
+                    <div class="flex align-items-center justify-content-between">
+                        <span class="card-text">{{getDateFromTimestamp(book.lastRead)}}</span>
+                        <span class="card-text">{{book.percentageRead}}%</span>
+                    </div>
+                </div>
+            </a>
+        </ng-container>
+    </div>
+</main>
+
+<m-dialog
+    [(visible)]="showBookDialog"
+    [header]="selectedEpup.title == '' ? 'Add Book' : selectedEpup.title"
+    [width]="'600px'"
+    (visibleChange)="onBookDialogClose()">
+
+    <div content>
+        <p>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
+            dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex
+            ea commodo
+            consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+            pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
+            est laborum.
+        </p>
+    </div>
+    <div footer>
+        <button (click)="showBookDialog = false">Close</button>
+    </div>
+</m-dialog>
+
+<m-dialog
+    [(visible)]="showShelvesModal"
+    [header]="'Shelf dialog - ' + selectedEpup.title"
+    [width]="'600px'"
+    (visibleChange)="showShelvesModal = false">
+
+    <div content>
+        <div class="list-container">
+            <div
+                class="list-item justify-content-between"
+                *ngFor="let shelf of shelves">
+                <div class="flex align-items-center gap-3">
+                    <input
+                        type="checkbox"
+                        [id]="shelf.name"
+                        [checked]="checkIfHasBook(shelf, selectedEpup)"
+                        (change)="toggleShelf(shelf, selectedEpup)">
+                    <label [for]="shelf.name" class="font-medium">{{shelf.name}}</label>
+                </div>
+
+                <button class="btn-icon text-btn" (click)="deleteShelf(shelf)">
+                    <i class="material-symbols-rounded">delete</i>
+                </button>
+            </div>
+            <div class="divider"></div>
+            <div class="flex align-items-center justify-content-between">
+                <m-input
+                    class="w-full"
+                    [inputType]="'text'"
+                    [name]="'newShelfName'"
+                    [label]="'ShelfName'"
+                    [(value)]="newShelf.name"></m-input>
+
+                <button class="btn-icon btn-filled ml-3" (click)="addShelf()">
+                    <i class="material-symbols-rounded">add</i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div footer>
+        <button class="btn btn-outlined" (click)="showShelvesModal = false">
+            <i class="material-symbols-rounded">close</i>
+            {{ 'Close' | localize | async }}
+        </button>
+        <button class="btn btn-filled" [disabled]="shelves.length === 0" (click)="updateShelves()">
+            <i class="material-symbols-rounded">save</i>
+            {{ 'Save' | localize | async }}
+        </button>
+    </div>
+</m-dialog>
+
 
 <div *ngIf="loading" class="spinner-container">
     <div class="spinner"></div>
@@ -40,6 +209,6 @@
         <div class="progress-bar-container">
             <div class="progress-bar" [className]="'progress-bar width-' + loadingProgress"></div>
         </div>
-        <span class="text-center">{{loadingMessage}}</span>
+        <span class="text-center">{{loadingMessage | localize | async}}</span>
     </div>
 </div>

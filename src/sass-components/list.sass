@@ -1,0 +1,19 @@
+.list-container
+    display: flex
+    flex-direction: column
+
+    .list-item
+        display: flex
+        align-items: center
+        padding: 12px
+        cursor: pointer
+        border-radius: 24px
+        transition: all 0.3s ease-in-out
+
+        &:last-child
+            border-bottom: 0
+
+        &:hover
+            background-color: $color-surface-variant
+        &.active
+            background-color: $color-surface-variant

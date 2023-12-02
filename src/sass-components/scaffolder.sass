@@ -1,8 +1,90 @@
+*
+    box-sizing: border-box
+
+html
+    overflow-x: hidden
+
 body
     margin: 0
     padding: 0
-    background-color: $bg-color
-    color: $font-color
+    background-color: $color-background
+    color: $color-on-surface
     font-family: $font-family
     overflow-x: hidden
 
+// scrollbar
+::-webkit-scrollbar
+    width: 8px
+    border-radius: 25px 25px 25px 25px
+
+/* Track */
+::-webkit-scrollbar-track
+    background: transparent
+    border-radius: 25px 25px 25px 25px
+
+/* Handle */
+::-webkit-scrollbar-thumb
+    background: $color-surface-variant
+    border-radius: 25px 25px 25px 25px
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover
+    background: $color-inverse-on-surface
+
+.divider
+    width: 100%
+    height: 3px
+    background-color: $color-utility-outline
+    margin: 10px 0
+    border-radius: 48px
+
+.divider-vertical
+    width: 3px
+    height: 100%
+    background-color: $color-utility-outline
+    margin: 0 10px
+    border-radius: 48px
+
+m-divider
+    display: flex
+    width: calc(100% - 50px)
+    align-items: center
+    margin: 16px 0
+    justify-content: center
+
+.card-set
+    $min-row-height: 320px
+    $stacked-col-max-height: 198px
+    display: grid
+    grid-gap: 8px
+    gap: 8px
+    grid-template-columns: repeat(8,1fr)
+    grid-auto-flow: row
+    grid-auto-rows: minmax($min-row-height,auto)
+
+    .card
+        grid-column: span 2
+        vertical-align: middle
+        width: 100%
+        height: 100%
+
+@media screen and (max-width: 1294px)
+    .card-set
+        grid-template-columns: repeat(6,1fr)
+
+    .card
+        grid-column: span 1
+
+@media screen and (max-width: 768px)
+    .card-set
+        grid-template-columns: repeat(2,1fr)
+
+    .card
+        grid-column: span 1
+
+@media screen and (max-width: 600px)
+    .card-set
+        grid-template-columns: 1fr
+
+    .card
+        grid-column: span 1

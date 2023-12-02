@@ -1,77 +1,134 @@
-import {Component, OnInit} from '@angular/core';
-import {from, Observable} from "rxjs";
-import {Content, Epub, EpubDto, Page, Toc} from "../../interfaces/models";
+import {Component, Injector, OnInit} from '@angular/core';
+import {catchError, from, map, Observable, tap} from "rxjs";
+import {Content, Epub, EpubDto, Page, Shelves, ShelvesDto, Toc} from "../common/interfaces/models";
 import * as JSZip from "jszip";
-import {FirebaseService} from "../../services/firebase.service";
+import {FirebaseService} from "../common/services/firebase.service";
 import {HttpClient} from "@angular/common/http";
 import {AppComponentBase} from "../common/AppComponentBase";
 import {Router} from "@angular/router";
 import {Title} from "@angular/platform-browser";
+import {LocalizationService} from "../common/services/localization.service";
 
 @Component({
     selector: 'app-book-dashboard',
     templateUrl: './book-dashboard.component.html',
     styleUrls: ['./book-dashboard.component.css'],
-    providers: [FirebaseService, HttpClient]
+    providers: [FirebaseService, HttpClient, LocalizationService]
 })
 export class BookDashboardComponent extends AppComponentBase implements OnInit {
-    loading = false;
-    books: Epub[] = [];
-    selectedEpup: Epub = {
-        id: '',
-        title: '',
-        creator: '',
-        publisher: '',
-        date: '',
-        cover: '',
-        url: '',
-        files: [],
-        images: [],
-        currentPage: 0,
-        totalCurrentPage: 0,
-        currentChapter: {
-            title: '',
-            file: '',
-            subItems: []
-        },
-        percentageRead: 0,
-        toc: [],
-        lastRead: new Date()
-    }
+    loading = true;
+    photoUrl = '';
+    showProfileMenu = false;
+    books: EpubDto[] = [];
+    shelves: ShelvesDto[] = [];
     pages: Page[] = [];
     loadingMessage = '';
     loadingProgress = 0;
+    filesOrder: string[] = [];
+
+    showShelvesModal = false;
+    newShelf = new ShelvesDto();
+
+    showBookDialog = false;
+    selectedEpup: EpubDto = new EpubDto();
+    maxElementsPerSize = 5;
+    lastReadBooks: EpubDto[] = [];
+
+    localizationDataUrl: any = '/assets/localizations/' + this.language + '.json';
 
     constructor(
+        injector: Injector,
         private firebaseService: FirebaseService,
         private http: HttpClient,
         private router: Router,
-        private titleService: Title
+        private titleService: Title,
     ) {
-        super();
+        super(injector);
     }
 
-    ngOnInit(): void {
-        this.titleService.setTitle('Your Library');
-        this.getEpubsFromFirestore();
+    async ngOnInit(): Promise<void> {
+        this.firebaseService.isLoggedIn().then(async user => {
+            if (!user) {
+                this.router.navigate(['login']);
+            } else {
+                this.loggedUser = user;
+                this.photoUrl = user.photoURL ? user.photoURL : '';
+                console.log("USER:", this.loggedUser);
+                this.titleService.setTitle('Your Library');
+                await this.getEpubsFromFirestore();
+                await this.getShelves();
+                await this.getLocalizationFileData();
+                this.loading = false;
+            }
+        });
     }
 
-    getEpubsFromFirestore = () => {
+    async getEpubsFromFirestore() {
         this.books = [];
-        from(this.firebaseService.GetAllBooks()).subscribe(r => {
+        from(this.firebaseService.GetAllBooks(this.loggedUser?.uid)).subscribe(r => {
             r.forEach((doc: any) => {
                 this.books.push(doc.data());
             });
             // order by last read
             this.books.sort((a, b) => {
                 //@ts-ignore
-                return this.getDateFromTimestamp(b.lastRead).localeCompare(this.getDateFromTimestamp(a.lastRead));
+                return b.lastRead.seconds - a.lastRead.seconds;
             });
+            console.log("this.books:", this.books);
+            // check if device is mobile
+            if (window.innerWidth > 768) {
+                this.maxElementsPerSize = 2;
+            } else {
+                this.maxElementsPerSize = 1;
+            }
+            this.lastReadBooks = this.books.slice(0, this.maxElementsPerSize);
         });
+    }
+
+    async getShelves() {
+        this.shelves = [];
+        from(this.firebaseService.GetAllShelves(this.loggedUser?.uid)).subscribe(r => {
+            r.forEach((doc: any) => {
+                this.shelves.push(doc.data());
+            });
+            console.log("this.shelves:", this.shelves);
+        });
+    }
+
+    checkIfHasBook(shelf: ShelvesDto, book: EpubDto): boolean {
+        let hasBook = false;
+
+        if (shelf.books.length > 0) {
+            shelf.books.forEach((b) => {
+                if (b.id === book.id) {
+                    hasBook = true;
+                }
+            });
+        }
+        return hasBook;
+    }
+
+    toggleMenu(event: Event, book: EpubDto) {
+        event.stopPropagation();
+        event.preventDefault();
+        book.showMenu = !book.showMenu;
+    }
+
+    editShelves(event: Event, book: EpubDto) {
+        event.stopPropagation();
+        event.preventDefault();
+        this.selectedEpup = book;
+        book.showMenu = false;
+        this.showShelvesModal = true;
     }
 
     GoToReader(book: Epub): void {
         this.router.navigate(['reader', book.id]);
+    }
+
+    handleLinkClick() {
+        // Your link click logic here
+        console.log('Link clicked!');
     }
 
     getUrlFromImageArray(imageName: string): string {
@@ -88,28 +145,9 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
         this.loadingProgress = 0;
         this.loadingMessage = 'Uploading epub...';
 
-        this.selectedEpup = {
-            id: this.IdGenerator(),
-            title: '',
-            creator: '',
-            publisher: '',
-            date: '',
-            cover: '',
-            files: [],
-            url: '',
-            images: [],
-            currentPage: 0,
-            totalCurrentPage: 0,
-            currentChapter: {
-                title: '',
-                file: '',
-                subItems: []
-            },
-            percentageRead: 0,
-            toc: [],
-            lastRead: new Date()
-        };
-        const epubUrl = await this.firebaseService.uploadEpubToStorage(event.target.files[0], this.selectedEpup.id);
+        this.selectedEpup = new EpubDto();
+        this.selectedEpup.id = this.IdGenerator();
+        const epubUrl = await this.firebaseService.uploadEpubToStorage(event.target.files[0], this.loggedUser?.uid);
         this.selectedEpup.url = epubUrl;
         const epubData = await this.downloadEpub(epubUrl)
         await this.DynamicParser(epubData);
@@ -117,10 +155,15 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
         this.loadingProgress = 100;
         this.loadingMessage = 'Uploading to firestore...';
 
-        await this.firebaseService.Create(this.selectedEpup);
+        await this.firebaseService.Create(this.selectedEpup, this.loggedUser?.uid);
         this.getEpubsFromFirestore();
         this.loading = false;
 
+    }
+
+    onBookDialogClose() {
+        this.showBookDialog = false;
+        this.selectedEpup = new EpubDto();
     }
 
     async DynamicParser(epubData: Observable<ArrayBuffer> | undefined) {
@@ -165,8 +208,8 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
         this.loadingProgress = 80;
         this.loadingMessage = 'Getting pages...';
 
-        this.selectedEpup.files = await this.GetPageLocationOrder(opfFileContent, opfFileParentFolder);
         await this.ParseToc(epubDataArrayBuffer);
+        this.selectedEpup.files = await this.GetPageLocationOrder(opfFileContent, opfFileParentFolder);
         console.log('selectedEpup', this.selectedEpup);
     }
     async GetOpfFilePath(containerXmlContent: string) {
@@ -194,6 +237,7 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
                 const publisherElement = metadataElement.querySelector('publisher');
                 const contributorElement = metadataElement.querySelector('contributor');
                 const dateElement = metadataElement.querySelector('date');
+                const languageElement = metadataElement.querySelector('language');
                 const coverElement = metadataElement.querySelector('meta[name="cover"]');
 
                 if (titleElement) {
@@ -206,6 +250,9 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
                     metadata.publisher = publisherElement.textContent;
                 } else if (contributorElement) {
                     metadata.publisher = contributorElement.textContent;
+                }
+                if (languageElement) {
+                    metadata.language = languageElement.textContent;
                 }
                 if (dateElement) {
                     metadata.date = dateElement.textContent;
@@ -275,39 +322,9 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
                 });
                 const blob = new Blob([imageFile], {type: image.mediaType});
                 const file = new File([blob], image.href.split('/')[image.href.split('/').length - 1], {type: image.mediaType});
-                const url = await this.firebaseService.uploadEpubToStorage(file, this.selectedEpup.id);
+                const url = await this.firebaseService.uploadEpubToStorage(file, this.loggedUser?.uid + '/' + this.selectedEpup.id);
                 this.selectedEpup.cover = url;
             }
-        }
-    }
-    async GetPageLocationOrder(opfFileContent: string, opfFileParentFolder: string) {
-        try {
-            const parser = new DOMParser();
-            const opfXmlDoc = parser.parseFromString(opfFileContent, 'application/xml');
-            const manifestElement = opfXmlDoc.querySelector('manifest');
-            const pageLocationOrder: string[] = [];
-
-            if (manifestElement) {
-                const itemElements = manifestElement.querySelectorAll('item');
-
-                itemElements.forEach((itemElement) => {
-                    const mediaType = itemElement.getAttribute('media-type');
-                    const href = itemElement.getAttribute('href');
-
-                    if (mediaType && href && mediaType === 'application/xhtml+xml') {
-                        pageLocationOrder.push(opfFileParentFolder + '/' + href);
-                    } else {
-                        console.warn('Skipping item with missing or invalid attributes:', itemElement);
-                    }
-                });
-            } else {
-                console.error('Manifest element not found in OPF file.');
-            }
-
-            return pageLocationOrder;
-        } catch (error) {
-            console.error('Error parsing OPF XML:', error);
-            return [];
         }
     }
     async ParseToc(epubDataArrayBuffer: ArrayBuffer) {
@@ -379,14 +396,109 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
 
         this.selectedEpup.currentChapter = this.selectedEpup.toc[0];
     }
+    async GetPageLocationOrder(opfFileContent: string, opfFileParentFolder: string) {
+        try {
+            const parser = new DOMParser();
+            const opfXmlDoc = parser.parseFromString(opfFileContent, 'application/xml');
+            const manifestElement = opfXmlDoc.querySelector('manifest');
+            const spineElement = opfXmlDoc.querySelector('spine');
+            const pageLocationOrder: string[] = [];
+            const finalPageLocationOrder: string[] = [];
+
+            if (manifestElement) {
+                const itemElements = manifestElement.querySelectorAll('item');
+
+                itemElements.forEach((itemElement) => {
+                    const mediaType = itemElement.getAttribute('media-type');
+                    const href = itemElement.getAttribute('href');
+
+                    if (mediaType && href && mediaType === 'application/xhtml+xml') {
+                        pageLocationOrder.push(opfFileParentFolder + '/' + href);
+                    } else {
+                        console.warn('Skipping item with missing or invalid attributes:', itemElement);
+                    }
+                });
+            } else {
+                console.error('Manifest element not found in OPF file.');
+            }
+
+            if (spineElement) {
+                const itemRefElements = spineElement.querySelectorAll('itemref');
+
+                itemRefElements.forEach((itemRefElement) => {
+                    const idref = itemRefElement.getAttribute('idref');
+
+                    if (idref) {
+                        this.filesOrder.push(idref);
+                    } else {
+                        console.warn('Skipping itemref with missing or invalid attributes:', itemRefElement);
+                    }
+                });
+            }
+
+            this.filesOrder.forEach((file) => {
+                pageLocationOrder.forEach((page) => {
+                    let tempPage = page.split('/').pop()!.split('.')[0];
+                    if (file.includes(tempPage)) {
+                        finalPageLocationOrder.push(page);
+                        // remove page from array
+                        pageLocationOrder.splice(pageLocationOrder.indexOf(page), 1);
+                    }
+                });
+            });
+
+            return finalPageLocationOrder;
+        } catch (error) {
+            console.error('Error parsing OPF XML:', error);
+            return [];
+        }
+    }
     async downloadEpub(epubUrl: string): Promise<Observable<ArrayBuffer>> {
         return this.http.get(epubUrl, {responseType: 'arraybuffer'});
     }
 
-    getDateFromTimestamp(timestamp: any): string {
-        let date = new Date(timestamp.seconds * 1000);
-        // format dd/mm/yyyy HH:mm
-        return date.getDate() + '/' + date.getMonth() + '/' + date.getFullYear() + ' ' + date.getHours() + ':' + date.getMinutes();
+    toggleShelf(shelf: ShelvesDto, book: EpubDto) {
+        if (shelf.books.includes(book)) {
+            shelf.books = shelf.books.filter((b) => b !== book);
+        } else {
+            shelf.books.push(book);
+        }
+    }
+
+    async addShelf() {
+        this.newShelf.id = this.IdGenerator();
+        await this.firebaseService.CreateShelf(this.newShelf, this.loggedUser?.uid);
+        this.shelves.push(this.newShelf);
+        this.newShelf.books.push(this.selectedEpup);
+        this.newShelf = new ShelvesDto();
+    }
+
+    async updateShelves() {
+        for (const shelf of this.shelves) {
+            await this.firebaseService.UpdateShelf(shelf, this.loggedUser?.uid);
+        }
+        this.showShelvesModal = false;
+        this.newShelf = new ShelvesDto();
+        this.selectedEpup = new EpubDto();
+        this.getShelves();
+    }
+
+    async deleteShelf(shelf: ShelvesDto) {
+        await this.firebaseService.DeleteShelf(shelf.id, this.loggedUser?.uid);
+        this.getShelves();
+    }
+
+    async deleteBook(event: Event, book: Epub): Promise<void> {
+        event.stopPropagation();
+        event.preventDefault();
+        // remove book from shelf if exists
+        for (const shelf of this.shelves) {
+            shelf.books = shelf.books.filter((b) => b.id !== book.id);
+            await this.firebaseService.UpdateShelf(shelf, this.loggedUser?.uid);
+        }
+
+        await this.firebaseService.Delete(book.id, this.loggedUser?.uid);
+        this.getEpubsFromFirestore();
     }
 }
 

@@ -1,60 +1,90 @@
 .card
-    border-radius: $border-radius
-    background-color: $bg-color-dark
-    color: $font-color
+    border-radius: 24px
+    background-color: $color-surface-1
+    color: $color-on-surface
     font-family: $font-family
-    display: flex
+    display: inline-flex
     flex-direction: column
-    transition: all 0.3s ease-in-out
+    transition: border-radius .3s cubic-bezier(.2,0,0,1),background-color .3s cubic-bezier(.2,0,0,1)
     cursor: pointer
     min-width: 250px
-
-    .image-container
-        position: relative
-        height: 250px
-        overflow: hidden
-        border-top-left-radius: $border-radius
-        border-top-right-radius: $border-radius
-        background-color: $bg-color-light
-        display: flex
-        justify-content: center
-        align-items: center
-        border-radius: $border-radius
-        img
-            width: 100%
-            height: 100%
-            object-fit: cover
-            object-position: center
-            position: absolute
-            top: 0
-            left: 0
-            right: 0
-            bottom: 0
-            z-index: 1
-            border-radius: $border-radius
+    -webkit-tap-highlight-color: transparent
+    font-variation-settings: "GRAD" 0
+    overflow: hidden
 
     .card-body
-        padding: 12px
+        padding: 24px
         display: flex
         flex-direction: column
-        gap: 6px
-        height: 150px
+        max-height: 177px
 
         .card-title
             font-size: 18px
             font-weight: 600
             margin: 0
-            color: $font-color
+            color: $color-on-surface
             text-transform: capitalize
 
         .card-text
             font-size: 14px
             margin: 0
-            color: $font-color-secondary
+            color: $color-on-surface-variant
             text-transform: capitalize
 
     &:hover
-        transform: scale(1.02)
+        background-color: $color-secondary-container
+        color: $color-on-secondary-container
+
+        // make image darker
+        .image-container
+            .dropdown
+                display: block
+
+            &:before
+                background-color: rgba(0, 0, 0, 0.5)
+
+    &:active
+        border-radius: 48px
+        outline: initial
+
+.image-container
+    position: relative
+    height: 250px
+    overflow: hidden
+    display: flex
+    justify-content: center
+    align-items: center
+    border-bottom-left-radius: 24px
+    border-bottom-right-radius: 24px
+
+    &:before
+        content: ''
+        position: absolute
+        top: 0
+        left: 0
+        right: 0
+        bottom: 0
+        background-color: transparent
+        z-index: 2
+        transition: all 0.3s ease-in-out
+
+    .dropdown
+        display: none
+        z-index: 3
+
+    img
+        width: 100%
+        height: 100%
+        object-fit: cover
+        object-position: center
+        position: absolute
+        top: 0
+        left: 0
+        right: 0
+        bottom: 0
+        z-index: 1
+        border-radius: 24px
+
 
 @media (max-width: 768px)
     .card

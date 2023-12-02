@@ -1,0 +1,52 @@
+.dialog-container
+    position: fixed
+    top: 0
+    left: 0
+    width: 100%
+    height: 100%
+    z-index: 1000
+    display: flex
+    justify-content: center
+    align-items: center
+    .overlay
+        position: absolute
+        background-color: rgba(0, 0, 0, 0.5)
+        top: 0
+        left: 0
+        width: 100%
+        height: 100%
+        cursor: pointer
+        z-index: 1
+
+    .dialog
+        background-color: $color-surface-1
+        border-radius: 24px
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5)
+        width: 600px
+        z-index: 2
+
+        .dialog-header
+            display: flex
+            justify-content: space-between
+            align-items: center
+            padding: 10px 20px
+
+            .dialog-title
+                font-size: 20px
+                font-weight: bold
+                font-family: $font-family
+                color: $color-on-surface
+
+        .dialog-content > div
+            padding: 0 20px
+            max-height: 500px
+            overflow-y: auto
+
+        .dialog-footer > div
+            margin-top: 20px
+            text-align: right
+            padding: 0 20px 10px
+            display: flex
+            justify-content: flex-end
+            align-items: center
+            gap: 10px

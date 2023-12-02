@@ -1,79 +1,144 @@
 <div *ngIf="!loading">
-    <div id="prev-btn" style="position: fixed; top:0; left:0" class="h-full w-6" (click)="prevPage()">
+    <div id="prev-btn" style="position: fixed; top:0; left:0;z-index: 9999999;" class="block md:hidden h-full w-6"
+         (click)="prevPage()">
 
     </div>
-    <div id="next-btn" style="position: fixed; top:0; right:0" class="h-full w-6" (click)="nextPage()">
+    <div id="next-btn" style="position: fixed; top:0; right:0;z-index: 9999999;" class="block md:hidden h-full w-6"
+         (click)="nextPage()">
 
     </div>
-    <div class="flex align-items-middle justify-content-center px-5 mb-8">
-        <div style="width: 900px">
+    <div class="w-full md:w-8 shadow-inset" style="
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);">
+        <div class="mx-3" style="margin-bottom: 7rem !important;">
             <div class="inline" *ngFor="let element of pages[book.currentPage].content">
-                <p *ngIf="element.type === 'text'">
+                <p *ngIf="element.type === 'text'" (mouseup)="onMouseUp($event)">
                     {{element.value}}
                 </p>
                 <div *ngIf="element.type === 'image'" class="flex justify-content-center">
                     <img [src]="getImageByName(element.value)" alt="" style="height: auto; width: 50%">
                 </div>
-                <i *ngIf="element.type === 'italic'">
+                <i *ngIf="element.type === 'italic'" (mouseup)="onMouseUp($event)">
                     {{element.value}}
                 </i>
-                <em class="font-light" *ngIf="element.type === 'em'">
+                <em class="font-light" *ngIf="element.type === 'em'" (mouseup)="onMouseUp($event)">
                     {{element.value}}
                 </em>
-                <h1 *ngIf="element.type === 'heading1'" class="text-center">
+                <blockquote *ngIf="element.type === 'bq'" class="text-center font-light" (mouseup)="onMouseUp($event)">
+                    {{element.value}}
+                </blockquote>
+                <h1 *ngIf="element.type === 'heading1'" class="text-center" (mouseup)="onMouseUp($event)">
                     {{element.value}}
                 </h1>
-                <h2 *ngIf="element.type === 'heading2'" class="text-center">
+                <h2 *ngIf="element.type === 'heading2'" class="text-center" (mouseup)="onMouseUp($event)">
                     {{element.value}}
                 </h2>
             </div>
         </div>
     </div>
 
-    <div class="fixed bg-color-light w-full" style="bottom: 0; left: 0">
-        <div class="flex align-items-center justify-content-between p-2 px-5">
-            <div class="flex align-items-center gap-3">
-                <button class="btn-icon btn-text" (click)="GoToHome()">
-                    <i class="material-symbols-rounded">
-                        arrow_back
-                    </i>
-                </button>
-                <div class="dropdown" [class.open]="showToc">
-                    <button class="dropbtn" (click)="toggleTocMenu()">
-                        {{book.currentChapter.title}}
+    <div *ngIf="showDefinition"
+         class="border-round-xl shadow bg-color-light flex flex-column"
+         [style]="{'position': 'absolute', 'top': position.top + 'px', 'left': position.left+ 'px', 'z-index': '999999999999', 'width': '350px'}">
+        <div
+            class="flex align-items-center justify-content-between border-none border-bottom-1 border-solid border-color p-2 px-3">
+            {{definition.word}}
 
+            <button class="btn-icon" (click)="showDefinition = !showDefinition">
+                <i class="material-symbols-rounded">
+                    close
+                </i>
+            </button>
+        </div>
+
+        <div class="flex flex-column gap-2 p-3" style="height: 220px; overflow-y: auto">
+            <i class="font-regular text-sm text-color-secondary">{{definition.phonetic}}</i>
+
+            <div class="flex flex-column" *ngFor="let meaning of definition.meanings">
+                <i class="text-color font-bold text-sm">{{meaning.partOfSpeech}}</i>
+                <div *ngFor="let definition of meaning.definitions; let index = index">
+                    <span class="text-muted font-light pl-2 text-xs">
+                        {{index + 1}}. {{definition.definition}}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="fixed flex flex-column w-full" style="bottom: 0; left: 0; z-index: 99999999">
+        <div class="w-full p-3 py-1 color-surface-0 flex align-items-center">
+            <span class="text-sm font-color-secondary">
+                Next chapter in
+                {{getPagesUntilNextChapter()}} page{{getPagesUntilNextChapter() > 1 ? 's' : ''}}
+            </span>
+        </div>
+        <div class="color-surface-0 w-full">
+            <div class="flex align-items-center gap-3 p-2">
+                <div class="flex align-items-center gap-2">
+                    <button class="btn-icon btn-text" (click)="GoToHome()">
                         <i class="material-symbols-rounded">
-                            arrow_drop_up
+                            arrow_back
                         </i>
                     </button>
-                    <div class="dropdown-content top left" id="toc">
-                        <div *ngFor="let chapter of book.toc">
-                            <div
-                                class="dropdown-item"
-                                [id]="chapter.file"
-                                [class.active]="chapter.file === book.currentChapter.file"
-                                (click)="navigateToChapter(chapter)">
-                                {{chapter.title}}
-                            </div>
-
-                            <div class="flex flex-column pl-3" *ngIf="chapter.subItems.length > 0">
+                    <div class="dropdown" [class.open]="showToc">
+                        <button class="btn-icon btn-text" (click)="toggleTocMenu()">
+                            <i class="material-symbols-rounded">
+                                list_alt
+                            </i>
+                        </button>
+                        <div class="dropdown-content top left" id="toc">
+                            <div *ngFor="let chapter of book.toc">
+                                <a id="anchor" *ngIf="chapter.file === book.currentChapter.file"></a>
                                 <div
-                                    class="dropdown-subitem"
-                                    [class.active]="subItem.file === book.currentChapter.file"
-                                    [id]="subItem.file"
-                                    *ngFor="let subItem of chapter.subItems"
-                                    (click)="navigateToChapter(subItem)">
-                                    {{subItem.title}}
+                                    class="dropdown-item"
+                                    [id]="chapter.file === book.currentChapter.file ? 'anchor' : ''"
+                                    [class.active]="chapter.file === book.currentChapter.file"
+                                    (click)="navigateToChapter(chapter)">
+                                    {{chapter.title}}
+                                </div>
+
+                                <div class="flex flex-column pl-3" *ngIf="chapter.subItems.length > 0">
+                                    <div
+                                        class="dropdown-subitem"
+                                        [class.active]="subItem.file === book.currentChapter.file"
+                                        [id]="subItem.file === book.currentChapter.file ? 'anchor' : ''"
+                                        *ngFor="let subItem of chapter.subItems"
+                                        (click)="navigateToChapter(subItem)">
+                                        {{subItem.title}}
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+                <div class="flex flex-column gap-2 w-full">
+                    <div class="progress-bar-container bg-secondary mt-0">
+                        <div class="progress-bar" [style.width]="book.percentageRead + '%'"></div>
+                    </div>
+                    <div class="flex w-full align-items-center justify-content-between">
+                        <span class="text-xs md:text-sm w-auto">
+                            {{book.currentChapter.title}}
+                        </span>
+                        <span class="text-sm">
+                            {{book.currentPage + 1}} / {{pages.length}}
+                        </span>
+                    </div>
+                </div>
             </div>
-            <span>
-                {{book.currentPage + 1}} / {{pages.length}}
-            </span>
         </div>
     </div>
 </div>
 
+<div *ngIf="loading" class="spinner-container">
+    <div class="spinner"></div>
+    <div class="flex flex-column gap-3">
+        <div class="progress-bar-container">
+            <div class="progress-bar" [className]="'progress-bar width-' + loadingProgress"></div>
+        </div>
+        <span class="text-center">
+            {{loadingMessage}}
+        </span>
+    </div>
+</div>
