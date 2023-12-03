@@ -14,25 +14,21 @@
         transform: translateX(-50%);">
         <div class="mx-3" style="margin-bottom: 7rem !important;">
             <div class="inline" *ngFor="let element of pages[book.currentPage].content">
-                <p *ngIf="element.type === 'text'" (mouseup)="onMouseUp($event)">
-                    {{element.value}}
-                </p>
+                <p [innerHTML]="element.value" class="body-sm font-medium indent" *ngIf="element.type === 'text'" (mouseup)="onMouseUp($event)"></p>
                 <div *ngIf="element.type === 'image'" class="flex justify-content-center">
                     <img [src]="getImageByName(element.value)" alt="" style="height: auto; width: 50%">
                 </div>
-                <i *ngIf="element.type === 'italic'" (mouseup)="onMouseUp($event)">
-                    {{element.value}}
-                </i>
-                <em class="font-light" *ngIf="element.type === 'em'" (mouseup)="onMouseUp($event)">
+                <i [innerHTML]="element.value" *ngIf="element.type === 'italic'" (mouseup)="onMouseUp($event)"></i>
+                <em class="font-light indent" *ngIf="element.type === 'em'" (mouseup)="onMouseUp($event)">
                     {{element.value}}
                 </em>
-                <blockquote *ngIf="element.type === 'bq'" class="text-center font-light" (mouseup)="onMouseUp($event)">
+                <blockquote *ngIf="element.type === 'bq'" class="text-center font-light indent" (mouseup)="onMouseUp($event)">
                     {{element.value}}
                 </blockquote>
-                <h1 *ngIf="element.type === 'heading1'" class="text-center" (mouseup)="onMouseUp($event)">
+                <h1 *ngIf="element.type === 'heading1'" class="headline-sm font-bold text-center" (mouseup)="onMouseUp($event)">
                     {{element.value}}
                 </h1>
-                <h2 *ngIf="element.type === 'heading2'" class="text-center" (mouseup)="onMouseUp($event)">
+                <h2 *ngIf="element.type === 'heading2'" class="headline-sm font-bold text-center" (mouseup)="onMouseUp($event)">
                     {{element.value}}
                 </h2>
             </div>
@@ -69,7 +65,7 @@
 
     <div class="fixed flex flex-column w-full" style="bottom: 0; left: 0; z-index: 99999999">
         <div class="w-full p-3 py-1 color-surface-0 flex align-items-center">
-            <span class="text-sm font-color-secondary">
+            <span class="body-md font-medium font-color-secondary">
                 {{ 'NextChapterIn' | localize }}
                 {{getPagesUntilNextChapter()}} {{toUnderScore(l('Page'))}}{{getPagesUntilNextChapter() > 1 ? 's' : ''}}
             </span>
@@ -118,10 +114,10 @@
                         <div class="progress-bar" [style.width]="book.percentageRead + '%'"></div>
                     </div>
                     <div class="flex w-full align-items-center justify-content-between">
-                        <span class="text-xs md:text-sm w-auto">
+                        <span class="text-xs md:text-sm w-auto body-md font-medium">
                             {{book.currentChapter.title}}
                         </span>
-                        <span class="text-sm">
+                        <span class="body-md font-medium">
                             {{book.currentPage + 1}} / {{pages.length}}
                         </span>
                     </div>
@@ -137,7 +133,7 @@
         <div class="progress-bar-container">
             <div class="progress-bar" [className]="'progress-bar width-' + loadingProgress"></div>
         </div>
-        <span class="text-center">
+        <span class="text-center font-medium">
             {{loadingMessage}}
         </span>
     </div>

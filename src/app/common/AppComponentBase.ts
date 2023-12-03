@@ -5,10 +5,11 @@ import {map} from "rxjs/operators";
 import {Injector} from "@angular/core";
 
 export class AppComponentBase {
-    loggedUser: User | null = null;
     language: string = navigator.language;
     localizationData: any = null;
     localizationService: LocalizationService;
+    CookieNames = CookieNames;
+    loggedUser: User | null = null;
 
     constructor(
         injector: Injector
@@ -40,7 +41,6 @@ export class AppComponentBase {
         this.localizationService.loadLocalizationData().subscribe(() => {
             // Localization data is now loaded
             const value = this.localizationService.getLocalizationData()['YourLibrary'];
-            console.log(value);
         });
     }
 
@@ -64,4 +64,47 @@ export class AppComponentBase {
     toUnderScore(str: string): string {
         return str.toLowerCase();
     }
+
+    setCookie(name: string, value: string, days: number | null = null) {
+        let expires = '';
+        if (days != null) {
+            let date = new Date();
+            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+            expires = '; expires=' + date.toUTCString();
+        } else {
+            expires = '; expires=Fri, 31 Dec 9999 23:59:59 GMT';
+        }
+        document.cookie = name + '=' + (value || '') + expires + '; path=/';
+    }
+
+    getCookie(name: string) {
+        let nameEQ = name + '=';
+        let ca = document.cookie.split(';');
+        for (let c of ca) {
+            let cookie = c.trim();
+            if (cookie.indexOf(nameEQ) == 0) {
+                return cookie.substring(nameEQ.length, cookie.length);
+            }
+        }
+        return null;
+    }
+
+    eraseCookie(name: string) {
+        document.cookie = name + '=; Max-Age=-99999999;';
+    }
+
+    getLoggedUser(): User | null {
+        // get cookie loggedUser
+        let loggedUser = this.getCookie('loggedUser');
+        if (loggedUser) {
+            return JSON.parse(loggedUser);
+        } else {
+            return null;
+        }
+    }
+}
+
+export enum CookieNames {
+    loggedUser = 'loggedUser',
+    language = 'language'
 }

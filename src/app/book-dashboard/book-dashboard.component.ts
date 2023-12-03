@@ -30,6 +30,8 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
     newShelf = new ShelvesDto();
 
     showBookDialog = false;
+    bookCreationStepsIndex = 0;
+    isBookCreation = false;
     selectedEpup: EpubDto = new EpubDto();
     maxElementsPerSize = 5;
     lastReadBooks: EpubDto[] = [];
@@ -52,7 +54,6 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
                 this.router.navigate(['login']);
             } else {
                 this.loggedUser = user;
-                this.photoUrl = user.photoURL ? user.photoURL : '';
                 console.log("USER:", this.loggedUser);
                 await this.getEpubsFromFirestore();
                 await this.getShelves();
@@ -78,7 +79,9 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
             });
             console.log("this.books:", this.books);
             // check if device is mobile
-            if (window.innerWidth > 768) {
+            if (window.innerWidth > 1294) {
+                this.maxElementsPerSize = 3;
+            } else if (window.innerWidth > 768) {
                 this.maxElementsPerSize = 2;
             } else {
                 this.maxElementsPerSize = 1;
@@ -143,6 +146,8 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
 
     async Upload(event: any) {
         this.loading = true;
+        this.bookCreationStepsIndex = 0;
+        this.isBookCreation = true;
 
         this.loadingProgress = 0;
         this.loadingMessage = 'Uploading epub...';
@@ -166,6 +171,8 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
     onBookDialogClose() {
         this.showBookDialog = false;
         this.selectedEpup = new EpubDto();
+        this.bookCreationStepsIndex = 0;
+        this.isBookCreation = false;
     }
 
     async DynamicParser(epubData: Observable<ArrayBuffer> | undefined) {
@@ -212,6 +219,7 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
 
         await this.ParseToc(epubDataArrayBuffer);
         this.selectedEpup.files = await this.GetPageLocationOrder(opfFileContent, opfFileParentFolder);
+        this.showBookDialog = true;
         console.log('selectedEpup', this.selectedEpup);
     }
     async GetOpfFilePath(containerXmlContent: string) {
@@ -459,6 +467,28 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
         return this.http.get(epubUrl, {responseType: 'arraybuffer'});
     }
 
+    async createOrUpdateBook() {
+        if (this.isBookCreation) {
+            await this.firebaseService.Create(this.selectedEpup, this.loggedUser?.uid);
+        } else {
+            await this.firebaseService.Update(this.selectedEpup, this.loggedUser?.uid);
+        }
+
+        await this.getEpubsFromFirestore();
+        this.showBookDialog = false;
+        this.selectedEpup = new EpubDto();
+        this.bookCreationStepsIndex = 0;
+        this.isBookCreation = false;
+    }
+
+    editBook(event: Event, book: EpubDto) {
+        event.stopPropagation();
+        event.preventDefault();
+        book.showMenu = false;
+        this.selectedEpup = book;
+        this.showBookDialog = true;
+    }
+
     toggleShelf(shelf: ShelvesDto, book: EpubDto) {
         if (shelf.books.includes(book)) {
             shelf.books = shelf.books.filter((b) => b !== book);
@@ -473,6 +503,7 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
         this.shelves.push(this.newShelf);
         this.newShelf.books.push(this.selectedEpup);
         this.newShelf = new ShelvesDto();
+        await this.updateShelves();
     }
 
     async updateShelves() {
@@ -482,7 +513,7 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
         this.showShelvesModal = false;
         this.newShelf = new ShelvesDto();
         this.selectedEpup = new EpubDto();
-        this.getShelves();
+        await this.getShelves();
     }
 
     async deleteShelf(shelf: ShelvesDto) {

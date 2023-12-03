@@ -11,6 +11,10 @@
     transition: all .2s ease-in-out
     border-radius: 48px
 
+    &.btn-sm
+        height: 32px
+        padding: 8px 16px
+
     &.btn-filled
         background-color: $color-primary
         color: $color-on-primary
@@ -95,6 +99,30 @@
             background-color: rgba($color-on-secondary-container, .1)
             box-shadow: none
 
+    &.google-btn
+        background-color: #fff
+        color: #000
+        min-width: max-content
+        height: 50px
+
+        .google-icon
+            width: 24px
+            height: 24px
+            margin-right: 8px
+
+        &:hover
+            cursor: pointer
+            box-shadow: $elevation-1
+            background-color: #eeeeee
+
+        &:active
+            background-color: rgba(#fff, .1)
+            box-shadow: none
+
+    &:disabled
+        opacity: .5
+        pointer-events: none
+
 .btn-icon
     display: flex
     justify-content: center
@@ -107,16 +135,20 @@
     border: 0
     transition: all 0.3s ease-in-out
 
+    &.btn-sm
+        height: 32px
+        width: 32px
+
     &.btn-filled
         background-color: $color-primary
         color: $color-on-primary
 
         &:hover
-            background-color: rgba($color-on-primary, .08)
+            opacity: .8
             cursor: pointer
 
         &:active
-            background-color: rgba($color-on-primary, .1)
+            border-radius: 8px
 
         &.danger
             color: $color-on-danger
@@ -204,6 +236,10 @@
 
             &:active
                 outline: 1px solid $color-danger
+
+    &:disabled
+        opacity: .5
+        pointer-events: none
 
 
 .fab

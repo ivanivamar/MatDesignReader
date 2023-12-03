@@ -9,8 +9,13 @@ body
     padding: 0
     background-color: $color-background
     color: $color-on-surface
-    font-family: $font-family
     overflow-x: hidden
+    font-family: $font-family
+    font-size: 14px
+    font-style: normal
+    font-weight: 400
+    line-height: 20px
+    letter-spacing: 0.5px
 
 // scrollbar
 ::-webkit-scrollbar
@@ -52,13 +57,14 @@ m-divider
     margin: 16px 0
     justify-content: center
 
-.card-set
+.card-set,
+.card-set-2
     $min-row-height: 320px
     $stacked-col-max-height: 198px
     display: grid
     grid-gap: 8px
     gap: 8px
-    grid-template-columns: repeat(8,1fr)
+    grid-template-columns: repeat(12, 1fr)
     grid-auto-flow: row
     grid-auto-rows: minmax($min-row-height,auto)
 
@@ -68,22 +74,55 @@ m-divider
         width: 100%
         height: 100%
 
+.card-set-2
+    grid-template-columns: repeat(6, 1fr)
+
+.container
+    width: 100%
+    max-width: 1294px
+    margin: 0 auto
+    padding: 0 16px
+
+    @media screen and (max-width: 1294px)
+        padding: 0 16px
+
+    @media screen and (max-width: 768px)
+        padding: 0 16px
+
+.container-fluid
+    width: 100%
+    margin: 0 auto
+    padding: 0 16px
+
+    @media screen and (max-width: 1294px)
+        padding: 0 16px
+
+    @media screen and (max-width: 768px)
+        padding: 0 16px
+
+    @media screen and (max-width: 600px)
+        padding: 0 16px
+
 @media screen and (max-width: 1294px)
     .card-set
-        grid-template-columns: repeat(6,1fr)
+        grid-template-columns: repeat(8,1fr)
+    .card-set-2
+        grid-template-columns: repeat(4,1fr)
 
     .card
         grid-column: span 1
 
 @media screen and (max-width: 768px)
     .card-set
-        grid-template-columns: repeat(2,1fr)
+        grid-template-columns: repeat(6,1fr)
 
     .card
         grid-column: span 1
 
 @media screen and (max-width: 600px)
     .card-set
+        grid-template-columns: repeat(4,1fr)
+    .card-set-2
         grid-template-columns: 1fr
 
     .card

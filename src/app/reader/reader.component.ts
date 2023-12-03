@@ -53,6 +53,7 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
             if (!user) {
                 this.router.navigate(['login']);
             } else {
+                this.setCookie(this.CookieNames.loggedUser, user.uid);
                 this.loggedUser = user;
                 const id = window.location.pathname.split('/')[2];
 
@@ -159,7 +160,7 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
                     }
                     break;
                 case 'p':
-                    const elementContent3 = children[i].textContent;
+                    const elementContent3 = children[i].innerHTML;
                     if (this.currentNodeCount + 1 <= this.maxNodesPerPage) {
                         // @ts-ignore
                         this.currentPage.content.push({

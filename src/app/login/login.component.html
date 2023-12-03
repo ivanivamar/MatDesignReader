@@ -1,1 +1,16 @@
-<p>login works!</p>
+<div class="container flex flex-column p-5" *ngIf="!loading">
+    <h1 class="headline-lg mb-7">
+        {{ 'MaterialReader' | localize }}
+    </h1>
+
+    <div class="w-full flex align-items-center justify-content-center">
+        <button class="btn google-btn" (click)="login()">
+            <img src="https://cdn.iconscout.com/icon/free/png-256/free-google-1772223-1507807.png" alt="Google" class="google-icon">
+            {{ 'SignInGoogle' | localize }}
+        </button>
+    </div>
+</div>
+
+<div *ngIf="loading" class="spinner-container">
+    <div class="spinner"></div>
+</div>

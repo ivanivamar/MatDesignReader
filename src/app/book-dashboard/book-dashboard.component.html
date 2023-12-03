@@ -18,51 +18,58 @@
             {{ 'ContinueReading' | localize }}
         </h3>
 
-        <div class="grid mt-3 grid-nogutter">
-            <div class="col-12 md:col-6 grid grid-nogutter" *ngFor="let lastReadBook of lastReadBooks">
-                <div class="image-container border-round-xl shadow-1 col-12 md:col-6">
-                    <img [src]="lastReadBook.cover" alt="{{lastReadBook.title}}" />
-                </div>
+        <div class="card-set-2 mt-3">
+            <div class="card align-items-center md:align-items-start flex-column md:flex-row" *ngFor="let lastReadBook of lastReadBooks">
+                <div class="grid">
+                    <div class="col-12 md:col-5">
+                        <img class="last-book-img h-auto md:h-full w-12rem md:w-full" [src]="lastReadBook.cover" alt="{{lastReadBook.title}}"/>
+                    </div>
 
-                <div class="flex flex-column justify-content-between gap-3 col-12 md:col-6 px-0 md:px-3">
-                    <div class="flex flex-column gap-3">
-                        <div class="flex flex-column gap-2" id="bookInfo">
-                            <h3 class="title-lg">
-                                {{lastReadBook.title}}
-                            </h3>
-                            <div class="flex align-items-center gap-3">
-                                <span class="text-sm">{{lastReadBook.creator}}</span>
-                                <span class="text-xs">·</span>
-                                <span class="text-sm">{{lastReadBook.publisher}}</span>
-                            </div>
-                        </div>
+                    <div class="col-12 md:col-7">
+                        <div class="flex flex-column justify-content-between gap-3 col-12 md:col-6 px-0 md:px-3 h-auto md:h-full w-full">
+                            <div class="flex flex-column gap-3">
+                                <div class="flex flex-column gap-2" id="bookInfo">
+                                    <h3 class="title-lg">
+                                        {{lastReadBook.title}}
+                                    </h3>
+                                    <div class="flex align-items-center gap-3">
+                                        <span class="text-sm">{{lastReadBook.creator}}</span>
+                                        <span class="text-xs">·</span>
+                                        <span class="text-sm">{{lastReadBook.publisher}}</span>
+                                    </div>
+                                </div>
 
-                        <div id="bookProgress">
-                            <div class="flex align-items-center justify-content-between">
-                                <span class="text-sm">{{getDateFromTimestamp(lastReadBook.lastRead)}}</span>
-                                <span class="text-sm">{{lastReadBook.percentageRead}}%</span>
+                                <div id="bookProgress">
+                                    <div class="flex align-items-center justify-content-between">
+                                        <span class="text-sm">{{getDateFromTimestamp(lastReadBook.lastRead) | date: 'short'}}</span>
+                                        <span class="text-sm">{{lastReadBook.percentageRead}}%</span>
+                                    </div>
+                                    <div class="progress-bar-container">
+                                        <div class="progress-bar" [style.width]="lastReadBook.percentageRead + '%'"></div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="progress-bar-container">
-                                <div class="progress-bar" [style.width]="lastReadBook.percentageRead + '%'"></div>
+
+                            <div class="flex align-items-center gap-3" id="actions">
+                                <button class="btn btn-filled" [routerLink]="['/reader/', lastReadBook.id]">
+                                    <i class="material-symbols-rounded">play_arrow</i>
+                                    <span>{{ 'Continue' | localize }}</span>
+                                </button>
+                                <button class="btn-icon btn-outlined"
+                                        (click)="showBookDialog = true; selectedEpup = lastReadBook">
+                                    <i class="material-symbols-rounded">edit</i>
+                                </button>
                             </div>
                         </div>
                     </div>
-
-                    <div class="flex align-items-center gap-3" id="actions">
-                        <button class="btn btn-filled" [routerLink]="['/reader/', lastReadBook.id]">
-                            <i class="material-symbols-rounded">play_arrow</i>
-                            <span>{{ 'Continue' | localize }}</span>
-                        </button>
-                        <button class="btn-icon btn-outlined" (click)="showBookDialog = true; selectedEpup = lastReadBook">
-                            <i class="material-symbols-rounded">edit</i>
-                        </button>
-                    </div>
                 </div>
+
             </div>
         </div>
     </div>
 
-    <svg style="opacity: 0.2; margin: 20px 0" width="100%" height="8" fill="none" xmlns="http://www.w3.org/2000/svg" *ngIf="lastReadBooks.length > 0">
+    <svg style="opacity: 0.2; margin: 20px 0" width="100%" height="8" fill="none" xmlns="http://www.w3.org/2000/svg"
+         *ngIf="lastReadBooks.length > 0">
         <pattern _ngcontent-sjp-c18="" id="a" width="91" height="8" patternUnits="userSpaceOnUse">
             <g _ngcontent-sjp-c18="" clip-path="url(#clip0_2426_11367)">
                 <path _ngcontent-sjp-c18=""
@@ -77,37 +84,15 @@
         <ng-container
             *ngFor="let book of books; let index = index">
             <a
-                class="card h-full no-underline"
+                class="card h-full no-underline relative"
                 [routerLink]="['/reader/', book.id]"
                 *ngIf="index >= maxElementsPerSize">
-                <div class="image-container">
-                    <div class="dropdown absolute" style="top: 4px; right: 4px; z-index: 999999999"
-                         [class.open]="book.showMenu">
-                        <button class="btn-icon btn-text" (click)="toggleMenu($event, book)">
-                            <i class="material-symbols-rounded">more_vert</i>
-                        </button>
-                        <div class="dropdown-content bottom right-0">
-                            <div class="dropdown-item" (click)="editShelves($event, book)">
-                                <i class="material-symbols-rounded">shelves</i>
-                                <span>
-                                    {{ 'Shelves' | localize }}
-                                </span>
-                            </div>
-                            <div class="dropdown-item" (click)="book.showMenu = false;deleteBook($event, book); ">
-                                <i class="material-symbols-rounded">delete</i>
-                                <span>
-                                    {{ 'Delete' | localize }}
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                    <img [src]="book.cover" alt="{{book.title}}">
-                </div>
+                <img class="book-img" [src]="book.cover" alt="{{book.title}}">
                 <div class="card-body justify-content-between">
                     <div class="flex flex-column">
                         <span class="card-title">{{book.title}}</span>
-                        <span class="card-text">{{book.creator}}</span>
-                        <span class="card-text">{{book.publisher}}</span>
+                        <!--<span class="card-text">{{book.creator}}</span>
+                        <span class="card-text">{{book.publisher}}</span>-->
                     </div>
                     <svg style="opacity: 0.2; margin: 10px 0" width="100%" height="8" fill="none"
                          xmlns="http://www.w3.org/2000/svg">
@@ -121,8 +106,18 @@
                         <rect _ngcontent-sjp-c18="" width="100%" height="100%" fill="url(#a)"></rect>
                     </svg>
                     <div class="flex align-items-center justify-content-between">
-                        <span class="card-text">{{getDateFromTimestamp(book.lastRead)}}</span>
+                        <span class="card-text">{{getDateFromTimestamp(book.lastRead) | date: 'short'}}</span>
                         <span class="card-text">{{book.percentageRead}}%</span>
+                    </div>
+
+                    <div class="flex align-items-center justify-content-end gap-2 mt-2">
+                        <button class="btn-icon btn-filled btn-sm" [routerLink]="['/reader/', book.id]">
+                            <i class="material-symbols-rounded">play_arrow</i>
+                        </button>
+                        <button class="btn-icon btn-outlined btn-sm"
+                                (click)="editBook($event, book)">
+                            <i class="material-symbols-rounded">edit</i>
+                        </button>
                     </div>
                 </div>
             </a>
@@ -132,77 +127,119 @@
 
 <m-dialog
     [(visible)]="showBookDialog"
-    [header]="selectedEpup.title == '' ? 'Add Book' : selectedEpup.title"
-    [width]="'600px'"
+    [header]="selectedEpup.title"
+    [width]="'800px'"
     (visibleChange)="onBookDialogClose()">
 
     <div content>
-        <p>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
-            dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex
-            ea commodo
-            consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-            pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
-            est laborum.
-        </p>
-    </div>
-    <div footer>
-        <button (click)="showBookDialog = false">Close</button>
-    </div>
-</m-dialog>
-
-<m-dialog
-    [(visible)]="showShelvesModal"
-    [header]="'Shelf dialog - ' + selectedEpup.title"
-    [width]="'600px'"
-    (visibleChange)="showShelvesModal = false">
-
-    <div content>
-        <div class="list-container">
-            <div
-                class="list-item justify-content-between"
-                *ngFor="let shelf of shelves">
-                <div class="flex align-items-center gap-3">
-                    <input
-                        type="checkbox"
-                        [id]="shelf.name"
-                        [checked]="checkIfHasBook(shelf, selectedEpup)"
-                        (change)="toggleShelf(shelf, selectedEpup)">
-                    <label [for]="shelf.name" class="font-medium">{{shelf.name}}</label>
+        <div class="tab-container mb-3">
+            <div class="tab" [class.active]="bookCreationStepsIndex == 0" (click)="bookCreationStepsIndex = 0">
+                <div class="tab-content">
+                    <i class="material-symbols-rounded">info</i>
+                    <span>{{ 'Info' | localize }}</span>
                 </div>
-
-                <button class="btn-icon text-btn" (click)="deleteShelf(shelf)">
-                    <i class="material-symbols-rounded">delete</i>
-                </button>
             </div>
-            <div class="divider"></div>
-            <div class="flex align-items-center justify-content-between">
-                <m-input
-                    class="w-full"
-                    [inputType]="'text'"
-                    [name]="'newShelfName'"
-                    [label]="'ShelfName'"
-                    [showClear]="true"
-                    [(value)]="newShelf.name"></m-input>
+            <div class="tab" [class.active]="bookCreationStepsIndex == 1" (click)="bookCreationStepsIndex = 1">
+                <div class="tab-content">
+                    <i class="material-symbols-rounded">shelves</i>
+                    <span>{{ 'Shelves' | localize }}</span>
+                </div>
+            </div>
+        </div>
 
-                <button class="btn-icon btn-filled ml-3" (click)="addShelf()">
-                    <i class="material-symbols-rounded">add</i>
-                </button>
+        <div [ngSwitch]="bookCreationStepsIndex">
+            <div *ngSwitchCase="0" class="grid">
+                <div class="col-6 md:col-3">
+                    <img class="last-book-img h-full w-full" [src]="selectedEpup.cover" alt="{{selectedEpup.title}}"/>
+                </div>
+                <div class="col-12 md:col-9">
+                    <div class="flex flex-column gap-3">
+                        <m-input
+                            class="w-full"
+                            [inputType]="'text'"
+                            [name]="'title'"
+                            [label]="'Title'"
+                            [(value)]="selectedEpup.title"></m-input>
+
+                        <div class="flex align-items-center gap-3">
+                            <m-input
+                                class="w-full"
+                                [inputType]="'text'"
+                                [name]="'creator'"
+                                [label]="'Creator'"
+                                [(value)]="selectedEpup.creator"></m-input>
+
+                            <m-input
+                                class="w-full"
+                                [inputType]="'text'"
+                                [name]="'publisher'"
+                                [label]="'Publisher'"
+                                [(value)]="selectedEpup.publisher"></m-input>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div *ngSwitchCase="1">
+                <div class="list-container">
+                    <div
+                        class="list-item justify-content-between"
+                        *ngFor="let shelf of shelves">
+                        <div class="flex align-items-center gap-3">
+                            <input
+                                type="checkbox"
+                                [id]="shelf.name"
+                                [checked]="checkIfHasBook(shelf, selectedEpup)"
+                                (change)="toggleShelf(shelf, selectedEpup); updateShelves()">
+                            <label [for]="shelf.name" class="font-medium">{{shelf.name}}</label>
+                        </div>
+
+                        <button class="btn-icon text-btn" (click)="deleteShelf(shelf)">
+                            <i class="material-symbols-rounded">delete</i>
+                        </button>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="flex align-items-center justify-content-between">
+                        <m-input
+                            class="w-full"
+                            [inputType]="'text'"
+                            [name]="'newShelfName'"
+                            [label]="'ShelfName'"
+                            [showClear]="true"
+                            [(value)]="newShelf.name"></m-input>
+
+                        <button class="btn-icon btn-filled ml-3" (click)="addShelf()">
+                            <i class="material-symbols-rounded">add</i>
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
     <div footer>
-        <button class="btn btn-outlined" (click)="showShelvesModal = false">
+        <button class="btn btn-outlined" (click)="onBookDialogClose()">
             <i class="material-symbols-rounded">close</i>
             {{ 'Close' | localize }}
         </button>
-        <button class="btn btn-filled" [disabled]="shelves.length === 0" (click)="updateShelves()">
+        <button
+            class="btn-icon btn-filled"
+            *ngIf="isBookCreation"
+            [disabled]="bookCreationStepsIndex === 0"
+            (click)="bookCreationStepsIndex = bookCreationStepsIndex - 1">
+            <i class="material-symbols-rounded">chevron_left</i>
+        </button>
+        <button
+            class="btn-icon btn-filled"
+            *ngIf="isBookCreation && bookCreationStepsIndex !== 1"
+            (click)="bookCreationStepsIndex = bookCreationStepsIndex + 1">
+            <i class="material-symbols-rounded">chevron_right</i>
+        </button>
+        <button class="btn btn-filled" *ngIf="bookCreationStepsIndex === 1 || !isBookCreation"
+                (click)="createOrUpdateBook()">
             <i class="material-symbols-rounded">save</i>
             {{ 'Save' | localize }}
         </button>
     </div>
 </m-dialog>
-
 
 <div *ngIf="loading" class="spinner-container">
     <div class="spinner"></div>

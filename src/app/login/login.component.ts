@@ -10,6 +10,7 @@ import {AppComponentBase} from "../common/AppComponentBase";
     providers: [FirebaseService]
 })
 export class LoginComponent extends AppComponentBase implements OnInit {
+    loading = false;
 
     constructor(
         injector: Injector,
@@ -19,21 +20,26 @@ export class LoginComponent extends AppComponentBase implements OnInit {
         super(injector);
     }
 
-    ngOnInit(): void {
-        this.firebaseService.isLoggedIn().then(user => {
+    async ngOnInit(): Promise<void> {
+        this.loading = true;
+        await this.firebaseService.isLoggedIn().then(async user => {
             if (user) {
                 this.router.navigate(['']);
             } else {
-                this.firebaseService.googleLogin().then(() => {
-                    this.firebaseService.isLoggedIn().then(user => {
-                        if (user) {
-                            this.loggedUser = user;
-                            console.log("USER:", this.loggedUser);
-                            this.router.navigate(['']);
-                        }
-                    });
-                });
+                await this.getLocalizationFileData();
             }
+            this.loading = false;
+        });
+    }
+
+    login() {
+        this.firebaseService.googleLogin().then(() => {
+            this.firebaseService.isLoggedIn().then(user => {
+                if (user) {
+                    this.setCookie(this.CookieNames.loggedUser, user.uid);
+                    this.router.navigate(['']);
+                }
+            });
         });
     }
 }
