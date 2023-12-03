@@ -42,7 +42,7 @@
                     </svg>
                     <div class="flex align-items-center justify-content-between">
                         <span class="card-text">{{getDateFromTimestamp(book.lastRead)}}</span>
-                        <span class="card-text">{{book.percentageRead}}%</span>
+                        <span class="card-text">{{Round(book.percentageRead)}}%</span>
                     </div>
 
                     <div class="flex align-items-center justify-content-end gap-2 mt-2">

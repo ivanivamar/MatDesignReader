@@ -17,8 +17,12 @@ export class AppComponentBase {
         this.localizationService = injector.get(LocalizationService);
     }
 
-    IsNullOrEmpty = (value: string) => {
+    IsNullOrEmpty(value: string): boolean {
         return value === undefined || value === null || value.trim() === '';
+    }
+
+    Round(value: number, decimals: number = 0): number {
+        return Number(Math.round(Number(value + 'e' + decimals)) + 'e-' + decimals);
     }
 
     IdGenerator(): string {

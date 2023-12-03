@@ -1,6 +1,6 @@
 import {Component, HostListener, Injector, OnInit} from '@angular/core';
 import {AppComponentBase} from "../common/AppComponentBase";
-import {Epub, EpubDto, Page, Toc} from "../common/interfaces/models";
+import {EpubDto, Page, Toc} from "../common/interfaces/models";
 import {FirebaseService} from "../common/services/firebase.service";
 import {from, Observable} from "rxjs";
 import {Router} from "@angular/router";
@@ -22,7 +22,7 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
     epubData: any;
     pages: Page[] = [];
     imagesInFile: any[] = [];
-    maxNodesPerPage = 15;
+    maxNodesPerPage = 12;
     currentNodeCount = 0;
     currentPage: Page = {
         file: '',
@@ -59,6 +59,7 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
 
                 from(this.firebaseService.GetById(id, this.loggedUser?.uid)).subscribe(async (book) => {
                     this.book = book as EpubDto;
+                    console.log("BOOK:", this.book);
                     this.titleService.setTitle(this.book.title);
                     this.book.lastRead = new Date();
 
@@ -326,26 +327,25 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
         }
     }
 
-    nextPage(): void {
-        if (this.book.currentPage! <= this.pages!.length - 1) {
-            this.book.currentPage! = this.book.currentPage! + 1;
+    prevPage(): void {
+        if (this.book.currentPage > 0) {
+            this.book.currentPage--;
         }
         this.book.lastRead = new Date();
         this.setChapter();
-        this.getPercentageRead(this.book);
+        this.getPercentageRead();
         this.updateBook();
-        // scroll to top of page
         window.scrollTo(0, 0);
     }
-
-    prevPage(): void {
-        if (this.book.currentPage! > 0) {
-            this.book.currentPage = this.book.currentPage! - 1;
+    nextPage(): void {
+        if (this.book.currentPage !== this.pages.length - 1) {
+            this.book.currentPage++;
         }
         this.book.lastRead = new Date();
         this.setChapter();
-        this.getPercentageRead(this.book);
+        this.getPercentageRead();
         this.updateBook();
+        // scroll to top of page
         window.scrollTo(0, 0);
     }
 
@@ -379,6 +379,7 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
         const page = this.pages.find(x => x.file.split('/').pop() === chapter.file.split('/').pop());
         // set this.book.currentPage to the index of the page
         this.book.currentPage = this.pages.indexOf(page!);
+        this.getPercentageRead();
         this.setChapter();
         this.book.lastRead = new Date();
     }
@@ -388,6 +389,20 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
         let pageCount = 0;
         let nextChapterFile = '';
         for (let i = 0; i < this.book.toc.length; i++) {
+            if (this.book.toc[i].subItems.length > 0) {
+                for (let j = 0; j < this.book.toc[i].subItems.length; j++) {
+                    if (this.book.toc[i].subItems[j].file.split('/').pop() === this.book.currentChapter.file.split('/').pop()) {
+                        if (j + 1 < this.book.toc[i].subItems.length) {
+                            // @ts-ignore
+                            nextChapterFile = this.book.toc[i].subItems[j + 1].file.split('/').pop();
+                        } else {
+                            // @ts-ignore
+                            nextChapterFile = this.book.toc[i].subItems[j].file.split('/').pop();
+                        }
+                        break;
+                    }
+                }
+            }
             if (this.book.toc[i].file.split('/').pop() === this.book.currentChapter.file.split('/').pop()) {
                 if (i + 1 < this.book.toc.length) {
                     // @ts-ignore
@@ -418,10 +433,10 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
         this.router.navigate(['/']);
     }
 
-    getPercentageRead(book: Epub) {
-        let percentage = 0;
-        percentage = (book.currentPage / this.pages.length) * 100;
-        this.book.percentageRead = Math.round(percentage);
+    getPercentageRead() {
+        console.log('Current page:', this.book.currentPage === this.pages.length);
+        console.log('Total pages:', this.pages.length);
+        this.book.percentageRead = (this.book.currentPage / this.pages.length) * 100;
     }
 
     onMouseUp(event: MouseEvent): void {

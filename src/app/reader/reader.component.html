@@ -11,12 +11,13 @@
         position: absolute;
         top: 0;
         left: 50%;
-        transform: translateX(-50%);">
-        <div class="mx-3" style="margin-bottom: 7rem !important;">
+        transform: translateX(-50%);
+        height: calc(100% - 84px)">
+        <div class="mx-3 pb-8">
             <div class="inline" *ngFor="let element of pages[book.currentPage].content">
                 <p [innerHTML]="element.value" class="body-sm font-medium indent" *ngIf="element.type === 'text'" (mouseup)="onMouseUp($event)"></p>
                 <div *ngIf="element.type === 'image'" class="flex justify-content-center">
-                    <img [src]="getImageByName(element.value)" alt="" style="height: auto; width: 50%">
+                    <img [src]="getImageByName(element.value)" alt="" style="height: auto; width: auto">
                 </div>
                 <i [innerHTML]="element.value" *ngIf="element.type === 'italic'" (mouseup)="onMouseUp($event)"></i>
                 <em class="font-light indent" *ngIf="element.type === 'em'" (mouseup)="onMouseUp($event)">
@@ -25,10 +26,10 @@
                 <blockquote *ngIf="element.type === 'bq'" class="text-center font-light indent" (mouseup)="onMouseUp($event)">
                     {{element.value}}
                 </blockquote>
-                <h1 *ngIf="element.type === 'heading1'" class="headline-sm font-bold text-center" (mouseup)="onMouseUp($event)">
+                <h1 *ngIf="element.type === 'heading1'" class="headline-sm font-bold text-center mb-2" (mouseup)="onMouseUp($event)">
                     {{element.value}}
                 </h1>
-                <h2 *ngIf="element.type === 'heading2'" class="headline-sm font-bold text-center" (mouseup)="onMouseUp($event)">
+                <h2 *ngIf="element.type === 'heading2'" class="headline-sm font-bold text-center mb-2" (mouseup)="onMouseUp($event)">
                     {{element.value}}
                 </h2>
             </div>

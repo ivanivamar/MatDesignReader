@@ -42,7 +42,7 @@
                                 <div id="bookProgress">
                                     <div class="flex align-items-center justify-content-between">
                                         <span class="text-sm">{{getDateFromTimestamp(lastReadBook.lastRead) | date: 'short'}}</span>
-                                        <span class="text-sm">{{lastReadBook.percentageRead}}%</span>
+                                        <span class="text-sm">{{Round(lastReadBook.percentageRead)}}%</span>
                                     </div>
                                     <div class="progress-bar-container">
                                         <div class="progress-bar" [style.width]="lastReadBook.percentageRead + '%'"></div>
@@ -107,7 +107,7 @@
                     </svg>
                     <div class="flex align-items-center justify-content-between">
                         <span class="card-text">{{getDateFromTimestamp(book.lastRead) | date: 'short'}}</span>
-                        <span class="card-text">{{book.percentageRead}}%</span>
+                        <span class="card-text">{{Round(book.percentageRead)}}%</span>
                     </div>
 
                     <div class="flex align-items-center justify-content-end gap-2 mt-2">
