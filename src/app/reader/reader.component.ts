@@ -37,6 +37,7 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
         left: 0
     }
     showDefinition = false;
+    isFullScreen = false;
 
     constructor(
         injector: Injector,
@@ -324,6 +325,9 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
             case 'ArrowRight':
                 this.nextPage();
                 break;
+            case 'f':
+                this.fullScreen();
+                break;
         }
     }
 
@@ -472,6 +476,16 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
                 this.definition = {} as Dictionary;
             }
         );
+    }
+
+    fullScreen(): void {
+        if (this.isFullScreen) {
+            this.isFullScreen = false;
+            document.exitFullscreen();
+        } else {
+            this.isFullScreen = true;
+            document.documentElement.requestFullscreen();
+        }
     }
 }
 export interface Dictionary {

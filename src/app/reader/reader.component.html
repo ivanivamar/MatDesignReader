@@ -115,10 +115,10 @@
                         <div class="progress-bar" [style.width]="book.percentageRead + '%'"></div>
                     </div>
                     <div class="flex w-full align-items-center justify-content-between">
-                        <span class="text-xs md:text-sm w-auto body-md font-medium">
+                        <span class="text-xs md:text-sm w-auto body-md font-medium font-color-secondary">
                             {{book.currentChapter.title}}
                         </span>
-                        <span class="body-md font-medium">
+                        <span class="body-md font-medium font-color-secondary">
                             {{book.currentPage + 1}} / {{pages.length}}
                         </span>
                     </div>
@@ -134,7 +134,7 @@
         <div class="progress-bar-container">
             <div class="progress-bar" [className]="'progress-bar width-' + loadingProgress"></div>
         </div>
-        <span class="text-center font-medium">
+        <span class="text-center font-medium font-color-secondary">
             {{loadingMessage}}
         </span>
     </div>
