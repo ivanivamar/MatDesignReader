@@ -20,5 +20,7 @@
     "Profile": "Perfil",
     "Logout": "Cerrar sesión",
     "SignInGoogle": "Iniciar sesión con Google",
-    "MaterialReader": "Material Reader"
+    "MaterialReader": "Material Reader",
+    "BrowseFiles": "Examinar archivos",
+    "DropFilesHere": "Arrastra los archivos aquí"
 }

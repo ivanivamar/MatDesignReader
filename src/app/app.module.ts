@@ -15,6 +15,8 @@ import { MInputComponent } from './common/m-input/m-input.component';
 import { MDialogComponent } from './common/m-dialog/m-dialog.component';
 import { MDividerComponent } from './common/m-divider/m-divider.component';
 import { LocalizePipe } from './common/pipe/localize.pipe';
+import { DropzoneComponent } from './common/dropzone/dropzone.component';
+import { DragDropDirective } from './common/drag-drop.directive';
 
 @NgModule({
     declarations: [
@@ -26,7 +28,9 @@ import { LocalizePipe } from './common/pipe/localize.pipe';
         MInputComponent,
         MDialogComponent,
         MDividerComponent,
-        LocalizePipe
+        LocalizePipe,
+        DropzoneComponent,
+        DragDropDirective
     ],
     imports: [
         BrowserModule,

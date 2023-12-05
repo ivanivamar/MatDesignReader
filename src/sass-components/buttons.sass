@@ -86,7 +86,7 @@
             &:before
                 opacity: .1
 
-    &.tonal-btn
+    &.btn-tonal
         background-color: $color-secondary-container
         color: $color-on-secondary-container
 
@@ -236,6 +236,29 @@
 
             &:active
                 outline: 1px solid $color-danger
+
+    &.btn-tonal
+        background-color: $color-secondary-container
+        color: $color-on-secondary-container
+
+        &:hover
+            cursor: pointer
+            box-shadow: $elevation-1
+            background-color: rgba($color-on-secondary-container, .08)
+
+        &:active
+            background-color: rgba($color-on-secondary-container, .1)
+            box-shadow: none
+
+        &.danger
+            color: $color-on-danger
+            background-color: $color-danger
+
+            &:hover
+                background-color: rgba($color-danger, .08)
+
+            &:active
+                background-color: rgba($color-danger, .1)
 
     &:disabled
         opacity: .5

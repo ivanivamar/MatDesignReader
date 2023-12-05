@@ -1,0 +1,16 @@
+<div class="dropzone" DragDrop>
+    <div class="dz-message">
+        <input #dropzoneInput class="hidden" type="file" accept=".application/epub+zip" />
+        <i class="material-symbols-rounded">cloud_upload</i>
+        <h3 class="headline-md">
+            {{ 'DropFilesHere' | localize }}
+        </h3>
+        <button
+            class="btn btn-tonal"
+            (click)="dropzoneInput.click()">
+            {{ 'BrowseFiles' | localize }}
+        </button>
+    </div>
+
+    <div class="dropzone-previews"></div>
+</div>
