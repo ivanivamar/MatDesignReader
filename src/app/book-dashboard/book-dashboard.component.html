@@ -216,6 +216,10 @@
         </div>
     </div>
     <div footer>
+        <button class="btn btn-outlined danger" (click)="deleteBook($event, selectedEpup)">
+            <i class="material-symbols-rounded">delete</i>
+            {{ 'Delete' | localize }}
+        </button>
         <button class="btn btn-outlined" (click)="onBookDialogClose()">
             <i class="material-symbols-rounded">close</i>
             {{ 'Close' | localize }}

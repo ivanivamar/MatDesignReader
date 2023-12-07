@@ -271,7 +271,7 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
                     const coverId = coverElement.getAttribute('content');
                     const coverItemElement = opfXmlDoc.querySelector(`item[id="${coverId}"]`);
                     if (coverItemElement) {
-                        metadata.cover = opfFileParentFolder + '/' + coverItemElement.getAttribute('href');
+                        metadata.cover = this.IsNullOrEmpty(opfFileParentFolder) ? coverItemElement.getAttribute('href') : opfFileParentFolder + '/' + coverItemElement.getAttribute('href');
                     }
                 }
             } else {
@@ -300,7 +300,8 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
 
                     if (mediaType && href && mediaType.startsWith('image')) {
                         imagesLocation.push({
-                            href: opfFileParentFolder + '/' + href,
+                            href: this.IsNullOrEmpty(opfFileParentFolder) ? href : opfFileParentFolder + '/' + href,
+                            id: itemElement.getAttribute('id')!,
                             mediaType: mediaType
                         });
                     } else {
@@ -323,10 +324,11 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
         for (const image of imagesLocation) {
             this.selectedEpup.images.push({
                 href: image.href,
+                id: image.id,
                 mediaType: image.mediaType
             });
             // check if image is cover
-            if (image.href === this.selectedEpup.cover) {
+            if (image.href === this.selectedEpup.cover || image.id === this.selectedEpup.cover) {
                 const imageFile = await zip.loadAsync(epubDataArrayBuffer).then((epub) => {
                     return epub.file(image.href)!.async('arraybuffer');
                 });
@@ -531,6 +533,8 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
         }
 
         await this.firebaseService.Delete(book.id, this.loggedUser?.uid);
+        this.showBookDialog = false;
+        this.selectedEpup = new EpubDto();
         this.getEpubsFromFirestore();
     }
 }
@@ -538,4 +542,5 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
 export interface ImageArray {
     href: string;
     mediaType: string;
+    id?: string;
 }
