@@ -401,7 +401,7 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
                             nextChapterFile = this.book.toc[i].subItems[j + 1].file.split('/').pop();
                         } else {
                             // @ts-ignore
-                            nextChapterFile = this.book.toc[i].subItems[j].file.split('/').pop();
+                            nextChapterFile = this.book.toc[i + 1].file.split('/').pop();
                         }
                         break;
                     }
