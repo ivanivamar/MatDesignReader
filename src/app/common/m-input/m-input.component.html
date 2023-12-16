@@ -12,11 +12,11 @@
             </div>
         </div>
         <div class="input-actions">
-            <button class="btn-icon btn-text" (click)="togglePassword()" *ngIf="showPassword">
+            <button class="btn-icon btn-text" type="button" (click)="togglePassword()" *ngIf="showPassword">
                 <i class="material-symbols-rounded" *ngIf="showingPassword">visibility_off</i>
                 <i class="material-symbols-rounded" *ngIf="!showingPassword">visibility</i>
             </button>
-            <button class="btn-icon btn-text" *ngIf="showClear && value.length > 0" (click)="clear()">
+            <button class="btn-icon btn-text" type="button" *ngIf="showClear && value.length > 0" (click)="clear()">
                 <i class="material-symbols-rounded">close</i>
             </button>
         </div>

@@ -57,6 +57,7 @@ export interface Shelves {
 export class ShelvesDto {
     id: string = '';
     name: string = '';
+    bookIds: string[] = [];
     books: Epub[] = [];
     lastRead: Date = new Date();
 }

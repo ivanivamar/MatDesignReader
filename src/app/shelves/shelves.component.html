@@ -55,18 +55,33 @@
         </ng-container>
     </div>
 
-    <div class="card-set" *ngIf="selectedShelf.name === ''">
-        <div class="card" *ngFor="let shelf of shelves" (click)="viewShelf(shelf)">
-            <div class="flex flex-wrap">
-                <div class="border-round-xl" style="flex: 1 0 50%" *ngFor="let book of shelf.books; let index = index">
-                    <img *ngIf="index <= 1" [src]="book.cover" [alt]="book.title" class="w-full h-6 border-round-xl">
+    <div class="card-set grid-cols-1 md:grid-cols-2 lg:grid-cols-4" *ngIf="selectedShelf.name === ''">
+        <div class="shelf-card" *ngFor="let shelf of shelves" (click)="viewShelf(shelf)">
+            <div class="images-container">
+                <div class="image-container">
+                    <img *ngIf="shelf.books.length > 0" [src]="shelf.books[0].cover" [alt]="shelf.books[0].title">
+                </div>
+                <div class="image-container">
+                    <img *ngIf="shelf.books.length > 1" [src]="shelf.books[1].cover" [alt]="shelf.books[1].title">
                 </div>
             </div>
-            <div class="card-body h-auto py-2">
+            <div class="card-body">
                 <span class="body-lg">
-                    {{ shelf.name }}: {{ shelf.books.length }}
+                    {{ shelf.name }}
+                </span>
+                <span class="body-sm m-0">
+                    {{ shelf.books.length }} {{ shelf.books.length === 1 ? l('Book') : l('Book') + 's' }}
                 </span>
             </div>
         </div>
     </div>
 </main>
+
+<div *ngIf="loading" class="spinner-container">
+    <div class="spinner"></div>
+    <div class="flex flex-column gap-3">
+        <span class="text-center font-medium font-color-secondary">
+            {{ 'Loading' | localize }}
+        </span>
+    </div>
+</div>

@@ -13,11 +13,11 @@
         left: 50%;
         transform: translateX(-50%);
         height: calc(100% - 84px)">
-        <div class="mx-3 pb-8">
+        <div class="mx-3 pt-2" style="padding-bottom: 7rem">
             <div class="inline" *ngFor="let element of pages[book.currentPage].content">
-                <p [innerHTML]="element.value" class="body-sm font-medium indent" *ngIf="element.type === 'text'" (mouseup)="onMouseUp($event)"></p>
+                <p [innerHTML]="element.value" class="body-sm font-medium indent" [class.whitespace]="element.value.trim().length == 0" *ngIf="element.type === 'text'" (mouseup)="onMouseUp($event)"></p>
                 <div *ngIf="element.type === 'image'" class="flex justify-content-center">
-                    <img [src]="getImageByName(element.value)" alt="" style="height: auto; width: auto">
+                    <img [src]="getImageByName(element.value)" alt="" style="height: 100%; width: 100%; max-width: 500px;">
                 </div>
                 <i [innerHTML]="element.value" *ngIf="element.type === 'italic'" (mouseup)="onMouseUp($event)"></i>
                 <em class="font-light indent" *ngIf="element.type === 'em'" (mouseup)="onMouseUp($event)">
@@ -37,7 +37,7 @@
     </div>
 
     <div *ngIf="showDefinition"
-         class="border-round-xl shadow bg-color-light flex flex-column"
+         class="border-round-xl shadow color-surface-1 flex flex-column"
          [style]="{'position': 'absolute', 'top': position.top + 'px', 'left': position.left+ 'px', 'z-index': '999999999999', 'width': '350px'}">
         <div
             class="flex align-items-center justify-content-between border-none border-bottom-1 border-solid border-color p-2 px-3">
@@ -109,6 +109,12 @@
                             </div>
                         </div>
                     </div>
+
+                    <button class="btn-icon btn-text" (click)="showSearchResults = !showSearchResults">
+                        <i class="material-symbols-rounded">
+                            search
+                        </i>
+                    </button>
                 </div>
                 <div class="flex flex-column gap-2 w-full">
                     <div class="progress-bar-container bg-secondary mt-0">
@@ -122,6 +128,56 @@
                             {{book.currentPage + 1}} / {{pages.length}}
                         </span>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="panel" [class.panel--open]="showSearchResults">
+    <div class="panel__header">
+        <div class="panel__header__title">
+            {{ 'Search' | localize }}
+        </div>
+        <div class="btn-icon btn-text" (click)="showSearchResults = false">
+            <i class="material-symbols-rounded">
+                close
+            </i>
+        </div>
+    </div>
+
+    <div class="panel__content">
+        <form class="flex m-2 flex-column gap-2" (submit)="getSearchResults()">
+            <m-input class="w-full" [(value)]="searchTerm" [icon]="'search'" (onClear)="searchResults = []" [showClear]="true" placeholder="{{ 'Search' | localize }}..."></m-input>
+
+            <span *ngIf="searchResults.length > 0">
+                {{searchResults.length}} {{ 'ResultsInBook' | localize }}
+            </span>
+        </form>
+
+
+        <div *ngIf="searchResults.length === 0" class="flex flex-column gap-2">
+            <span class="text-center font-medium font-color-secondary">
+                {{ 'NoResults' | localize }}
+            </span>
+        </div>
+
+        <div class="flex flex-column" *ngIf="searchResults.length > 0" style="overflow-y: auto">
+            <div class="panel__content__item flex-row gap-3" *ngFor="let items of searchResults" (click)="goToPage(items.page)">
+                <i class="material-symbols-rounded">
+                    search
+                </i>
+
+                <div class="flex flex-column gap-2">
+                    <div class="flex flex-column gap-1">
+                        <span class="title-lg">
+                            {{items.chapter}}
+                        </span>
+                        <span class="title-sm font-regular">
+                           {{ 'Page' | localize }} {{items.page + 1}}
+                        </span>
+                    </div>
+                    <span class="title-md panel__content__item__value" [innerHTML]="items.content"></span>
                 </div>
             </div>
         </div>

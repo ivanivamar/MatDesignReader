@@ -14,7 +14,7 @@ import {from} from "rxjs";
     providers: [FirebaseService]
 })
 export class ShelvesComponent extends AppComponentBase implements OnInit {
-    loading = false;
+    loading = true;
     photoUrl = '';
     showProfileMenu = false;
     shelves: ShelvesDto[] = [];
@@ -30,33 +30,30 @@ export class ShelvesComponent extends AppComponentBase implements OnInit {
         super(injector);
     }
 
-    ngOnInit(): void {
-        this.firebaseService.isLoggedIn().then(user => {
+    async ngOnInit(): Promise<void> {
+        this.loading = true;
+        await this.firebaseService.isLoggedIn().then(async user => {
             if (!user) {
-                this.router.navigate(['login']);
+                await this.router.navigate(['login']);
             } else {
                 this.loggedUser = user;
-                this.photoUrl = user.photoURL ? user.photoURL : '';
-                console.log("USER:", this.loggedUser);
                 this.titleService.setTitle('Your Shelves');
-                this.getShelves();
+                await this.getShelves();
+                this.loading = false;
             }
         });
     }
 
-    getShelves() {
+    async getShelves() {
         this.shelves = [];
         from(this.firebaseService.GetAllShelves(this.loggedUser?.uid)).subscribe(r => {
-            r.forEach((doc: any) => {
-                this.shelves.push(doc.data());
-            });
+            this.shelves = r;
             // order by title
             this.shelves.sort((a, b) => (a.name > b.name) ? 1 : -1);
         });
     }
 
-    viewShelf(shelf: ShelvesDto) {
-        shelf.books.reverse();
+    async viewShelf(shelf: ShelvesDto) {
         this.selectedShelf = shelf;
         window.scrollTo(0, 0);
     }

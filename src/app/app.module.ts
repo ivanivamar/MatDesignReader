@@ -17,6 +17,7 @@ import { MDividerComponent } from './common/m-divider/m-divider.component';
 import { LocalizePipe } from './common/pipe/localize.pipe';
 import { DropzoneComponent } from './common/dropzone/dropzone.component';
 import { DragDropDirective } from './common/drag-drop.directive';
+import { BookDetailComponent } from './book-dashboard/book-detail/book-detail.component';
 
 @NgModule({
     declarations: [
@@ -30,7 +31,8 @@ import { DragDropDirective } from './common/drag-drop.directive';
         MDividerComponent,
         LocalizePipe,
         DropzoneComponent,
-        DragDropDirective
+        DragDropDirective,
+        BookDetailComponent
     ],
     imports: [
         BrowserModule,

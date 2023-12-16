@@ -1,4 +1,5 @@
-.card
+.card,
+.shelf-card
     border-radius: 8px
     padding: 12px
     //background-color: $color-surface-1
@@ -17,6 +18,7 @@
         display: flex
         flex-direction: column
         min-height: 140px
+        z-index: 99
 
         .card-title
             font-size: 14px
@@ -72,3 +74,41 @@
 
     .last-book-img
         width: 50%
+
+.shelf-card
+    flex-direction: row
+    max-height: 100px
+
+    .card-body
+        min-height: auto
+        padding: 0
+
+    .images-container
+        height: 100%
+        display: flex
+        justify-content: center
+        align-items: center
+        position: relative
+        margin-right: 24px
+
+        .image-container,
+        .last-image-container
+            border-radius: 12px
+            height: 100%
+            width: 100%
+            background-color: $color-surface-1
+            z-index: 2
+
+            img
+                border-radius: 12px
+                height: 100%
+                width: 100%
+                position: relative
+                box-shadow: 0px 1px 2px 0px rgba(0, 4, 7, 0.2), 0px 1px 3px 1px rgba(0, 4, 7, 0.15)
+
+            &:last-child
+                height: 73%
+                position: absolute
+                bottom: 0
+                right: -10px
+                z-index: 1

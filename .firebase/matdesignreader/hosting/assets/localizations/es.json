@@ -22,5 +22,12 @@
     "SignInGoogle": "Iniciar sesión con Google",
     "MaterialReader": "Material Reader",
     "BrowseFiles": "Examinar archivos",
-    "DropFilesHere": "Arrastra los archivos aquí"
+    "DropFilesHere": "Arrastra los archivos aquí",
+    "Book": "Libro",
+    "BookLanguage": "Idioma del libro",
+    "BookId": "Id del libro",
+    "BookTitle": "Título del libro",
+    "Search": "Buscar",
+    "NoResults": "No hay resultados",
+    "ResultsInBook": "Resultados en el libro"
 }

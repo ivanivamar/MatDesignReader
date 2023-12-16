@@ -20,13 +20,13 @@
 
         <div class="card-set-2 mt-3">
             <div class="card align-items-center md:align-items-start flex-column md:flex-row" *ngFor="let lastReadBook of lastReadBooks">
-                <div class="grid">
+                <div class="grid grid-nogutter h-full">
                     <div class="col-12 md:col-5">
                         <img class="last-book-img h-auto md:h-full w-12rem md:w-full" [src]="lastReadBook.cover" alt="{{lastReadBook.title}}"/>
                     </div>
 
                     <div class="col-12 md:col-7">
-                        <div class="flex flex-column justify-content-between gap-3 col-12 md:col-6 px-0 md:px-3 h-auto md:h-full w-full">
+                        <div class="flex flex-column justify-content-between gap-3 col-12 md:col-6 px-0 md:px-3 h-auto py-0 md:h-full w-full">
                             <div class="flex flex-column gap-3">
                                 <div class="flex flex-column gap-2" id="bookInfo">
                                     <h3 class="title-lg">
@@ -39,14 +39,12 @@
                                     </div>
                                 </div>
 
-                                <div id="bookProgress">
-                                    <div class="flex align-items-center justify-content-between">
-                                        <span class="text-sm">{{getDateFromTimestamp(lastReadBook.lastRead) | date: 'short'}}</span>
-                                        <span class="text-sm">{{Round(lastReadBook.percentageRead)}}%</span>
-                                    </div>
-                                    <div class="progress-bar-container">
+
+                                <div class="flex align-items-center gap-2">
+                                    <div class="progress-bar-container mt-0">
                                         <div class="progress-bar" [style.width]="lastReadBook.percentageRead + '%'"></div>
                                     </div>
+                                    <span class="text-sm font-medium">{{Round(lastReadBook.percentageRead)}}%</span>
                                 </div>
                             </div>
 
@@ -91,10 +89,17 @@
                 <div class="card-body justify-content-between">
                     <div class="flex flex-column">
                         <span class="card-title">{{book.title}}</span>
-                        <!--<span class="card-text">{{book.creator}}</span>
-                        <span class="card-text">{{book.publisher}}</span>-->
+                        <span class="card-text">{{book.creator}}</span>
+                        <!--<span class="card-text">{{book.publisher}}</span>-->
+
+                        <div class="flex align-items-center gap-2">
+                            <div class="progress-bar-container mt-0">
+                                <div class="progress-bar" [style.width]="book.percentageRead + '%'"></div>
+                            </div>
+                            <span class="text-sm font-medium">{{Round(book.percentageRead)}}%</span>
+                        </div>
                     </div>
-                    <svg style="opacity: 0.2; margin: 10px 0" width="100%" height="8" fill="none"
+                    <!--<svg style="opacity: 0.2; margin: 10px 0" width="100%" height="8" fill="none"
                          xmlns="http://www.w3.org/2000/svg">
                         <pattern _ngcontent-sjp-c18="" id="a" width="91" height="8" patternUnits="userSpaceOnUse">
                             <g _ngcontent-sjp-c18="" clip-path="url(#clip0_2426_11367)">
@@ -104,11 +109,7 @@
                             </g>
                         </pattern>
                         <rect _ngcontent-sjp-c18="" width="100%" height="100%" fill="url(#a)"></rect>
-                    </svg>
-                    <div class="flex align-items-center justify-content-between">
-                        <span class="card-text">{{getDateFromTimestamp(book.lastRead) | date: 'short'}}</span>
-                        <span class="card-text">{{Round(book.percentageRead)}}%</span>
-                    </div>
+                    </svg>-->
 
                     <div class="flex align-items-center justify-content-end gap-2 mt-2">
                         <button class="btn-icon btn-filled btn-sm" [routerLink]="['/reader/', book.id]">

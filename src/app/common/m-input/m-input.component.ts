@@ -24,6 +24,7 @@ export class MInputComponent extends AppComponentBase {
     @Input() showPassword: boolean = false;
 
     @Output() valueChange = new EventEmitter();
+    @Output() onClear = new EventEmitter();
 
     error: boolean = false;
     isFocused: boolean = false;
@@ -38,6 +39,7 @@ export class MInputComponent extends AppComponentBase {
     clear() {
         this.value = this.inputType === 'number' ? 0 : '';
         this.valueChange.emit(this.value);
+        this.onClear.emit();
     }
 
     onFocus() {

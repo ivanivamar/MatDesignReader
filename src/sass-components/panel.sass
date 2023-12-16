@@ -1,0 +1,89 @@
+.panel
+    position: fixed
+    top: 0
+    right: 0
+    height: 100%
+    width: 100%
+    max-width: 450px
+    background-color: $color-surface-2
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.5)
+    z-index: 99999999
+    display: none
+
+    &.panel--open
+        display: block
+
+    &__header
+        display: flex
+        align-items: center
+        justify-content: space-between
+        padding: 0 14px
+        height: 50px
+        background-color: $color-surface-1
+        position: sticky
+        top: 0
+        left: 0
+        width: 100%
+        border-bottom: 1px solid $color-utility-outline
+
+        &__title
+            font-size: 18px
+            font-weight: 500
+            color: $color-on-surface
+
+    &__content
+        padding: 10px
+        height: calc(100% - 50px)
+        overflow: hidden
+        display: flex
+        flex-direction: column
+        gap: 10px
+
+        &__item
+            display: flex
+            padding: 10px
+            flex-direction: column
+            gap: 8px
+            cursor: pointer
+            border-radius: 12px
+
+            &:last-child
+                border-bottom: none
+
+            &__title
+                font-size: 16px
+                font-weight: 500
+                color: $color-on-surface
+
+            &__value
+                -webkit-box-orient: vertical
+                -webkit-line-clamp: 2
+                display: -webkit-box
+                overflow: hidden
+
+            &__icon
+                font-size: 20px
+                color: $color-on-surface
+
+            &:hover
+                background-color: $color-surface-1
+
+@media (max-width: 768px)
+    .panel
+        max-width: 100%
+        position: fixed
+
+        &__content
+            padding: 0
+
+            &__item
+                padding: 20px
+
+                &__title
+                    font-size: 20px
+
+                &__value
+                    font-size: 20px
+
+                &__icon
+                    font-size: 24px

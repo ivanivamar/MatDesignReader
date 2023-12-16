@@ -39,6 +39,10 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
     showDefinition = false;
     isFullScreen = false;
 
+    searchTerm = '';
+    searchResults: any[] = [];
+    showSearchResults = false;
+
     constructor(
         injector: Injector,
         private firebaseService: FirebaseService,
@@ -352,9 +356,60 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
         // scroll to top of page
         window.scrollTo(0, 0);
     }
+    goToPage(page: number): void {
+        this.book.currentPage = page;
+        this.book.lastRead = new Date();
+        this.setChapter();
+        this.getPercentageRead();
+        this.updateBook();
+        // scroll to top of page
+        window.scrollTo(0, 0);
+
+        // if mobile, hide menu
+        if (window.innerWidth < 768) {
+            this.showSearchResults = false;
+        }
+    }
 
     toggleTocMenu() {
         this.showToc = !this.showToc;
+    }
+
+    getSearchResults(): void {
+        this.searchResults = [];
+        if (this.searchTerm.length > 0) {
+            for (let i = 0; i < this.pages.length; i++) {
+                for (let j = 0; j < this.pages[i].content.length; j++) {
+                    if (this.pages[i].content[j].type === 'text') {
+                        if (this.pages[i].content[j].value.toLowerCase().includes(this.searchTerm.toLowerCase())) {
+                            this.searchResults.push({
+                                page: i,
+                                chapter: this.getChapterOfPageFromToc(i),
+                                content: this.pages[i].content[j].value
+                            });
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    getChapterOfPageFromToc(page: number): string {
+        const pageFile = this.pages[page].file.split('/').pop();
+        let chapter = '';
+        this.book.toc.forEach((x) => {
+            if (x.subItems.length > 0) {
+                x.subItems.forEach((y) => {
+                    if (y.file.split('/').pop() === pageFile) {
+                        chapter = x.title;
+                    }
+                });
+            }
+            if (x.file.split('/').pop() === pageFile) {
+                chapter = x.title;
+            }
+        });
+        return chapter;
     }
 
     setChapter(): void {

@@ -3,7 +3,7 @@ import {initializeApp} from "firebase/app";
 import {getStorage, ref, uploadBytes, getDownloadURL, getMetadata} from "firebase/storage";
 import {addDoc, collection, deleteDoc, doc, getDoc, getDocs, getFirestore, query, setDoc, updateDoc, where} from "firebase/firestore";
 import {combineLatest, map, Observable} from "rxjs";
-import {Epub, Shelves} from "../interfaces/models";
+import {Epub, Shelves, ShelvesDto} from "../interfaces/models";
 import {HttpClient} from "@angular/common/http";
 import {GoogleAuthProvider, getAuth, signInWithPopup} from "firebase/auth";
 import {AppComponentBase} from "../AppComponentBase";
@@ -62,10 +62,22 @@ export class FirebaseService {
         const epubSnapshot = await getDocs(epubRef);
         return epubSnapshot;
     }
-    GetAllShelves = async (referenceName: any) => {
-        const epubRef = collection(this.db, referenceName + '_shelves');
-        const epubSnapshot = await getDocs(epubRef);
-        return epubSnapshot;
+    async GetAllShelves (referenceName: any): Promise<ShelvesDto[]> {
+        const shelvesRef = collection(this.db, referenceName + '_shelves');
+        const shelvesSnapshot = await getDocs(query(shelvesRef));
+        let shelves: ShelvesDto[] = shelvesSnapshot.docs.map((doc) => doc.data()) as ShelvesDto[];
+        // get books:
+        for (const shelf of shelves) {
+            shelf['books'] = [];
+            for (const bookId of shelf['bookIds']) {
+                const book = await this.GetById(bookId, referenceName);
+                shelf['books'].push(book);
+            }
+            // sort books by last read:
+            shelf['books'].sort((a: Epub, b: Epub) => (a.lastRead < b.lastRead) ? 1 : -1);
+        }
+
+        return shelves;
     }
     async GetById(id: string, referenceName: any): Promise<Epub> {
         const projectRef = collection(this.db, referenceName + "_books");
@@ -78,8 +90,17 @@ export class FirebaseService {
         const projectRef = collection(this.db, referenceName + "_shelves");
         const q = query(projectRef, where("id", "==", id));
         const querySnapshot = await getDocs(q);
-        const epub = querySnapshot.docs.map((doc) => doc.data());
-        return epub[0];
+        let shelf = querySnapshot.docs.map((doc) => doc.data())[0];
+        // get books:
+        shelf['books'] = [];
+        for (const bookId of shelf['books']) {
+            const book = await this.GetById(bookId, referenceName);
+            shelf['books'].push(book);
+        }
+        // sort books by last read:
+        shelf['books'].sort((a: Epub, b: Epub) => (a.lastRead > b.lastRead) ? 1 : -1);
+
+        return shelf;
     }
     async Create(epub: Epub, referenceName: any) {
         await setDoc(doc(this.db, referenceName + "_books", epub.id.toString()), {
@@ -105,7 +126,7 @@ export class FirebaseService {
         await setDoc(doc(this.db, referenceName + "_shelves", shelf.id.toString()), {
             id: shelf.id,
             name: shelf.name,
-            books: [],
+            bookIds: [],
             lastRead: new Date()
         });
     }
@@ -117,7 +138,7 @@ export class FirebaseService {
         const bookRef = doc(this.db, referenceName + "_shelves", shelf.id);
         await updateDoc(bookRef, {
             name: shelf.name,
-            books: shelf.books,
+            bookIds: shelf.bookIds,
             lastRead: new Date()
         });
     }
