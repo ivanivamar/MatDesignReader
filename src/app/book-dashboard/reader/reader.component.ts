@@ -96,6 +96,7 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
     async ParsePages(pageLocationOrder: string[], epubDataArrayBuffer: ArrayBuffer) {
         const zip = new JSZip();
         const epubData = await zip.loadAsync(epubDataArrayBuffer);
+        console.log('epubData:', epubData);
         let index = 0;
         this.loadingMessage = 'Parsing pages...';
         while (index < pageLocationOrder.length - 1) {

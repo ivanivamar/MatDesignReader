@@ -19,6 +19,7 @@ import { DragDropDirective } from './common/drag-drop.directive';
 import { BookDetailComponent } from './book-dashboard/book-detail/book-detail.component';
 import {ReaderComponent} from "./book-dashboard/reader/reader.component";
 import {NgCircleProgressModule} from "ng-circle-progress";
+import { MMenuComponent } from './common/m-menu/m-menu.component';
 
 @NgModule({
     declarations: [
@@ -34,6 +35,7 @@ import {NgCircleProgressModule} from "ng-circle-progress";
         DropzoneComponent,
         DragDropDirective,
         BookDetailComponent,
+        MMenuComponent,
     ],
     imports: [
         BrowserModule,

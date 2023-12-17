@@ -59,7 +59,7 @@
                     </div>
 
 
-                    <div class="flex align-items-center gap-5">
+                    <div class="flex align-items-center gap-3">
                         <circle-progress
                             [percent]="book.percentageRead" style="width: 61px; height: 61px;"
                         ></circle-progress>
@@ -68,6 +68,9 @@
                             <i class="material-symbols-rounded">play_arrow</i>
                             {{ 'Reed' | localize }}
                         </a>
+                        <button class="btn-icon btn-outlined danger" (click)="deleteBook()">
+                            <i class="material-symbols-rounded">delete</i>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -97,6 +100,9 @@
                             <i class="material-symbols-rounded">play_arrow</i>
                             {{ 'Reed' | localize }}
                         </a>
+                        <button class="btn-icon btn-outlined danger" (click)="deleteBook()">
+                            <i class="material-symbols-rounded">delete</i>
+                        </button>
                     </div>
                 </div>
             </div>

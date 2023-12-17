@@ -5,7 +5,7 @@ import {Router} from "@angular/router";
 import {HttpClient} from "@angular/common/http";
 import {Title} from "@angular/platform-browser";
 import {from} from "rxjs";
-import {EpubDto} from "../../common/interfaces/models";
+import {Epub, EpubDto} from "../../common/interfaces/models";
 
 @Component({
     selector: 'app-book-detail',
@@ -17,6 +17,7 @@ export class BookDetailComponent extends AppComponentBase implements OnInit {
     loading: boolean = true;
     book: EpubDto = new EpubDto();
     showDescription: boolean = false;
+    shelves: any[] = [];
 
     constructor(
         injector: Injector,
@@ -29,7 +30,7 @@ export class BookDetailComponent extends AppComponentBase implements OnInit {
     }
 
     ngOnInit() {
-        this.firebaseService.isLoggedIn().then(user => {
+        this.firebaseService.isLoggedIn().then(async user => {
             if (!user) {
                 this.router.navigate(['login']);
             } else {
@@ -42,8 +43,26 @@ export class BookDetailComponent extends AppComponentBase implements OnInit {
                     await this.getLocalizationFileData();
                     this.loading = false;
                 });
+                await this.getShelves();
             }
         });
+    }
+
+    async getShelves() {
+        from(this.firebaseService.GetAllShelves(this.loggedUser?.uid)).subscribe(r => {
+            this.shelves = r;
+        });
+    }
+
+    async deleteBook(): Promise<void> {
+        // remove book from shelf if exists
+        for (const shelf of this.shelves) {
+            shelf.bookIds = shelf.bookIds.filter((bId: string) => bId !== this.book.id);
+            await this.firebaseService.UpdateShelf(shelf, this.loggedUser?.uid);
+        }
+
+        await this.firebaseService.Delete(this.book.id, this.loggedUser?.uid);
+        await this.router.navigate(['/']);
     }
 
 }

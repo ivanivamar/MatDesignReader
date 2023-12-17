@@ -29,5 +29,11 @@
     "BookTitle": "Título del libro",
     "Search": "Buscar",
     "NoResults": "No hay resultados",
-    "ResultsInBook": "Resultados en el libro"
+    "ResultsInBook": "Resultados en el libro",
+    "MyBooks": "Mis libros",
+    "Rating": "Valoración",
+    "Pages": "Páginas",
+    "Language": "Idioma",
+    "Read": "Leido",
+    "Reed": "Leer"
 }

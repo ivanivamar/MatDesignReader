@@ -3,20 +3,5 @@
 }
 
 .whitespace {
-    margin: 3em 0em 0em;
-    position: relative;
-}
-
-.whitespace:after{
-    content: "· · ·";
-    color: #ccc;
-    font-size: 2em;
-    font-weight: bold;
-    display: block;
-    text-align: center;
-
-    position: absolute;
-    top: -24px;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    margin: 3em 0 0;
 }

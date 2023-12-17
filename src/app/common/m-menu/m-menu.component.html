@@ -1,0 +1,16 @@
+<div class="menu-container" [class.open]="expanded">
+    <button class="btn-icon btn-text" (click)="expanded = !expanded">
+        <i class="material-symbols-rounded">
+            more_vert
+        </i>
+    </button>
+
+    <div class="menu color-surface-2 border-round-xl p-2">
+        <div class="menu-item border-round-xl" [class.disabled]="item.disabled" *ngFor="let item of options" (click)="item.action()">
+            <i class="material-symbols-rounded" *ngIf="item.icon">
+                {{item.icon}}
+            </i>
+            {{item.label}}
+        </div>
+    </div>
+</div>

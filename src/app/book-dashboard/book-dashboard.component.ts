@@ -410,7 +410,7 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
             const opfXmlDoc = parser.parseFromString(opfFileContent, 'application/xml');
             const manifestElement = opfXmlDoc.querySelector('manifest');
             const spineElement = opfXmlDoc.querySelector('spine');
-            const pageLocationOrder: string[] = [];
+            const pageLocationOrder: any[] = [];
             const finalPageLocationOrder: string[] = [];
 
             if (manifestElement) {
@@ -421,7 +421,11 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
                     const href = itemElement.getAttribute('href');
 
                     if (mediaType && href && mediaType === 'application/xhtml+xml') {
-                        pageLocationOrder.push(opfFileParentFolder + '/' + href);
+                        let temp = this.IsNullOrEmpty(opfFileParentFolder) ? href : opfFileParentFolder + '/' + href
+                        pageLocationOrder.push({
+                            id: itemElement.getAttribute('id')!,
+                            href: temp
+                        });
                     } else {
                         console.warn('Skipping item with missing or invalid attributes:', itemElement);
                     }
@@ -443,12 +447,11 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
                     }
                 });
             }
-
+            console.log("pageLocationOrder:", pageLocationOrder);
             this.filesOrder.forEach((file) => {
                 pageLocationOrder.forEach((page) => {
-                    let tempPage = page.split('/').pop()!.split('.')[0];
-                    if (file.includes(tempPage)) {
-                        finalPageLocationOrder.push(page);
+                    if (file == page.id) {
+                        finalPageLocationOrder.push(page.href);
                         // remove page from array
                         pageLocationOrder.splice(pageLocationOrder.indexOf(page), 1);
                     }
