@@ -14,6 +14,7 @@ import {LocalizationService} from "./localization.service";
 })
 export class FirebaseService {
     baseUrl = 'https://api.dictionaryapi.dev/api/v2/entries/en/';
+    googleBooksApiUrl = 'https://www.googleapis.com/books/v1/volumes?q=';
     firebaseConfig = {
         apiKey: "AIzaSyAX40V_rCpyevrwly1Uu3hUgxKH10RCuhQ",
         authDomain: "matdesignreader.firebaseapp.com",
@@ -53,6 +54,11 @@ export class FirebaseService {
     // Dictionary:
     getDefinition(word: string, language: string): Observable<any> {
         const url = `${this.baseUrl}${word}`;
+        return this.http.get(url);
+    }
+
+    getGoogleBooks(query: string): Observable<any> {
+        const url = `${this.googleBooksApiUrl}${query}`;
         return this.http.get(url);
     }
 

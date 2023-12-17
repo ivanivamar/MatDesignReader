@@ -20,36 +20,26 @@
         <ng-container
             *ngFor="let book of selectedShelf.books; let index = index">
             <a
-                class="card h-full no-underline relative"
+                class="card gap-3 h-full no-underline relative"
                 [routerLink]="['/reader/', book.id]">
-                <img class="book-img" [src]="book.cover" alt="{{book.title}}">
-                <div class="card-body justify-content-between">
-                    <div class="flex flex-column">
-                        <span class="card-title">{{book.title}}</span>
-                        <!--<span class="card-text">{{book.creator}}</span>
-                        <span class="card-text">{{book.publisher}}</span>-->
-                    </div>
-                    <svg style="opacity: 0.2; margin: 10px 0" width="100%" height="8" fill="none"
-                         xmlns="http://www.w3.org/2000/svg">
-                        <pattern _ngcontent-sjp-c18="" id="a" width="91" height="8" patternUnits="userSpaceOnUse">
-                            <g _ngcontent-sjp-c18="" clip-path="url(#clip0_2426_11367)">
-                                <path _ngcontent-sjp-c18=""
-                                      d="M114 4c-5.067 4.667-10.133 4.667-15.2 0S88.667-.667 83.6 4 73.467 8.667 68.4 4 58.267-.667 53.2 4 43.067 8.667 38 4 27.867-.667 22.8 4 12.667 8.667 7.6 4-2.533-.667-7.6 4s-10.133 4.667-15.2 0S-32.933-.667-38 4s-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0"
-                                      stroke="#E1E3E1" stroke-linecap="square"></path>
-                            </g>
-                        </pattern>
-                        <rect _ngcontent-sjp-c18="" width="100%" height="100%" fill="url(#a)"></rect>
-                    </svg>
-                    <div class="flex align-items-center justify-content-between">
-                        <span class="card-text">{{getDateFromTimestamp(book.lastRead)}}</span>
-                        <span class="card-text">{{Round(book.percentageRead)}}%</span>
+                <img class="h-full border-round-lg" [src]="book.cover" alt="{{book.title}}">
+                <div class="card-body flex-column justify-content-between w-full pt-0">
+                    <div class="flex justify-content-between">
+                        <div class="flex flex-column gap-2">
+                            <span class="card-title">{{book.title}}</span>
+                            <div class="p-2 py-1 gap-2 border-round-md color-surface-2 font-medium flex align-items-center justify-content-center w-max text-sm">
+                                <i class="material-symbols-rounded text-sm">
+                                    layers
+                                </i>
+                                {{book.pages}}
+                            </div>
+                        </div>
+                        <circle-progress
+                            [percent]="book.percentageRead" style="width: 41px; height: 41px;"
+                        ></circle-progress>
                     </div>
 
-                    <div class="flex align-items-center justify-content-end gap-2 mt-2">
-                        <button class="btn-icon btn-filled btn-sm" [routerLink]="['/reader/', book.id]">
-                            <i class="material-symbols-rounded">play_arrow</i>
-                        </button>
-                    </div>
+                    <span class="card-text">{{book.creator}}</span>
                 </div>
             </a>
         </ng-container>

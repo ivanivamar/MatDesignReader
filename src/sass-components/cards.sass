@@ -1,23 +1,22 @@
 .card,
 .shelf-card
-    border-radius: 8px
-    padding: 12px
-    //background-color: $color-surface-1
+    border-radius: 24px
+    padding: 16px
+    background-color: $color-surface-1
     color: $color-on-surface
     font-family: $font-family
-    display: inline-flex
-    flex-direction: column
+    display: flex
     transition: transform .3s cubic-bezier(.2,0,0,1),background-color .3s cubic-bezier(.2,0,0,1)
     cursor: pointer
     -webkit-tap-highlight-color: transparent
     font-variation-settings: "GRAD" 0
-    border: 1px solid rgba($color-utility-outline, .2)
+    max-height: 142px
+    //border: 1px solid rgba($color-utility-outline, .2)
 
     .card-body
         padding-top: 8px
         display: flex
         flex-direction: column
-        min-height: 140px
         z-index: 99
 
         .card-title
@@ -30,6 +29,7 @@
             -webkit-line-clamp: 2
             display: -webkit-box
             overflow: hidden
+            max-width: 172px
 
         .card-text
             font-size: 14px
@@ -70,7 +70,7 @@
 @media (max-width: 600px)
     .card
         min-width: 100%
-        padding: 8px
+        padding: 12px
 
     .last-book-img
         width: 50%
@@ -96,7 +96,7 @@
             border-radius: 12px
             height: 100%
             width: 100%
-            background-color: $color-surface-1
+            background-color: $color-surface-2
             z-index: 2
 
             img

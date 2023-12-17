@@ -1,7 +1,7 @@
 import {Component, HostListener, Injector, OnInit} from '@angular/core';
-import {AppComponentBase} from "../common/AppComponentBase";
-import {EpubDto, Page, Toc} from "../common/interfaces/models";
-import {FirebaseService} from "../common/services/firebase.service";
+import {AppComponentBase} from "../../common/AppComponentBase";
+import {EpubDto, Page, Toc} from "../../common/interfaces/models";
+import {FirebaseService} from "../../common/services/firebase.service";
 import {from, Observable} from "rxjs";
 import {Router} from "@angular/router";
 import {HttpClient} from "@angular/common/http";
@@ -90,6 +90,7 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
             return;
         }
         await this.ParsePages(this.book.files, epubDataArrayBuffer);
+        this.book.totalCurrentPage = this.pages.length;
         await this.ParseImages(this.book.images, epubDataArrayBuffer);
     }
     async ParsePages(pageLocationOrder: string[], epubDataArrayBuffer: ArrayBuffer) {

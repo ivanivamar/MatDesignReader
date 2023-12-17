@@ -1,1 +1,147 @@
-<p>book-detail works!</p>
+<main *ngIf="!loading">
+    <div class="flex align-items-center justify-content-between mb-3">
+        <div class="flex align-items-center gap-3">
+            <a class="btn-icon btn-text" href="/">
+                <i class="material-symbols-rounded">arrow_back</i>
+            </a>
+        </div>
+    </div>
+
+    <section class="container hidden md:flex">
+        <div class="grid w-full">
+            <div class="col-3">
+                <img class="w-full shadow-2 border-round-xl" src="{{ book.cover }}" alt="{{ book.title }}">
+            </div>
+            <div class="col-9">
+                <div class="flex flex-column justify-content-between h-full ml-5">
+                    <div class="flex flex-column gap-2">
+                        <span class="text-2xl font-bold">{{ book.title }}</span>
+                        <span class="text-base font-color-secondary">
+                            {{ book.creator }} - {{ book.date }}
+                        </span>
+                        <div class="mt-2 p-3 px-5 align-items-center justify-content-center gap-3 m-panel w-max">
+                            <div class="flex flex-column align-items-center justify-content-center gap-1">
+                                <span class="text-xl font-bold">{{ book.rating ? book.rating : 0 }}</span>
+                                <span class="text-base font-color-secondary">
+                                    {{ 'Rating' | localize }}
+                                </span>
+                            </div>
+                            <div class="flex flex-column align-items-center justify-content-center gap-1">
+                                <span class="text-xl font-bold">{{ book.pages }}</span>
+                                <span class="text-base font-color-secondary">
+                                    {{ 'Pages' | localize }}
+                                </span>
+                            </div>
+                            <div class="flex flex-column align-items-center justify-content-center gap-1">
+                                <span class="text-xl font-bold capitalize">
+                                    {{ book.language ? book.language : 'N/A' }}
+                                </span>
+                                <span class="text-base font-color-secondary">
+                                    {{ 'Language' | localize }}
+                                </span>
+                            </div>
+                            <div class="flex flex-column align-items-center justify-content-center gap-1">
+                                <span class="text-xl font-bold">
+                                    {{ getDateFromTimestampToDate(book.lastRead) | date: 'dd/MM/yyyy' }}
+                                </span>
+                                <span class="text-base font-color-secondary">
+                                    {{ 'Read' | localize }}
+                                </span>
+                            </div>
+                        </div>
+                        <span class="text-base font-color-secondary description mt-3" [class.block]="showDescription">
+                            {{ this.book.description }}
+                        </span>
+                        <button class="btn btn-text mt-1 mb-2 w-max" (click)="showDescription = !showDescription">
+                            <i class="material-symbols-rounded">{{ showDescription ? 'expand_less' : 'expand_more' }}</i>
+                            {{ showDescription ? 'Less' : 'More' }}
+                        </button>
+                    </div>
+
+
+                    <div class="flex align-items-center gap-5">
+                        <circle-progress
+                            [percent]="book.percentageRead" style="width: 61px; height: 61px;"
+                        ></circle-progress>
+
+                        <a class="btn btn-filled mt-2 px-5" href="/reader/{{ book.id }}">
+                            <i class="material-symbols-rounded">play_arrow</i>
+                            {{ 'Reed' | localize }}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="block md:hidden">
+        <div class="grid w-full">
+            <div class="col-4">
+                <img class="w-full shadow-2 border-round-xl" src="{{ book.cover }}" alt="{{ book.title }}">
+            </div>
+            <div class="col-8">
+                <div class="flex flex-column justify-content-between h-full">
+                    <div class="flex flex-column gap-2">
+                        <span class="text-2xl font-bold">{{ book.title }}</span>
+                        <span class="text-base font-color-secondary">
+                            {{ book.creator }} - {{ book.date }}
+                        </span>
+                    </div>
+
+
+                    <div class="flex align-items-center gap-3">
+                        <circle-progress
+                            [percent]="book.percentageRead" style="width: 41px; height: 41px;"
+                        ></circle-progress>
+
+                        <a class="btn btn-filled btn-sm" href="/reader/{{ book.id }}">
+                            <i class="material-symbols-rounded">play_arrow</i>
+                            {{ 'Reed' | localize }}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-2 p-3 align-items-center justify-content-center gap-3 m-panel w-max">
+            <div class="flex flex-column align-items-center justify-content-center gap-1">
+                <span class="text-xl font-bold">{{ book.rating ? book.rating : 0 }}</span>
+                <span class="text-base font-color-secondary">
+                                    {{ 'Rating' | localize }}
+                                </span>
+            </div>
+            <div class="flex flex-column align-items-center justify-content-center gap-1">
+                <span class="text-xl font-bold">{{ book.pages }}</span>
+                <span class="text-base font-color-secondary">
+                                    {{ 'Pages' | localize }}
+                                </span>
+            </div>
+            <div class="flex flex-column align-items-center justify-content-center gap-1">
+                                <span class="text-xl font-bold capitalize">
+                                    {{ book.language ? book.language : 'N/A' }}
+                                </span>
+                <span class="text-base font-color-secondary">
+                                    {{ 'Language' | localize }}
+                                </span>
+            </div>
+            <div class="flex flex-column align-items-center justify-content-center gap-1">
+                                <span class="text-xl font-bold">
+                                    {{ getDateFromTimestampToDate(book.lastRead) | date: 'dd/MM/yyyy' }}
+                                </span>
+                <span class="text-base font-color-secondary">
+                                    {{ 'Read' | localize }}
+                                </span>
+            </div>
+        </div>
+        <span class="text-base font-color-secondary description mt-3" [class.block]="showDescription">
+            {{ this.book.description }}
+        </span>
+        <button class="btn btn-text mt-1 btn-sm" (click)="showDescription = !showDescription">
+            <i class="material-symbols-rounded">{{ showDescription ? 'expand_less' : 'expand_more' }}</i>
+            {{ showDescription ? 'Less' : 'More' }}
+        </button>
+    </section>
+</main>
+
+<div *ngIf="loading" class="spinner-container">
+    <div class="spinner"></div>
+</div>

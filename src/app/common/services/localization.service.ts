@@ -17,7 +17,7 @@ export class LocalizationService {
     }
 
     loadLocalizationData(): Observable<any> {
-        const localizationDataUrl = `/assets/localizations/${navigator.language}.json`;
+        const localizationDataUrl = `/assets/localizations/es.json`;
 
         return this.http.get(localizationDataUrl, { responseType: 'text' }).pipe(
             map((dataString) => {

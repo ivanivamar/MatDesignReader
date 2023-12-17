@@ -79,16 +79,6 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
                 //@ts-ignore
                 return b.lastRead.seconds - a.lastRead.seconds;
             });
-            console.log("this.books:", this.books);
-            // check if device is mobile
-            if (window.innerWidth > 1294) {
-                this.maxElementsPerSize = 3;
-            } else if (window.innerWidth > 768) {
-                this.maxElementsPerSize = 2;
-            } else {
-                this.maxElementsPerSize = 1;
-            }
-            this.lastReadBooks = this.books.slice(0, this.maxElementsPerSize);
         });
     }
 
@@ -202,10 +192,17 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
 
         const metadata = await this.GetMetadata(opfFileContent, opfFileParentFolder);
         this.selectedEpup.title = metadata.title ? metadata.title : '';
-        this.selectedEpup.creator = metadata.creator ? metadata.creator : '';
-        this.selectedEpup.publisher = metadata.publisher ? metadata.publisher : '';
-        this.selectedEpup.date = metadata.date ? metadata.date : '';
         this.selectedEpup.cover = metadata.cover ? metadata.cover : '';
+
+        this.firebaseService.getGoogleBooks(this.selectedEpup.title).subscribe((data) => {
+            // find first element which saleInfo is not "NOT_FOR_SALE"
+            let trueData = data.items.find((item: any) => item.saleInfo.saleability !== 'NOT_FOR_SALE');
+            this.selectedEpup.description = trueData.volumeInfo.description;
+            this.selectedEpup.pages = trueData.volumeInfo.pageCount;
+            this.selectedEpup.language = trueData.volumeInfo.language;
+            this.selectedEpup.date = new Date(trueData.volumeInfo.publishedDate).getFullYear().toString();
+            this.selectedEpup.publisher = trueData.volumeInfo.publisher;
+        });
 
         this.loadingProgress = 60;
         this.loadingMessage = 'Getting images...';

@@ -15,6 +15,9 @@ export interface Epub {
     toc: Toc[];
     lastRead: Date;
     language: string;
+    rating: number;
+    pages: number;
+    description: string;
 }
 
 export class EpubDto {
@@ -36,6 +39,9 @@ export class EpubDto {
     language: string = '';
     private showToc: boolean = false;
     showMenu: boolean = false;
+    rating: number = 0;
+    pages: number = 0;
+    description: string = '';
 }
 export interface Page {
     file: string;

@@ -41,6 +41,12 @@ export class AppComponentBase {
         return date.getDate() + '/' + date.getMonth() + '/' + date.getFullYear() + ' ' + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds();
     }
 
+    getDateFromTimestampToDate(timestamp: any): Date {
+        let date = new Date(timestamp.seconds * 1000);
+        // format dd/mm/yyyy HH:mm
+        return date;
+    }
+
     async getLocalizationFileData() {
         this.localizationService.loadLocalizationData().subscribe(() => {
             // Localization data is now loaded

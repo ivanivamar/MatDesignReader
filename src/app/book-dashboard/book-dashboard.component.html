@@ -7,66 +7,16 @@
         <div class="flex align-items-center gap-3">
             <img src="assets/android-chrome-512x512.png" alt="Logo" class="" style="width: 50px; height: 50px;">
             <h1 class="headline-lg">
-                {{ 'YourLibrary' | localize }}
+                {{ 'MyBooks' | localize }}
             </h1>
         </div>
+
+        <span class="text-base font-color-secondary font-medium">
+            {{books.length}} {{ 'Book' | localize }}{{books.length > 1 ? 's' : ''}}
+        </span>
     </div>
 
-    <!-- Last Read special section -->
-    <div class="flex flex-column" *ngIf="lastReadBooks.length > 0">
-        <h3 class="headline-sm">
-            {{ 'ContinueReading' | localize }}
-        </h3>
-
-        <div class="card-set-2 mt-3">
-            <div class="card align-items-center md:align-items-start flex-column md:flex-row" *ngFor="let lastReadBook of lastReadBooks">
-                <div class="grid grid-nogutter h-full">
-                    <div class="col-12 md:col-5">
-                        <img class="last-book-img h-auto md:h-full w-12rem md:w-full" [src]="lastReadBook.cover" alt="{{lastReadBook.title}}"/>
-                    </div>
-
-                    <div class="col-12 md:col-7">
-                        <div class="flex flex-column justify-content-between gap-3 col-12 md:col-6 px-0 md:px-3 h-auto py-0 md:h-full w-full">
-                            <div class="flex flex-column gap-3">
-                                <div class="flex flex-column gap-2" id="bookInfo">
-                                    <h3 class="title-lg">
-                                        {{lastReadBook.title}}
-                                    </h3>
-                                    <div class="flex align-items-center gap-3">
-                                        <span class="text-sm">{{lastReadBook.creator}}</span>
-                                        <span class="text-xs">·</span>
-                                        <span class="text-sm">{{lastReadBook.publisher}}</span>
-                                    </div>
-                                </div>
-
-
-                                <div class="flex align-items-center gap-2">
-                                    <div class="progress-bar-container mt-0">
-                                        <div class="progress-bar" [style.width]="lastReadBook.percentageRead + '%'"></div>
-                                    </div>
-                                    <span class="text-sm font-medium">{{Round(lastReadBook.percentageRead)}}%</span>
-                                </div>
-                            </div>
-
-                            <div class="flex align-items-center gap-3" id="actions">
-                                <button class="btn btn-filled" [routerLink]="['/reader/', lastReadBook.id]">
-                                    <i class="material-symbols-rounded">play_arrow</i>
-                                    <span>{{ 'Continue' | localize }}</span>
-                                </button>
-                                <button class="btn-icon btn-outlined"
-                                        (click)="showBookDialog = true; selectedEpup = lastReadBook">
-                                    <i class="material-symbols-rounded">edit</i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </div>
-
-    <svg style="opacity: 0.2; margin: 20px 0" width="100%" height="8" fill="none" xmlns="http://www.w3.org/2000/svg"
+    <!--<svg style="opacity: 0.2; margin: 20px 0" width="100%" height="8" fill="none" xmlns="http://www.w3.org/2000/svg"
          *ngIf="lastReadBooks.length > 0">
         <pattern _ngcontent-sjp-c18="" id="a" width="91" height="8" patternUnits="userSpaceOnUse">
             <g _ngcontent-sjp-c18="" clip-path="url(#clip0_2426_11367)">
@@ -76,50 +26,32 @@
             </g>
         </pattern>
         <rect _ngcontent-sjp-c18="" width="100%" height="100%" fill="url(#a)"></rect>
-    </svg>
+    </svg>-->
 
     <div class="card-set">
         <ng-container
             *ngFor="let book of books; let index = index">
             <a
-                class="card h-full no-underline relative"
-                [routerLink]="['/reader/', book.id]"
-                *ngIf="index >= maxElementsPerSize">
-                <img class="book-img" [src]="book.cover" alt="{{book.title}}">
-                <div class="card-body justify-content-between">
-                    <div class="flex flex-column">
-                        <span class="card-title">{{book.title}}</span>
-                        <span class="card-text">{{book.creator}}</span>
-                        <!--<span class="card-text">{{book.publisher}}</span>-->
-
-                        <div class="flex align-items-center gap-2">
-                            <div class="progress-bar-container mt-0">
-                                <div class="progress-bar" [style.width]="book.percentageRead + '%'"></div>
+                class="card gap-3 h-full no-underline relative"
+                [routerLink]="['/books/', book.id]">
+                <img class="h-full border-round-lg" [src]="book.cover" alt="{{book.title}}">
+                <div class="card-body flex-column justify-content-between w-full pt-0">
+                    <div class="flex justify-content-between">
+                        <div class="flex flex-column gap-2">
+                            <span class="card-title">{{book.title}}</span>
+                            <div class="p-2 py-1 gap-2 border-round-md color-surface-2 font-medium flex align-items-center justify-content-center w-max text-sm">
+                                <i class="material-symbols-rounded text-sm">
+                                    layers
+                                </i>
+                                {{book.pages}}
                             </div>
-                            <span class="text-sm font-medium">{{Round(book.percentageRead)}}%</span>
                         </div>
+                        <circle-progress
+                            [percent]="book.percentageRead" style="width: 41px; height: 41px;"
+                        ></circle-progress>
                     </div>
-                    <!--<svg style="opacity: 0.2; margin: 10px 0" width="100%" height="8" fill="none"
-                         xmlns="http://www.w3.org/2000/svg">
-                        <pattern _ngcontent-sjp-c18="" id="a" width="91" height="8" patternUnits="userSpaceOnUse">
-                            <g _ngcontent-sjp-c18="" clip-path="url(#clip0_2426_11367)">
-                                <path _ngcontent-sjp-c18=""
-                                      d="M114 4c-5.067 4.667-10.133 4.667-15.2 0S88.667-.667 83.6 4 73.467 8.667 68.4 4 58.267-.667 53.2 4 43.067 8.667 38 4 27.867-.667 22.8 4 12.667 8.667 7.6 4-2.533-.667-7.6 4s-10.133 4.667-15.2 0S-32.933-.667-38 4s-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0"
-                                      stroke="#E1E3E1" stroke-linecap="square"></path>
-                            </g>
-                        </pattern>
-                        <rect _ngcontent-sjp-c18="" width="100%" height="100%" fill="url(#a)"></rect>
-                    </svg>-->
 
-                    <div class="flex align-items-center justify-content-end gap-2 mt-2">
-                        <button class="btn-icon btn-filled btn-sm" [routerLink]="['/reader/', book.id]">
-                            <i class="material-symbols-rounded">play_arrow</i>
-                        </button>
-                        <button class="btn-icon btn-outlined btn-sm"
-                                (click)="editBook($event, book)">
-                            <i class="material-symbols-rounded">edit</i>
-                        </button>
-                    </div>
+                    <span class="card-text">{{book.creator}}</span>
                 </div>
             </a>
         </ng-container>

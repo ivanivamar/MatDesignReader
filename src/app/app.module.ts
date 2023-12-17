@@ -7,7 +7,6 @@ import {RouterOutlet} from "@angular/router";
 import {FormsModule} from "@angular/forms";
 import {HttpClient, HttpClientModule} from "@angular/common/http";
 import { BookDashboardComponent } from './book-dashboard/book-dashboard.component';
-import { ReaderComponent } from './reader/reader.component';
 import {AppRoutingModule} from "./app-routing.module";
 import { LoginComponent } from './login/login.component';
 import { ShelvesComponent } from './shelves/shelves.component';
@@ -18,6 +17,8 @@ import { LocalizePipe } from './common/pipe/localize.pipe';
 import { DropzoneComponent } from './common/dropzone/dropzone.component';
 import { DragDropDirective } from './common/drag-drop.directive';
 import { BookDetailComponent } from './book-dashboard/book-detail/book-detail.component';
+import {ReaderComponent} from "./book-dashboard/reader/reader.component";
+import {NgCircleProgressModule} from "ng-circle-progress";
 
 @NgModule({
     declarations: [
@@ -32,14 +33,32 @@ import { BookDetailComponent } from './book-dashboard/book-detail/book-detail.co
         LocalizePipe,
         DropzoneComponent,
         DragDropDirective,
-        BookDetailComponent
+        BookDetailComponent,
     ],
     imports: [
         BrowserModule,
         RouterOutlet,
         FormsModule,
         HttpClientModule,
-        AppRoutingModule
+        AppRoutingModule,
+        NgCircleProgressModule.forRoot({
+            // set defaults here
+            radius: 100,
+            outerStrokeWidth: 16,
+            innerStrokeWidth: 12,
+            outerStrokeColor: "#A8C7FA",
+            innerStrokeColor: "#2D2F31",
+            animation: false,
+            responsive: true,
+            renderOnClick: false,
+            showSubtitle: false,
+            unitsFontSize: "64",
+            unitsFontWeight: "600",
+            titleFontSize: "64",
+            titleFontWeight: "600",
+            titleColor: "#E3E3E3",
+            unitsColor: "#E3E3E3",
+        })
     ],
     bootstrap: [AppComponent]
 })
