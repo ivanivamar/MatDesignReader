@@ -13,7 +13,7 @@
         left: 50%;
         transform: translateX(-50%);
         height: calc(100% - 84px)">
-        <div class="mx-3 pt-2" style="padding-bottom: 7rem">
+        <div class="mx-3 pt-2" style="padding-bottom: 9rem">
             <div class="inline" *ngFor="let element of pages[book.currentPage].content">
                 <p [innerHTML]="element.value" class="body-sm font-medium indent" [class.whitespace]="element.value.trim().length == 0" *ngIf="element.type === 'text'" (mouseup)="onMouseUp($event)"></p>
                 <div *ngIf="element.type === 'image'" class="flex justify-content-center">

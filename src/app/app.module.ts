@@ -20,6 +20,7 @@ import { BookDetailComponent } from './book-dashboard/book-detail/book-detail.co
 import {ReaderComponent} from "./book-dashboard/reader/reader.component";
 import {NgCircleProgressModule} from "ng-circle-progress";
 import { MMenuComponent } from './common/m-menu/m-menu.component';
+import {LongPressDirective} from "./common/long-press.directive";
 
 @NgModule({
     declarations: [
@@ -36,6 +37,7 @@ import { MMenuComponent } from './common/m-menu/m-menu.component';
         DragDropDirective,
         BookDetailComponent,
         MMenuComponent,
+        LongPressDirective,
     ],
     imports: [
         BrowserModule,

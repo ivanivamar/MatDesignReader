@@ -33,6 +33,7 @@
             *ngFor="let book of books; let index = index">
             <a
                 class="card gap-3 h-full no-underline relative"
+                longPress (mouseLongPress)="selectedEpup = book; selectedEpup.showMenu = true; showBookMenu()"
                 [routerLink]="['/books/', book.id]">
                 <img class="h-full border-round-lg" [src]="book.cover" alt="{{book.title}}">
                 <div class="card-body flex-column justify-content-between w-full pt-0">
@@ -57,6 +58,28 @@
         </ng-container>
     </div>
 </main>
+
+<div class="menu-container" [class.open]="selectedEpup.showMenu">
+    <div class="overlay" (click)="selectedEpup.showMenu = false"></div>
+    <div class="menu">
+        <div class="menu-header">
+            <span class="font-medium max-w-18rem">
+                {{selectedEpup.title}}
+            </span>
+            <button class="btn-icon btn-text" (click)="selectedEpup.showMenu = false">
+                <i class="material-symbols-rounded">close</i>
+            </button>
+        </div>
+        <div class="menu-item" (click)="showBookDialog = true">
+            <i class="material-symbols-rounded">edit</i>
+            {{ 'Edit' | localize }}
+        </div>
+        <div class="menu-item text-red-500" (click)="deleteBook($event, selectedEpup)">
+            <i class="material-symbols-rounded text-red-500">delete</i>
+            {{ 'Delete' | localize }}
+        </div>
+    </div>
+</div>
 
 <m-dialog
     [(visible)]="showBookDialog"

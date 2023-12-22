@@ -468,6 +468,9 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
         return this.http.get(epubUrl, {responseType: 'arraybuffer'});
     }
 
+    showBookMenu() {
+    }
+
     async createOrUpdateBook() {
         if (this.isBookCreation) {
             await this.firebaseService.Create(this.selectedEpup, this.loggedUser?.uid);
@@ -532,6 +535,7 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
 
         await this.firebaseService.Delete(book.id, this.loggedUser?.uid);
         this.showBookDialog = false;
+        this.selectedEpup.showMenu = false;
         this.selectedEpup = new EpubDto();
         await this.getEpubsFromFirestore();
     }

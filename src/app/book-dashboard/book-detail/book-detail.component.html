@@ -96,11 +96,11 @@
                             [percent]="book.percentageRead" style="width: 41px; height: 41px;"
                         ></circle-progress>
 
-                        <a class="btn btn-filled btn-sm" href="/reader/{{ book.id }}">
+                        <a class="btn btn-filled btn-sm mt-1" href="/reader/{{ book.id }}">
                             <i class="material-symbols-rounded">play_arrow</i>
                             {{ 'Reed' | localize }}
                         </a>
-                        <button class="btn-icon btn-outlined danger" (click)="deleteBook()">
+                        <button class="btn-icon btn-outlined btn-sm danger" (click)="deleteBook()">
                             <i class="material-symbols-rounded">delete</i>
                         </button>
                     </div>
