@@ -21,6 +21,8 @@ import {ReaderComponent} from "./book-dashboard/reader/reader.component";
 import {NgCircleProgressModule} from "ng-circle-progress";
 import { MMenuComponent } from './common/m-menu/m-menu.component';
 import {LongPressDirective} from "./common/long-press.directive";
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import {MatSliderModule} from "@angular/material/slider";
 
 @NgModule({
     declarations: [
@@ -62,7 +64,9 @@ import {LongPressDirective} from "./common/long-press.directive";
             titleFontWeight: "600",
             titleColor: "#E3E3E3",
             unitsColor: "#E3E3E3",
-        })
+        }),
+        BrowserAnimationsModule,
+        MatSliderModule
     ],
     bootstrap: [AppComponent]
 })

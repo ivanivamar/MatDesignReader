@@ -13,7 +13,7 @@
         left: 50%;
         transform: translateX(-50%);
         height: calc(100% - 84px)">
-        <div class="mx-3 pt-2" style="padding-bottom: 9rem">
+        <div class="mx-3 pt-7 pb-8">
             <div class="inline" *ngFor="let element of pages[book.currentPage].content">
                 <p [innerHTML]="element.value" class="body-sm font-medium indent" [class.whitespace]="element.value.trim().length == 0" *ngIf="element.type === 'text'" (mouseup)="onMouseUp($event)"></p>
                 <div *ngIf="element.type === 'image'" class="flex justify-content-center">
@@ -64,71 +64,88 @@
         </div>
     </div>
 
-    <div class="fixed flex flex-column w-full" style="bottom: 0; left: 0; z-index: 99999999">
-        <div class="w-full p-3 py-1 color-surface-0 flex align-items-center">
+    <div class="fixed flex align-items-center justify-content-between color-surface-2 elevation-1 p-3 py-2 w-full" style="top: 0; left: 0; z-index: 99999999">
+        <div class="flex align-items-center gap-3">
+            <button class="btn-icon btn-text" (click)="GoToHome()">
+                <img src="assets/android-chrome-512x512.png" alt="Logo" class="" style="width: 40px;">
+            </button>
+            <span class="title-lg hidden md:block">
+                {{book.title}}
+            </span>
+        </div>
+        <div class="flex align-items-center gap-3">
+            <div class="dropdown" [class.open]="showToc">
+                <button class="btn-icon btn-text" (click)="fullScreen()">
+                    <i class="material-symbols-rounded">
+                        {{isFullScreen ? 'fullscreen_exit' : 'fullscreen'}}
+                    </i>
+                </button>
+                <button class="btn-icon btn-text" (click)="toggleTocMenu()">
+                    <i class="material-symbols-rounded">
+                        list_alt
+                    </i>
+                </button>
+                <div class="dropdown-content bottom right" id="toc">
+                    <div *ngFor="let chapter of book.toc">
+                        <a id="anchor" *ngIf="chapter.file === book.currentChapter.file"></a>
+                        <div
+                            class="dropdown-item"
+                            [id]="chapter.file === book.currentChapter.file ? 'anchor' : ''"
+                            [class.active]="chapter.file === book.currentChapter.file"
+                            (click)="navigateToChapter(chapter)">
+                            {{chapter.title}}
+                        </div>
+
+                        <div class="flex flex-column pl-3" *ngIf="chapter.subItems.length > 0">
+                            <div
+                                class="dropdown-subitem"
+                                [class.active]="subItem.file === book.currentChapter.file"
+                                [id]="subItem.file === book.currentChapter.file ? 'anchor' : ''"
+                                *ngFor="let subItem of chapter.subItems"
+                                (click)="navigateToChapter(subItem)">
+                                {{subItem.title}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button class="btn-icon btn-text" (click)="showSearchResults = !showSearchResults">
+                <i class="material-symbols-rounded">
+                    search
+                </i>
+            </button>
+        </div>
+    </div>
+
+    <div class="fixed flex flex-column w-full color-surface-0 p-3 py-1" style="bottom: 0; left: 0; z-index: 99999999">
+        <div class="w-full flex align-items-center">
             <span class="body-md font-medium font-color-secondary">
                 {{ 'NextChapterIn' | localize }}
                 {{getPagesUntilNextChapter()}} {{toUnderScore(l('Page'))}}{{getPagesUntilNextChapter() > 1 ? 's' : ''}}
             </span>
         </div>
-        <div class="color-surface-0 w-full">
-            <div class="flex align-items-center gap-3 p-2">
-                <div class="flex align-items-center gap-2">
-                    <button class="btn-icon btn-text" (click)="GoToHome()">
-                        <i class="material-symbols-rounded">
-                            arrow_back
-                        </i>
-                    </button>
-                    <div class="dropdown" [class.open]="showToc">
-                        <button class="btn-icon btn-text" (click)="toggleTocMenu()">
-                            <i class="material-symbols-rounded">
-                                list_alt
-                            </i>
-                        </button>
-                        <div class="dropdown-content top left" id="toc">
-                            <div *ngFor="let chapter of book.toc">
-                                <a id="anchor" *ngIf="chapter.file === book.currentChapter.file"></a>
-                                <div
-                                    class="dropdown-item"
-                                    [id]="chapter.file === book.currentChapter.file ? 'anchor' : ''"
-                                    [class.active]="chapter.file === book.currentChapter.file"
-                                    (click)="navigateToChapter(chapter)">
-                                    {{chapter.title}}
-                                </div>
-
-                                <div class="flex flex-column pl-3" *ngIf="chapter.subItems.length > 0">
-                                    <div
-                                        class="dropdown-subitem"
-                                        [class.active]="subItem.file === book.currentChapter.file"
-                                        [id]="subItem.file === book.currentChapter.file ? 'anchor' : ''"
-                                        *ngFor="let subItem of chapter.subItems"
-                                        (click)="navigateToChapter(subItem)">
-                                        {{subItem.title}}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <button class="btn-icon btn-text" (click)="showSearchResults = !showSearchResults">
-                        <i class="material-symbols-rounded">
-                            search
-                        </i>
-                    </button>
-                </div>
-                <div class="flex flex-column gap-2 w-full">
-                    <div class="progress-bar-container bg-secondary mt-0">
-                        <div class="progress-bar" [style.width]="book.percentageRead + '%'"></div>
-                    </div>
-                    <div class="flex w-full align-items-center justify-content-between">
-                        <span class="text-xs md:text-sm w-auto body-md font-medium font-color-secondary">
-                            {{book.currentChapter.title}}
-                        </span>
-                        <span class="body-md font-medium font-color-secondary">
-                            {{book.currentPage + 1}} / {{pages.length}}
-                        </span>
-                    </div>
-                </div>
+        <div class="flex align-items-center gap-3">
+            <mat-slider
+                style="flex-grow: 1;display: flex;"
+                [min]="0"
+                [max]="pages.length - 1"
+                [step]="1">
+                <input [(value)]="book.currentPage" matSliderThumb>
+            </mat-slider>
+            <div class="flex align-items-center gap-3 w-max">
+                <button class="btn-icon btn-text" (click)="prevPage()">
+                    <i class="material-symbols-rounded">
+                        chevron_left
+                    </i>
+                </button>
+                <span class="body-md font-medium font-color-secondary">
+                    {{book.currentPage + 1}} / {{pages.length}}
+                </span>
+                <button class="btn-icon btn-text" (click)="nextPage()">
+                    <i class="material-symbols-rounded">
+                        chevron_right
+                    </i>
+                </button>
             </div>
         </div>
     </div>
