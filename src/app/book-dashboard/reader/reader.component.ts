@@ -43,6 +43,8 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
     searchResults: any[] = [];
     showSearchResults = false;
 
+    showMenusMobile = false;
+
     constructor(
         injector: Injector,
         private firebaseService: FirebaseService,
@@ -542,6 +544,29 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
         } else {
             this.isFullScreen = true;
             document.documentElement.requestFullscreen();
+        }
+    }
+
+    HandleSwipe() {
+        const minDistance = 80;
+        const container = document.querySelector('.swipe-container') as HTMLElement;
+
+        // get the distance the user swiped
+        const swipeDistance = container.scrollLeft - container.clientWidth;
+        if (swipeDistance < minDistance * -1) {
+            // swipe left
+            this.prevPage();
+        } else if (swipeDistance > minDistance) {
+            // swipe right
+            this.nextPage();
+        } else {
+            // no swipe
+        }
+    }
+
+    HandleShowMenusMobile() {
+        if (window.innerWidth < 768) {
+            this.showMenusMobile = !this.showMenusMobile;
         }
     }
 }

@@ -1,39 +1,46 @@
 <div *ngIf="!loading">
-    <div id="prev-btn" style="position: fixed; top:0; left:0;z-index: 9999999;" class="block md:hidden h-full w-6"
-         (click)="prevPage()">
-
-    </div>
-    <div id="next-btn" style="position: fixed; top:0; right:0;z-index: 9999999;" class="block md:hidden h-full w-6"
-         (click)="nextPage()">
-
-    </div>
-    <div class="w-full md:w-8 shadow-inset" style="
-        position: absolute;
-        top: 0;
-        left: 50%;
-        transform: translateX(-50%);
-        height: calc(100% - 84px)">
-        <div class="mx-3 pt-7 pb-8">
-            <div class="inline" *ngFor="let element of pages[book.currentPage].content">
-                <p [innerHTML]="element.value" class="body-sm font-medium indent" [class.whitespace]="element.value.trim().length == 0" *ngIf="element.type === 'text'" (mouseup)="onMouseUp($event)"></p>
-                <div *ngIf="element.type === 'image'" class="flex justify-content-center">
-                    <img [src]="getImageByName(element.value)" alt="" style="height: 100%; width: 100%; max-width: 500px;">
+    <div
+        class="pt-0 md:pt-7 pb-0 md:pb-8 swipe-container relative"
+        [class.show-menu-mobile]="showMenusMobile"
+        (touchend)="HandleSwipe()"
+        (click)="HandleShowMenusMobile()">
+        <div id="prev-btn" class="block md:hidden h-full action"></div>
+        <div class="swipe-element pl-2 relative">
+            <div class="w-full scroll-element">
+                <div class="inline" *ngFor="let element of pages[book.currentPage].content">
+                    <p [innerHTML]="element.value" class="body-sm font-medium indent" [class.whitespace]="element.value.trim().length == 0" *ngIf="element.type === 'text'" (mouseup)="onMouseUp($event)"></p>
+                    <div *ngIf="element.type === 'image'" class="flex justify-content-center">
+                        <img [src]="getImageByName(element.value)" alt="" style="height: 100%; width: 100%; max-width: 500px;">
+                    </div>
+                    <i [innerHTML]="element.value" *ngIf="element.type === 'italic'" (mouseup)="onMouseUp($event)"></i>
+                    <em class="font-light indent" *ngIf="element.type === 'em'" (mouseup)="onMouseUp($event)">
+                        {{element.value}}
+                    </em>
+                    <blockquote *ngIf="element.type === 'bq'" class="text-center font-light indent" (mouseup)="onMouseUp($event)">
+                        {{element.value}}
+                    </blockquote>
+                    <h1 *ngIf="element.type === 'heading1'" class="headline-sm font-bold text-center mb-2" (mouseup)="onMouseUp($event)">
+                        {{element.value}}
+                    </h1>
+                    <h2 *ngIf="element.type === 'heading2'" class="headline-sm font-bold text-center mb-2" (mouseup)="onMouseUp($event)">
+                        {{element.value}}
+                    </h2>
                 </div>
-                <i [innerHTML]="element.value" *ngIf="element.type === 'italic'" (mouseup)="onMouseUp($event)"></i>
-                <em class="font-light indent" *ngIf="element.type === 'em'" (mouseup)="onMouseUp($event)">
-                    {{element.value}}
-                </em>
-                <blockquote *ngIf="element.type === 'bq'" class="text-center font-light indent" (mouseup)="onMouseUp($event)">
-                    {{element.value}}
-                </blockquote>
-                <h1 *ngIf="element.type === 'heading1'" class="headline-sm font-bold text-center mb-2" (mouseup)="onMouseUp($event)">
-                    {{element.value}}
-                </h1>
-                <h2 *ngIf="element.type === 'heading2'" class="headline-sm font-bold text-center mb-2" (mouseup)="onMouseUp($event)">
-                    {{element.value}}
-                </h2>
+            </div>
+            <div class="flex md:hidden align-items-center justify-content-between py-2 pr-2">
+                <div class="w-full flex align-items-center">
+                    <span class="body-md font-medium font-color-secondary">
+                        {{ 'NextChapterIn' | localize }}
+                        {{getPagesUntilNextChapter()}} {{toUnderScore(l('Page'))}}{{getPagesUntilNextChapter() > 1 ? 's' : ''}}
+                    </span>
+                </div>
+                <span class="body-md font-medium font-color-secondary" style="width: 90px">
+                    {{book.currentPage + 1}} / {{pages.length}}
+                </span>
             </div>
         </div>
+        <div id="next-btn" class="block md:hidden h-full action"></div>
+
     </div>
 
     <div *ngIf="showDefinition"
@@ -64,22 +71,25 @@
         </div>
     </div>
 
-    <div class="fixed flex align-items-center justify-content-between color-surface-2 elevation-1 p-3 py-2 w-full" style="top: 0; left: 0; z-index: 99999999">
+    <div [class.show-topbar-mobile]="showMenusMobile" class="topbar fixed align-items-center justify-content-between color-surface-2 elevation-1 p-3 py-2 w-full" style="top: 0; left: 0; z-index: 99999999">
         <div class="flex align-items-center gap-3">
             <button class="btn-icon btn-text" (click)="GoToHome()">
-                <img src="assets/android-chrome-512x512.png" alt="Logo" class="" style="width: 40px;">
+                <img src="assets/android-chrome-512x512.png" alt="Logo" class="hidden md:flex" style="width: 40px;">
+                <i class="material-symbols-rounded md:hidden">
+                    arrow_back
+                </i>
             </button>
             <span class="title-lg hidden md:block">
                 {{book.title}}
             </span>
         </div>
         <div class="flex align-items-center gap-3">
+            <button class="btn-icon btn-text" (click)="fullScreen()">
+                <i class="material-symbols-rounded">
+                    {{isFullScreen ? 'fullscreen_exit' : 'fullscreen'}}
+                </i>
+            </button>
             <div class="dropdown" [class.open]="showToc">
-                <button class="btn-icon btn-text" (click)="fullScreen()">
-                    <i class="material-symbols-rounded">
-                        {{isFullScreen ? 'fullscreen_exit' : 'fullscreen'}}
-                    </i>
-                </button>
                 <button class="btn-icon btn-text" (click)="toggleTocMenu()">
                     <i class="material-symbols-rounded">
                         list_alt
@@ -117,8 +127,8 @@
         </div>
     </div>
 
-    <div class="fixed flex flex-column w-full color-surface-0 p-3 py-1" style="bottom: 0; left: 0; z-index: 99999999">
-        <div class="w-full flex align-items-center">
+    <div [class.show-bottombar-mobile]="showMenusMobile" class="bottombar fixed flex flex-column w-full color-surface-0 p-3 py-1" style="bottom: 0; left: 0; z-index: 99999999">
+        <div class="w-full align-items-center hidden md:flex">
             <span class="body-md font-medium font-color-secondary">
                 {{ 'NextChapterIn' | localize }}
                 {{getPagesUntilNextChapter()}} {{toUnderScore(l('Page'))}}{{getPagesUntilNextChapter() > 1 ? 's' : ''}}
@@ -132,7 +142,7 @@
                 [step]="1">
                 <input [(value)]="book.currentPage" matSliderThumb>
             </mat-slider>
-            <div class="flex align-items-center gap-3 w-max">
+            <div class="hidden md:flex align-items-center gap-3 w-max">
                 <button class="btn-icon btn-text" (click)="prevPage()">
                     <i class="material-symbols-rounded">
                         chevron_left
