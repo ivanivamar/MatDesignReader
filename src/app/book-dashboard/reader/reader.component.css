@@ -12,7 +12,7 @@
     overflow-x: scroll;
     scroll-snap-type: x mandatory;
     width: 100%;
-    height: calc(100% - 84px);
+    height: 100%;
     transition: transform 0.3s ease-in-out;
 }
 .swipe-container::-webkit-scrollbar {
@@ -20,7 +20,7 @@
 }
 .swipe-container.show-menu-mobile {
     overflow: hidden;
-    height: 100vh;
+    height: var(--doc-height);
     border-radius: 6px;
     box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
     transform: scale(0.85);
@@ -34,7 +34,7 @@
 
 .scroll-element {
     height: 100%;
-    overflow-y: hidden;
+    overflow-y: visible;
 }
 
 .action {
@@ -51,9 +51,15 @@
     display: flex;
 }
 
+:root {
+     --doc-height: 100%;
+}
+
+
 @media (max-width: 768px) {
     .swipe-container {
         background-color: black;
+        height: var(--doc-height);
     }
 
     .swipe-element {
@@ -64,7 +70,7 @@
     }
     .scroll-element {
         overflow-y: auto !important;
-        height: calc(100vh - 36px) !important;
+        height: calc(100% - 36px) !important;
     }
 
     .topbar {

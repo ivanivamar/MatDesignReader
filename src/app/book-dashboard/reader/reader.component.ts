@@ -74,6 +74,8 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
                     await this.DynamicParser(this.epubData);
                     this.updateBook();
                     await this.getLocalizationFileData();
+                    const doc = document.documentElement
+                    doc.style.setProperty('--doc-height', `${window.innerHeight}px`)
                     this.loading = false;
                 });
             }
@@ -347,6 +349,8 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
         this.setChapter();
         this.getPercentageRead();
         this.updateBook();
+        // @ts-ignore
+        document.querySelector('.scroll-element').scrollTo(0,0);
         window.scrollTo(0, 0);
     }
     nextPage(): void {
@@ -358,7 +362,8 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
         this.getPercentageRead();
         this.updateBook();
         // scroll to top of page
-        window.scrollTo(0, 0);
+        // @ts-ignore
+        document.querySelector('.scroll-element').scrollTo(0,0)
     }
     goToPage(page: number): void {
         this.book.currentPage = page;
@@ -367,6 +372,7 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
         this.getPercentageRead();
         this.updateBook();
         // scroll to top of page
+        window.scrollTo(0, 0);
         window.scrollTo(0, 0);
 
         // if mobile, hide menu
