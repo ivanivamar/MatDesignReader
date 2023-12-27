@@ -18,6 +18,7 @@ export interface Epub {
     rating: number;
     pages: number;
     description: string;
+    notes: Note[];
 }
 
 export class EpubDto {
@@ -42,6 +43,7 @@ export class EpubDto {
     rating: number = 0;
     pages: number = 0;
     description: string = '';
+    notes: Note[] = [];
 }
 export interface Page {
     file: string;
@@ -57,7 +59,18 @@ export interface Toc {
     subItems: Toc[];
 }
 
-export interface Shelves {
+export interface Note {
+    id: string;
+    title: string;
+    note: string;
+    category: NoteCategory;
+    creationDate: Date;
+    modificationDate: Date;
+}
+export enum NoteCategory {
+    General = 1,
+    Highlight = 2,
+    Bookmark = 3
 }
 
 export class ShelvesDto {

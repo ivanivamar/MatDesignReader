@@ -1,14 +1,15 @@
-<div *ngIf="visible" class="dialog-container">
+<div *ngIf="visible" class="dialog-container" [class.panel-view]="panel">
     <div
         class="overlay"
+        [class.bg-transparent]="!showMask"
         *ngIf="dismissibleMask"
         (click)="closeDialog()"
     ></div>
     <div class="dialog" [style.width]="width" [style.height]="height">
         <div class="dialog-header">
-            <span class="dialog-title">
-                {{ header }}
-            </span>
+        <span class="dialog-title">
+            {{ header }}
+        </span>
             <button class="btn-icon btn-text" (click)="closeDialog()">
                 <i class="material-symbols-rounded">close</i>
             </button>

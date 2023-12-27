@@ -7,8 +7,20 @@
                     {{ label | localize }}
                     <span class="required-asterisk" *ngIf="required">*</span>
                 </label>
-                <input #inputRef [type]="inputType" class="input" [placeholder]="placeholder" [ngModel]="value" (ngModelChange)="valueChange.emit($event)" name="{{ name }}"
-                       [disabled]="disabled" (focus)="onFocus()" (blur)="onBlur()" (ngModelChange)="verifyInput()" />
+                <input
+                    #inputRef
+                    [type]="inputType"
+                    [autofocus]="autofocus"
+                    class="input"
+                    [placeholder]="placeholder"
+                    [ngModel]="value"
+                    (ngModelChange)="valueChange.emit($event)"
+                    name="{{ name }}"
+                    [disabled]="disabled"
+                    (focus)="onFocus()"
+                    (blur)="onBlur()"
+                    [id]="name"
+                    (ngModelChange)="verifyInput()" />
             </div>
         </div>
         <div class="input-actions">

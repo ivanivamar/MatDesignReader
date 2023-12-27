@@ -22,6 +22,7 @@ export class MInputComponent extends AppComponentBase {
     @Input() required: boolean = false;
     @Input() name: string = '';
     @Input() showPassword: boolean = false;
+    @Input() autofocus: boolean = false;
 
     @Output() valueChange = new EventEmitter();
     @Output() onClear = new EventEmitter();

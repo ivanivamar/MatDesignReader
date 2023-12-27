@@ -52,12 +52,23 @@
             align-items: center
             gap: 10px
 
-@media (max-width: 600px)
+    &.panel-view
+
+        .dialog
+            box-shadow: 0 11px 15px -7px rgba(0,0,0,.2), 0 24px 38px 3px rgba(0,0,0,.14), 0 9px 46px 8px rgba(0,0,0,.12)
+            background-color: $color-surface-2
+            border-radius: 4px
+            margin-left: auto
+            margin-right: 24px
+
+@media (max-width: 728px)
     .dialog
         width: 100% !important
         border-radius: 0 !important
         height: 100% !important
         margin: 0
+        margin-left: 0 !important
+        margin-right: 0 !important
 
         .dialog-header
             padding: 10px 10px !important
@@ -71,4 +82,3 @@
         .dialog-footer > div
             padding: 10px 10px 10px !important
             border-top: 1px solid $color-utility-outline
-

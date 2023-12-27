@@ -1,6 +1,6 @@
 import {Component, Injector, OnInit} from '@angular/core';
 import {catchError, from, map, Observable, tap} from "rxjs";
-import {Content, Epub, EpubDto, Page, Shelves, ShelvesDto, Toc} from "../common/interfaces/models";
+import {Content, Epub, EpubDto, Page, ShelvesDto, Toc} from "../common/interfaces/models";
 import * as JSZip from "jszip";
 import {FirebaseService} from "../common/services/firebase.service";
 import {HttpClient} from "@angular/common/http";

@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {Component, ElementRef, EventEmitter, Input, Output} from '@angular/core';
 // detect keyboard event
 import { HostListener } from '@angular/core';
 
@@ -14,7 +14,12 @@ export class MDialogComponent {
     @Input() height: string = 'auto';
     @Input() closeOnEscape: boolean = true;
     @Input() dismissibleMask: boolean = true;
+    @Input() showMask: boolean = true;
+    @Input() panel = false;
     @Output() visibleChange: EventEmitter<boolean> = new EventEmitter<boolean>();
+
+    constructor(private _eref: ElementRef) {
+    }
 
     closeDialog() {
         this.visible = false;

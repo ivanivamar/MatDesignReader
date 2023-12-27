@@ -3,7 +3,7 @@ import {initializeApp} from "firebase/app";
 import {getStorage, ref, uploadBytes, getDownloadURL, getMetadata} from "firebase/storage";
 import {addDoc, collection, deleteDoc, doc, getDoc, getDocs, getFirestore, query, setDoc, updateDoc, where} from "firebase/firestore";
 import {combineLatest, map, Observable} from "rxjs";
-import {Epub, Shelves, ShelvesDto} from "../interfaces/models";
+import {Epub, ShelvesDto} from "../interfaces/models";
 import {HttpClient} from "@angular/common/http";
 import {GoogleAuthProvider, getAuth, signInWithPopup} from "firebase/auth";
 import {AppComponentBase} from "../AppComponentBase";

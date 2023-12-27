@@ -23,6 +23,7 @@ import { MMenuComponent } from './common/m-menu/m-menu.component';
 import {LongPressDirective} from "./common/long-press.directive";
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {MatSliderModule} from "@angular/material/slider";
+import {DragDropModule} from "@angular/cdk/drag-drop";
 
 @NgModule({
     declarations: [
@@ -66,7 +67,8 @@ import {MatSliderModule} from "@angular/material/slider";
             unitsColor: "#E3E3E3",
         }),
         BrowserAnimationsModule,
-        MatSliderModule
+        MatSliderModule,
+        DragDropModule,
     ],
     bootstrap: [AppComponent]
 })

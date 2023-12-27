@@ -44,6 +44,7 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
     showSearchResults = false;
 
     showMenusMobile = false;
+    showNotes = false;
 
     constructor(
         injector: Injector,
@@ -335,9 +336,6 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
             case 'ArrowRight':
                 this.nextPage();
                 break;
-            case 'f':
-                this.fullScreen();
-                break;
         }
     }
 
@@ -351,6 +349,8 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
         this.updateBook();
         // @ts-ignore
         document.querySelector('.scroll-element').scrollTo(0,0);
+        // @ts-ignore
+        document.querySelector('body').scrollTo(0,0);
         window.scrollTo(0, 0);
     }
     nextPage(): void {
@@ -363,7 +363,10 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
         this.updateBook();
         // scroll to top of page
         // @ts-ignore
-        document.querySelector('.scroll-element').scrollTo(0,0)
+        document.querySelector('.scroll-element').scrollTo(0,0);
+        // @ts-ignore
+        document.querySelector('body').scrollTo(0,0);
+        window.scrollTo(0, 0);
     }
     goToPage(page: number): void {
         this.book.currentPage = page;
