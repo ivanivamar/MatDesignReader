@@ -2,6 +2,18 @@
 <button class="fab" (click)="fileInput.click()">
     <i class="material-symbols-rounded">cloud_upload</i>
 </button>
+
+<div
+    class="fixed top-0 left-0 w-full flex color-surface-2 elevation-1 p-2 align-items-center gap-2"
+    *ngIf="showSearch"
+    style="z-index: 9999999999999;">
+    <m-input class="w-full flex-1" [inputType]="'text'" [icon]="'search'" [name]="'search'" [label]="'Search'"
+             [(value)]="searchFilter" [showClear]="true"></m-input>
+    <button class="btn-icon btn-text" (click)="showSearch = false">
+        <i class="material-symbols-rounded">close</i>
+    </button>
+</div>
+
 <main *ngIf="!loading">
     <div class="flex align-items-center justify-content-between mb-3">
         <div class="flex align-items-center gap-3">
@@ -9,6 +21,11 @@
             <h1 class="headline-lg">
                 {{ 'MyBooks' | localize }}
             </h1>
+            <m-input class="w-18rem hidden md:block" [inputType]="'text'" [icon]="'search'" [name]="'search'" [label]="'Search'"
+                     [(value)]="searchFilter" [showClear]="true"></m-input>
+            <button class="btn-icon btn-text btn-sm md:hidden" (click)="showSearch = true">
+                <i class="material-symbols-rounded">search</i>
+            </button>
         </div>
 
         <span class="text-base font-color-secondary font-medium">
@@ -32,6 +49,7 @@
         <ng-container
             *ngFor="let book of books; let index = index">
             <a
+                *ngIf="searchFilter.trim() === '' || book.title.toLowerCase().includes(searchFilter.toLowerCase())"
                 class="card gap-3 h-full no-underline relative"
                 longPress (mouseLongPress)="selectedEpup = book; selectedEpup.showMenu = true; showBookMenu()"
                 [routerLink]="['/books/', book.id]">

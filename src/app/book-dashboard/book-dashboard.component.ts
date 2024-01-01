@@ -39,6 +39,7 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
     localizationDataUrl: any = '/assets/localizations/' + this.language + '.json';
 
     searchFilter = '';
+    showSearch = false;
 
     constructor(
         injector: Injector,

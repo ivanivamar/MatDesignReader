@@ -27,7 +27,7 @@
                     search
                 </i>
             </button>
-            <button class="btn-icon btn-text" (click)="showToc = !showToc">
+            <button class="btn-icon btn-text" (click)="toggleTocMenu()">
                 <i class="material-symbols-rounded">
                     list_alt
                 </i>
@@ -100,17 +100,17 @@
     <div *ngIf="showNotes" class="panel notes-panel"
          style="height:calc(100vh - 116px); margin-top:56px; margin-bottom: 60px;">
         <div class="panel-header">
-            <span class="panel-title">
+            <span class="title-md">
                 {{ 'Notes' | localize }}
             </span>
 
             <div class="flex align-items-center">
-                <button class="btn-icon btn-text" (click)="showNotes = !showNotes">
+                <button class="btn-icon btn-text" matRipple (click)="newNote()">
                     <i class="material-symbols-rounded">
                         add_notes
                     </i>
                 </button>
-                <button class="btn-icon btn-text" (click)="showNotes = !showNotes">
+                <button class="btn-icon btn-text" matRipple (click)="showNotes = !showNotes">
                     <i class="material-symbols-rounded">
                         close
                     </i>
@@ -118,18 +118,39 @@
             </div>
         </div>
         <div class="panel-content">
-            <div class="panel-item" *ngFor="let note of book.notes">
-                <span class="text-lg font-medium">
-                    {{ note.title }} - {{ note.category }}
+            <div class="w-full px-3 py-1 border-bottom" *ngIf="book.notes && book.notes.length > 0">
+                <span class="title-sm font-medium">
+                    {{ book.notes.length }} {{ 'Notes' | localize }}
                 </span>
-
-                <div class="flex flex-column gap-2">
-                    <span class="text-sm font-light">
+            </div>
+            <div class="panel-item border-bottom" *ngFor="let note of book.notes">
+                <div class="flex flex-column gap-3">
+                    <form (ngSubmit)="updateBook()" *ngIf="edittingNoteId == note.id">
+                        <m-input class="w-full" [name]="'Note'" [(value)]="note.note" *ngIf="edittingNoteId == note.id"
+                                 [autofocus]="true"></m-input>
+                    </form>
+                    <span class="title-lg font-regular" *ngIf="edittingNoteId != note.id">
                         {{ note.note }}
                     </span>
-                    <span class="text-xs font-light">
-                        {{ note.modificationDate | date: 'dd/MM/yyyy' }}
-                    </span>
+                    <div class="flex align-items-center gap-2">
+                        <button class="btn btn-tonal mt-1" matRipple *ngIf="edittingNoteId != note.id" (click)="edittingNoteId = note.id">
+                            <i class="material-symbols-rounded">
+                                edit
+                            </i>
+                            {{ 'Edit' | localize }}
+                        </button>
+                        <button class="btn btn-tonal mt-1" *ngIf="edittingNoteId == note.id" matRipple (click)="updateBook(); edittingNoteId = ''">
+                            <i class="material-symbols-rounded">
+                                save
+                            </i>
+                            {{ 'Save' | localize }}
+                        </button>
+                        <button class="btn-icon btn-text danger" matRipple (click)="edittingNoteId = ''; deleteNote(note)">
+                            <i class="material-symbols-rounded">
+                                delete
+                            </i>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -261,25 +282,45 @@
     [height]="'calc(100vh - 120px)'"
     (visibleChange)="showToc = false">
 
-    <div content class="flex max-h-full border-top" style="height: calc(100vh - 190px)">
-        <div class="list-container">
+    <div content class="flex max-h-full border-top px-0" id="tocIndex" style="height: calc(100vh - 190px)">
+        <div class="list-container w-full">
             <div *ngFor="let chapter of book.toc">
                 <div
-                    class="list-item"
+                    class="list-item square" matRipple
                     [id]="chapter.file === book.currentChapter.file ? 'anchor' : ''"
                     [class.active]="chapter.file === book.currentChapter.file"
                     (click)="navigateToChapter(chapter)">
-                    {{ chapter.title }}
+
+                    <div class="current-indicator" *ngIf="chapter.file === book.currentChapter.file"></div>
+
+                    <div class="list-content">
+                            <span class="list-title">
+                                {{ chapter.title }}
+                            </span>
+                        <div class="list-subtitle">
+                            {{ 'Page' | localize }} {{ getPageOfChapter(chapter) }}
+                        </div>
+                    </div>
                 </div>
 
                 <div class="flex flex-column pl-3" *ngIf="chapter.subItems.length > 0">
                     <div
-                        class="list-item"
+                        class="list-item square" matRipple
                         [class.active]="subItem.file === book.currentChapter.file"
                         [id]="subItem.file === book.currentChapter.file ? 'anchor' : ''"
                         *ngFor="let subItem of chapter.subItems"
                         (click)="navigateToChapter(subItem)">
-                        {{ subItem.title }}
+
+                        <div class="current-indicator" *ngIf="subItem.file === book.currentChapter.file"></div>
+
+                        <div class="list-content">
+                            <span class="list-title">
+                                {{ subItem.title }}
+                            </span>
+                            <div class="list-subtitle">
+                                {{ 'Page' | localize }} {{ getPageOfChapter(subItem) }}
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

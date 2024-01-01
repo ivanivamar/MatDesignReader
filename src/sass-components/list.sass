@@ -17,3 +17,63 @@
             background-color: $color-surface-variant
         &.active
             background-color: $color-surface-variant
+
+        &.square
+            border-radius: 0
+            padding-left: 52px
+            height: 64px
+            width: 100%
+            position: relative
+            align-items: stretch
+            cursor: pointer
+            justify-content: flex-start
+            overflow: hidden
+
+            .current-indicator
+                position: absolute
+                top: 17px
+                left: 6px
+                -webkit-margin-start: 16px
+                margin-inline-start: 16px
+                -webkit-margin-end: 24px
+                margin-inline-end: 24px
+                width: 8px
+                height: 8px
+                border-radius: 50%
+                background-color: $color-primary
+
+            .list-content
+                display: flex
+                align-self: stretch
+                justify-content: center
+                text-overflow: ellipsis
+                white-space: nowrap
+                overflow: hidden
+                flex: 1
+                flex-direction: column
+                gap: 4px
+
+                .list-title
+                    font-family: $font-family-medium !important
+                    color: $color-on-surface
+                    font-size: 14px
+                    line-height: 20px
+                    letter-spacing: 0.25px
+                    display: block
+
+                .list-subtitle
+                    font-family: $font-family
+                    color: $color-on-surface-variant
+                    font-size: 12px
+                    line-height: 16px
+                    letter-spacing: 0.3px
+                    display: block
+
+            &:hover
+                background-color: $color-surface-variant
+            &.active
+                background-color: #475264
+
+                .list-content
+                    .list-title
+                        color: $color-primary

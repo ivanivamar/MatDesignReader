@@ -1,6 +1,6 @@
 import {Component, HostListener, Injector, OnInit} from '@angular/core';
 import {AppComponentBase} from "../../common/AppComponentBase";
-import {EpubDto, Page, Toc} from "../../common/interfaces/models";
+import {EpubDto, Note, NoteCategory, Page, Toc} from "../../common/interfaces/models";
 import {FirebaseService} from "../../common/services/firebase.service";
 import {from, Observable} from "rxjs";
 import {Router} from "@angular/router";
@@ -45,6 +45,7 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
 
     showMenusMobile = false;
     showNotes = false;
+    edittingNoteId = '';
 
     constructor(
         injector: Injector,
@@ -386,6 +387,20 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
 
     toggleTocMenu() {
         this.showToc = !this.showToc;
+        // scroll to active chapter
+        setTimeout(() => {
+            let activeChapter = document.querySelector(".list-item.active") as HTMLElement;
+            let tocContainer = document.getElementById("tocIndex") as HTMLElement;
+
+            if (activeChapter && tocContainer) {
+                tocContainer.scrollTop = activeChapter.offsetTop - 170;
+            }
+        }, 0);
+    }
+
+    getPageOfChapter(chapter: Toc): number {
+        const page = this.pages.find(x => x.file.split('/').pop() === chapter.file.split('/').pop());
+        return this.pages.indexOf(page!);
     }
 
     getSearchResults(): void {
@@ -577,6 +592,32 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
         if (window.innerWidth < 768) {
             this.showMenusMobile = !this.showMenusMobile;
         }
+    }
+
+    newNote() {
+        if (!this.book.notes) {
+            this.book.notes = [];
+        }
+        this.book.notes.push({
+            id: this.IdGenerator(),
+            title: '',
+            note: '',
+            category: NoteCategory.General,
+            creationDate: new Date(),
+            modificationDate: new Date()
+        });
+        this.edittingNoteId = this.book.notes[this.book.notes.length - 1].id;
+        // order notes by modification date
+        this.book.notes.sort((a, b) => {
+            return new Date(b.modificationDate).getTime() - new Date(a.modificationDate).getTime();
+        });
+
+        this.updateBook();
+    }
+
+    deleteNote(note: Note) {
+        this.book.notes = this.book.notes.filter(x => x.id !== note.id);
+        this.updateBook();
     }
 }
 export interface Dictionary {

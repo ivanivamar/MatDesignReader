@@ -24,6 +24,7 @@ import {LongPressDirective} from "./common/long-press.directive";
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {MatSliderModule} from "@angular/material/slider";
 import {DragDropModule} from "@angular/cdk/drag-drop";
+import {MatRippleModule} from '@angular/material/core';
 
 @NgModule({
     declarations: [
@@ -69,6 +70,7 @@ import {DragDropModule} from "@angular/cdk/drag-drop";
         BrowserAnimationsModule,
         MatSliderModule,
         DragDropModule,
+        MatRippleModule,
     ],
     bootstrap: [AppComponent]
 })
