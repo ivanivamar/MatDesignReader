@@ -1,6 +1,6 @@
 import {Component, Injector, OnInit} from '@angular/core';
 import {catchError, from, map, Observable, tap} from "rxjs";
-import {Content, Epub, EpubDto, Page, ShelvesDto, Toc} from "../common/interfaces/models";
+import {Content, IEpub, EpubDto, Page, ShelvesDto, Toc} from "../common/interfaces/models";
 import * as JSZip from "jszip";
 import {FirebaseService} from "../common/services/firebase.service";
 import {HttpClient} from "@angular/common/http";
@@ -117,7 +117,7 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
         this.showShelvesModal = true;
     }
 
-    GoToReader(book: Epub): void {
+    GoToReader(book: IEpub): void {
         this.router.navigate(['reader', book.id]);
     }
 
@@ -366,7 +366,7 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
         // format for object Toc
         const toc: Toc[] = [];
         // loop children of navMap
-        if (navMap.children.length > 0) {
+        /*if (navMap.children.length > 0) {
             for (let i = 0; i < navMap.children.length; i++) {
                 const navPoint = navMap.children[i];
                 if (navPoint.children.length > 0) {
@@ -401,9 +401,15 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
                     this.selectedEpup.toc.push(tocItem);
                 }
             }
-        }
+        }*/
 
-        this.selectedEpup.currentChapter = this.selectedEpup.toc[0];
+        this.selectedEpup.currentChapter = {
+            id: '',
+            href: '',
+            label: '',
+            parent: '',
+            subitems: []
+        };
     }
     async GetPageLocationOrder(opfFileContent: string, opfFileParentFolder: string) {
         try {
@@ -525,7 +531,7 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
         await this.getShelves();
     }
 
-    async deleteBook(event: Event, book: Epub): Promise<void> {
+    async deleteBook(event: Event, book: IEpub): Promise<void> {
         event.stopPropagation();
         event.preventDefault();
         // remove book from shelf if exists
@@ -539,6 +545,12 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
         this.selectedEpup.showMenu = false;
         this.selectedEpup = new EpubDto();
         await this.getEpubsFromFirestore();
+    }
+
+    bookSearch(book: EpubDto): boolean {
+        let titleWithoutAccents = book.title.normalize('NFD').replace(/\p{Diacritic}/gu, '');
+        let authorWithoutAccents = book.creator.normalize('NFD').replace(/\p{Diacritic}/gu, '');
+        return titleWithoutAccents.toLowerCase().includes(this.searchFilter.toLowerCase()) || authorWithoutAccents.toLowerCase().includes(this.searchFilter.toLowerCase());
     }
 }
 

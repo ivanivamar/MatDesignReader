@@ -10,7 +10,6 @@
     cursor: pointer
     -webkit-tap-highlight-color: transparent
     font-variation-settings: "GRAD" 0
-    max-height: 142px
     //border: 1px solid rgba($color-utility-outline, .2)
 
     .card-body
@@ -50,8 +49,24 @@
             background-color: rgba(0, 0, 0, 0.5)
 
     &:active
-        transform: scale(0.95)
+        transform: scale(0.97)
         outline: initial
+
+.card
+    flex-direction: column
+    background-color: transparent
+    border-radius: 8px
+    padding: 12px
+
+    &:hover
+        background-color: $color-surface-1
+        color: $color-on-surface
+
+    img
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.3), 0 1px 3px 1px rgba(0, 0, 0, 0.15)
+        height: auto
+        width: 100%
+        vertical-align: middle
 
 
 .book-img

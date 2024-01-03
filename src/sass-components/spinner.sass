@@ -27,11 +27,20 @@
     height: 6px
     background-color: $color-surface-2
     border-radius: 25px 25px 25px 25px
-    overflow: hidden
+    position: relative
     .progress-bar
         height: 100%
         background-color: $color-primary
         border-radius: 25px 25px 25px 25px
+        position: relative
+
+    .progress-bar-thumb
+        width: 18px
+        height: 18px
+        border-radius: 50%
+        background-color: $color-primary
+        top: -6px
+        position: absolute
 
 .circular-progress-container
     position: relative

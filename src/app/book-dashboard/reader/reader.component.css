@@ -6,6 +6,14 @@
     margin: 3em 0 0;
 }
 
+:root {
+    --doc-height: 100%;
+}
+::ng-deep .epub-view,
+::ng-deep .epub-view iframe {
+    pointer-events: none;
+}
+
 .swipe-container {
     display: flex;
     overflow: auto;
@@ -53,16 +61,18 @@
     display: flex;
 }
 
-:root {
-     --doc-height: 100%;
-}
-
 
 @media (max-width: 768px) {
     .swipe-container {
         background-color: black;
         height: var(--doc-height);
         margin: 0;
+    }
+
+    ::ng-deep .epub-view,
+    ::ng-deep .epub-view iframe {
+        height: var(--doc-height) !important;
+        pointer-events: none;
     }
 
     .swipe-element {

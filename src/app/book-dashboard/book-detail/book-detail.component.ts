@@ -5,7 +5,7 @@ import {Router} from "@angular/router";
 import {HttpClient} from "@angular/common/http";
 import {Title} from "@angular/platform-browser";
 import {from} from "rxjs";
-import {Epub, EpubDto} from "../../common/interfaces/models";
+import {IEpub, EpubDto} from "../../common/interfaces/models";
 
 @Component({
     selector: 'app-book-detail',

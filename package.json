@@ -26,6 +26,7 @@
     "@capacitor/cli": "^5.6.0",
     "@capacitor/core": "^5.6.0",
     "@capacitor/ios": "^5.6.0",
+    "epubjs": "^0.3.93",
     "firebase": "^10.6.0",
     "jszip": "^3.10.1",
     "ng-circle-progress": "^1.7.1",

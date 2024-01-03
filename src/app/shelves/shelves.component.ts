@@ -39,7 +39,6 @@ export class ShelvesComponent extends AppComponentBase implements OnInit {
                 this.loggedUser = user;
                 this.titleService.setTitle('Your Shelves');
                 await this.getShelves();
-                this.loading = false;
             }
         });
     }
@@ -50,6 +49,8 @@ export class ShelvesComponent extends AppComponentBase implements OnInit {
             this.shelves = r;
             // order by title
             this.shelves.sort((a, b) => (a.name > b.name) ? 1 : -1);
+
+            this.loading = false;
         });
     }
 

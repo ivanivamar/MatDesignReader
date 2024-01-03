@@ -4,7 +4,7 @@
 </button>
 
 <div
-    class="fixed top-0 left-0 w-full flex color-surface-2 elevation-1 p-2 align-items-center gap-2"
+    class="fixed slidedown animation-duration-200 top-0 left-0 w-full flex color-surface-2 elevation-1 p-2 align-items-center gap-2"
     *ngIf="showSearch"
     style="z-index: 9999999999999;">
     <m-input class="w-full flex-1" [inputType]="'text'" [icon]="'search'" [name]="'search'" [label]="'Search'"
@@ -45,32 +45,28 @@
         <rect _ngcontent-sjp-c18="" width="100%" height="100%" fill="url(#a)"></rect>
     </svg>-->
 
-    <div class="card-set">
+    <div class="card-set grid-cols-4 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 xl:grid-cols-16">
         <ng-container
             *ngFor="let book of books; let index = index">
-            <a
-                *ngIf="searchFilter.trim() === '' || book.title.toLowerCase().includes(searchFilter.toLowerCase())"
-                class="card gap-3 h-full no-underline relative"
+            <a matRipple
+                *ngIf="bookSearch(book)"
+                class="card gap-2 h-full no-underline relative"
                 longPress (mouseLongPress)="selectedEpup = book; selectedEpup.showMenu = true; showBookMenu()"
                 [routerLink]="['/books/', book.id]">
-                <img class="h-full border-round-lg" [src]="book.cover" alt="{{book.title}}">
-                <div class="card-body flex-column justify-content-between w-full pt-0">
+                <img class="border-round-sm" [src]="book.cover" alt="{{book.title}}">
+                <div class="card-body flex-column justify-content-end h-full w-full pt-0">
                     <div class="flex justify-content-between">
                         <div class="flex flex-column gap-2">
                             <span class="card-title">{{book.title}}</span>
-                            <div class="p-2 py-1 gap-2 border-round-md color-surface-2 font-medium flex align-items-center justify-content-center w-max text-sm">
-                                <i class="material-symbols-rounded text-sm">
-                                    layers
-                                </i>
-                                {{book.pages}}
-                            </div>
                         </div>
-                        <circle-progress
-                            [percent]="book.percentageRead" style="width: 41px; height: 41px;"
-                        ></circle-progress>
                     </div>
-
                     <span class="card-text">{{book.creator}}</span>
+                    <div class="flex align-items-center gap-2 mt-1">
+                        <div class="progress-bar-container flex-1">
+                            <div class="progress-bar" [style]="{width: Round(book.percentageRead) + '%'}"></div>
+                        </div>
+                        <span class="text-sm font-color-secondary font-medium">{{Round(book.percentageRead)}}%</span>
+                    </div>
                 </div>
             </a>
         </ng-container>
@@ -80,11 +76,11 @@
 <div class="menu-container" [class.open]="selectedEpup.showMenu">
     <div class="overlay" (click)="selectedEpup.showMenu = false"></div>
     <div class="menu">
-        <div class="menu-header">
+        <div class="menu-header align-items-center gap-3">
             <span class="font-medium max-w-18rem">
                 {{selectedEpup.title}}
             </span>
-            <button class="btn-icon btn-text" (click)="selectedEpup.showMenu = false">
+            <button class="btn-icon btn-text btn-sm" (click)="selectedEpup.showMenu = false">
                 <i class="material-symbols-rounded">close</i>
             </button>
         </div>
