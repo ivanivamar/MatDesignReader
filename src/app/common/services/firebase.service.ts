@@ -3,11 +3,12 @@ import {initializeApp} from "firebase/app";
 import {getStorage, ref, uploadBytes, getDownloadURL, getMetadata} from "firebase/storage";
 import {addDoc, collection, deleteDoc, doc, getDoc, getDocs, getFirestore, query, setDoc, updateDoc, where} from "firebase/firestore";
 import {combineLatest, map, Observable} from "rxjs";
-import {Epub, ShelvesDto} from "../interfaces/models";
+import {IEpub, ShelvesDto} from "../interfaces/models";
 import {HttpClient} from "@angular/common/http";
 import {GoogleAuthProvider, getAuth, signInWithPopup} from "firebase/auth";
 import {AppComponentBase} from "../AppComponentBase";
 import {LocalizationService} from "./localization.service";
+import Epub, {Book} from 'epubjs';
 
 @Injectable({
     providedIn: 'root'
@@ -62,6 +63,10 @@ export class FirebaseService {
         return this.http.get(url);
     }
 
+    getBook(book: ArrayBuffer): Book {
+        return Epub(book);
+    }
+
     // Firestore:
     GetAllBooks = async (referenceName: any) => {
         const epubRef = collection(this.db, referenceName + '_books');
@@ -80,17 +85,17 @@ export class FirebaseService {
                 shelf['books'].push(book);
             }
             // sort books by last read:
-            shelf['books'].sort((a: Epub, b: Epub) => (a.lastRead < b.lastRead) ? 1 : -1);
+            shelf['books'].sort((a: IEpub, b: IEpub) => (a.lastRead < b.lastRead) ? 1 : -1);
         }
 
         return shelves;
     }
-    async GetById(id: string, referenceName: any): Promise<Epub> {
+    async GetById(id: string, referenceName: any): Promise<IEpub> {
         const projectRef = collection(this.db, referenceName + "_books");
         const q = query(projectRef, where("id", "==", id));
         const querySnapshot = await getDocs(q);
         const epub = querySnapshot.docs.map((doc) => doc.data());
-        return epub[0] as Epub;
+        return epub[0] as IEpub;
     }
     async GetShelfById(id: string, referenceName: any): Promise<any> {
         const projectRef = collection(this.db, referenceName + "_shelves");
@@ -104,11 +109,11 @@ export class FirebaseService {
             shelf['books'].push(book);
         }
         // sort books by last read:
-        shelf['books'].sort((a: Epub, b: Epub) => (a.lastRead > b.lastRead) ? 1 : -1);
+        shelf['books'].sort((a: IEpub, b: IEpub) => (a.lastRead > b.lastRead) ? 1 : -1);
 
         return shelf;
     }
-    async Create(epub: Epub, referenceName: any) {
+    async Create(epub: IEpub, referenceName: any) {
         await setDoc(doc(this.db, referenceName + "_books", epub.id.toString()), {
             id: epub.id,
             title: epub.title,
@@ -123,7 +128,6 @@ export class FirebaseService {
             totalCurrentPage: epub.totalCurrentPage,
             currentChapter: epub.currentChapter,
             percentageRead: epub.percentageRead,
-            toc: epub.toc,
             lastRead: new Date(),
             language: epub.language
         });
@@ -137,6 +141,7 @@ export class FirebaseService {
         });
     }
     async Update(epub: any, referenceName: any) {
+        console.log("UPDATE:", epub);
         const bookRef = doc(this.db, referenceName + "_books", epub.id);
         await updateDoc(bookRef, epub);
     }

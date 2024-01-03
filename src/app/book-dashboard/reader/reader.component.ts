@@ -7,6 +7,10 @@ import {Router} from "@angular/router";
 import {HttpClient} from "@angular/common/http";
 import * as JSZip from "jszip";
 import {Title} from "@angular/platform-browser";
+import {Book} from "epubjs";
+import {Rendition} from "epubjs";
+import Navigation, {NavItem} from "epubjs/types/navigation";
+import Locations from "epubjs/types/locations";
 
 @Component({
     selector: 'app-reader',
@@ -16,6 +20,9 @@ import {Title} from "@angular/platform-browser";
 })
 export class ReaderComponent extends AppComponentBase implements OnInit {
     book: EpubDto = new EpubDto();
+    readerBook: Book = new Book();
+    // @ts-ignore
+    rendition: Rendition;
     loading = true;
     loadingProgress = 0;
     loadingMessage = '';
@@ -38,6 +45,7 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
     }
     showDefinition = false;
     isFullScreen = false;
+    chapters: Array<NavItem> = [];
 
     searchTerm = '';
     searchResults: any[] = [];
@@ -78,7 +86,6 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
                     await this.getLocalizationFileData();
                     const doc = document.documentElement
                     doc.style.setProperty('--doc-height', `${window.innerHeight}px`)
-                    this.loading = false;
                 });
             }
         });
@@ -95,10 +102,90 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
         if (!epubDataArrayBuffer) {
             return;
         }
-        await this.ParsePages(this.book.files, epubDataArrayBuffer);
+        this.loading = false;
+
+        this.readerBook = this.firebaseService.getBook(epubDataArrayBuffer);
+        this.storeChapters();
+        this.rendition = this.readerBook.renderTo('viewer', {
+            flow: 'auto',
+            width: '100%',
+            height: '100%',
+            snap: true
+        });
+        // style the epub
+        this.rendition.themes.default({
+            "p": {
+                "font-family": "'Google Sans Medium', sans-serif !important",
+                "font-size": "18px !important",
+                "line-height": "28px !important",
+                "color": "#c4c7c5 !important",
+                "margin": "12px 0 !important",
+                "font-weight": "bold !important"
+            },
+            "h1": {
+                "font-family": "'Google Sans Medium', sans-serif !important",
+                "font-size": "32px !important",
+                "line-height": "40px !important",
+                "color": "#c4c7c5 !important",
+                "margin": "0 !important",
+                "margin-bottom": "0.5rem !important",
+                "font-weight": "700 !important"
+            },
+            "h2": {
+                "font-family": "'Google Sans Medium', sans-serif !important",
+                "font-size": "28px !important",
+                "line-height": "36px !important",
+                "color": "#c4c7c5 !important",
+                "margin": "0 !important",
+                "margin-bottom": "0.5rem !important",
+                "font-weight": "700 !important"
+            },
+            "h3": {
+                "font-family": "'Google Sans Medium', sans-serif !important",
+                "font-size": "24px !important",
+                "line-height": "32px !important",
+                "color": "#c4c7c5 !important",
+                "margin": "0 !important",
+                "margin-bottom": "0.5rem !important",
+                "font-weight": "700 !important"
+            },
+            "blockquote": {
+                "font-family": "'Google Sans Italic', sans-serif !important",
+                "font-size": "18px !important",
+                "line-height": "28px !important",
+                "color": "#c4c7c5 !important",
+                "margin": "12px 0 !important"
+            },
+            "a": {
+                "color": "#c4c7c5 !important",
+                "text-decoration": "none !important"
+            },
+            "em": {
+                "font-family": "'Google Sans Italic', sans-serif !important",
+                "font-size": "18px !important",
+                "line-height": "28px !important",
+                "color": "#c4c7c5 !important",
+                "margin": "12px 0 !important"
+            }
+        });
+
+
+        // @ts-ignore
+        await this.rendition.display(this.book.currentPage);
+        console.log("readerBook:", this.readerBook);
+
+        /*await this.ParsePages(this.book.files, epubDataArrayBuffer);
         this.book.totalCurrentPage = this.pages.length;
-        await this.ParseImages(this.book.images, epubDataArrayBuffer);
+        await this.ParseImages(this.book.images, epubDataArrayBuffer);*/
     }
+
+    private storeChapters() {
+        this.readerBook.loaded.navigation.then((navigation: Navigation) => {
+            this.chapters = navigation.toc;
+            console.log("CHAPTERS:", this.chapters);
+        });
+    }
+
     async ParsePages(pageLocationOrder: string[], epubDataArrayBuffer: ArrayBuffer) {
         const zip = new JSZip();
         const epubData = await zip.loadAsync(epubDataArrayBuffer);
@@ -321,7 +408,6 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
             this.loadingProgress = Math.round((index / imageLocationOrder.length) * 100);
         }
     }
-
     getImageByName(name: string): string {
         let finalName = name.split('/').pop();
         return this.imagesInFile.find(x => x.name.href.split('/').pop() === finalName)!.fileUrl;
@@ -341,35 +427,27 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
     }
 
     prevPage(): void {
-        if (this.book.currentPage > 0) {
-            this.book.currentPage--;
-        }
-        this.book.lastRead = new Date();
-        this.setChapter();
-        this.getPercentageRead();
-        this.updateBook();
-        // @ts-ignore
-        document.querySelector('.scroll-element').scrollTo(0,0);
-        // @ts-ignore
-        document.querySelector('body').scrollTo(0,0);
-        window.scrollTo(0, 0);
+        this.rendition.prev().then(r => {
+            this.updateAfterPageChange();
+        });
     }
     nextPage(): void {
-        if (this.book.currentPage !== this.pages.length - 1) {
-            this.book.currentPage++;
-        }
+        this.rendition.next().then(r => {
+            console.log("RENDITION:", r);
+            this.updateAfterPageChange();
+        });
+    }
+    async updateAfterPageChange() {
+        // @ts-ignore
+        console.log("locations:", this.rendition.currentLocation());
+        // @ts-ignore
+        this.book.currentPage = this.rendition.currentLocation().start.cfi;
         this.book.lastRead = new Date();
         this.setChapter();
-        this.getPercentageRead();
+        await this.getPercentageRead();
         this.updateBook();
-        // scroll to top of page
-        // @ts-ignore
-        document.querySelector('.scroll-element').scrollTo(0,0);
-        // @ts-ignore
-        document.querySelector('body').scrollTo(0,0);
-        window.scrollTo(0, 0);
     }
-    goToPage(page: number): void {
+    /*goToPage(page: number): void {
         this.book.currentPage = page;
         this.book.lastRead = new Date();
         this.setChapter();
@@ -383,7 +461,7 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
         if (window.innerWidth < 768) {
             this.showSearchResults = false;
         }
-    }
+    }*/
 
     toggleTocMenu() {
         this.showToc = !this.showToc;
@@ -404,7 +482,7 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
     }
 
     getSearchResults(): void {
-        this.searchResults = [];
+        /*this.searchResults = [];
         if (this.searchTerm.length > 0) {
             for (let i = 0; i < this.pages.length; i++) {
                 for (let j = 0; j < this.pages[i].content.length; j++) {
@@ -419,11 +497,11 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
                     }
                 }
             }
-        }
+        }*/
     }
 
-    getChapterOfPageFromToc(page: number): string {
-        const pageFile = this.pages[page].file.split('/').pop();
+    getChapterOfPageFromToc(page: number) {
+        /*const pageFile = this.pages[page].file.split('/').pop();
         let chapter = '';
         this.book.toc.forEach((x) => {
             if (x.subItems.length > 0) {
@@ -437,79 +515,44 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
                 chapter = x.title;
             }
         });
-        return chapter;
+        return chapter;*/
     }
 
     setChapter(): void {
-        const page = this.pages[this.book.currentPage].file.split('/').pop();
+        // @ts-ignore
+        let location = this.rendition.currentLocation().start;
         // get chapter
-        let q: Toc | null = null;
-        this.book.toc.forEach((x) => {
-            if (x.subItems.length > 0) {
-                x.subItems.forEach((y) => {
-                    if (y.file.split('/').pop() === page && q == null) {
-                        q = y;
+        this.chapters.forEach((x) => {
+            if (x.subitems) {
+                x.subitems.forEach((y) => {
+                    if (y.href === location.href) {
+                        this.book.currentChapter = {
+                            id: y.id,
+                            href: y.href,
+                            label: y.label,
+                            parent: y.parent ? y.parent : '',
+                            subitems: y.subitems
+                        };
                     }
                 });
             }
-            if (x.file.split('/').pop() === page && q == null) {
-                q = x;
+            if (x.href === location.href) {
+                this.book.currentChapter = {
+                    id: x.id,
+                    href: x.href,
+                    label: x.label,
+                    parent: x.parent ? x.parent : '',
+                    subitems: x.subitems
+                };
             }
         });
-        if (q != null) {
-            this.book.currentChapter = q;
-        }
     }
 
-    navigateToChapter(chapter: Toc): void {
-        // find in this.pages the page that matches the chapter.file
-        const page = this.pages.find(x => x.file.split('/').pop() === chapter.file.split('/').pop());
-        // set this.book.currentPage to the index of the page
-        this.book.currentPage = this.pages.indexOf(page!);
-        this.getPercentageRead();
-        this.setChapter();
-        this.book.lastRead = new Date();
-    }
-
-    getPagesUntilNextChapter(): number {
-        const startIndex = this.book.currentPage!;
-        let pageCount = 0;
-        let nextChapterFile = '';
-        for (let i = 0; i < this.book.toc.length; i++) {
-            if (this.book.toc[i].subItems.length > 0) {
-                for (let j = 0; j < this.book.toc[i].subItems.length; j++) {
-                    if (this.book.toc[i].subItems[j].file.split('/').pop() === this.book.currentChapter.file.split('/').pop()) {
-                        if (j + 1 < this.book.toc[i].subItems.length) {
-                            // @ts-ignore
-                            nextChapterFile = this.book.toc[i].subItems[j + 1].file.split('/').pop();
-                        } else {
-                            // @ts-ignore
-                            nextChapterFile = this.book.toc[i + 1].file.split('/').pop();
-                        }
-                        break;
-                    }
-                }
-            }
-            if (this.book.toc[i].file.split('/').pop() === this.book.currentChapter.file.split('/').pop()) {
-                if (i + 1 < this.book.toc.length) {
-                    // @ts-ignore
-                    nextChapterFile = this.book.toc[i + 1].file.split('/').pop();
-                } else {
-                    // @ts-ignore
-                    nextChapterFile = this.book.toc[i].file.split('/').pop();
-                }
-                break;
-            }
-        }
-        for (let i = startIndex; i < this.pages.length; i++) {
-            if (this.pages[i].file.split('/').pop() !== nextChapterFile) {
-                pageCount++;
-            } else {
-                break;
-            }
-        }
-
-        return pageCount;
+    navigateToChapter(chapter: NavItem): void {
+        this.book.currentChapter = chapter;
+        this.rendition.display(chapter.href).then(r => {
+            this.updateAfterPageChange();
+        });
     }
 
     updateBook(): void {
@@ -520,10 +563,10 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
         this.router.navigate(['/']);
     }
 
-    getPercentageRead() {
-        console.log('Current page:', this.book.currentPage === this.pages.length);
-        console.log('Total pages:', this.pages.length);
-        this.book.percentageRead = (this.book.currentPage / this.pages.length) * 100;
+    async getPercentageRead() {
+        await this.readerBook.locations.generate(1024).then(x => {
+            this.book.percentageRead = this.readerBook.locations.percentageFromCfi(this.book.currentPage) * 100;
+        });
     }
 
     onMouseUp(event: MouseEvent): void {
@@ -577,6 +620,7 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
 
         // get the distance the user swiped
         const swipeDistance = container.scrollLeft - container.clientWidth;
+        console.log("SWIPE DISTANCE:", swipeDistance);
         if (swipeDistance < minDistance * -1) {
             // swipe left
             this.prevPage();
@@ -592,6 +636,11 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
         if (window.innerWidth < 768) {
             this.showMenusMobile = !this.showMenusMobile;
         }
+    }
+
+    formatLabel(value: number) {
+        // return percentage of book read
+        return (value / this.pages.length) * 100 + '%';
     }
 
     newNote() {

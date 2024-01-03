@@ -1,4 +1,7 @@
-export interface Epub {
+import {NavItem} from "epubjs/types/navigation";
+import {EpubCFI} from "epubjs";
+
+export interface IEpub {
     id: string;
     title: string;
     creator: string;
@@ -8,11 +11,10 @@ export interface Epub {
     url: string;
     files: string[];
     images: any[];
-    currentPage: number;
+    currentPage: string;
     totalCurrentPage: number;
-    currentChapter: Toc;
+    currentChapter: NavItem;
     percentageRead: number;
-    toc: Toc[];
     lastRead: Date;
     language: string;
     rating: number;
@@ -31,11 +33,10 @@ export class EpubDto {
     url: string = '';
     files: string[] = [];
     images: any[] = [];
-    currentPage: number = 0;
+    currentPage: string = '';
     totalCurrentPage: number = 0;
     percentageRead: number = 0;
-    currentChapter: Toc = {title: '', file: '', subItems: []};
-    toc: Toc[] = [];
+    currentChapter: NavItem = {id: '', href: '', label: '', parent: '', subitems: []};
     lastRead: Date = new Date();
     language: string = '';
     private showToc: boolean = false;
@@ -77,6 +78,6 @@ export class ShelvesDto {
     id: string = '';
     name: string = '';
     bookIds: string[] = [];
-    books: Epub[] = [];
+    books: IEpub[] = [];
     lastRead: Date = new Date();
 }

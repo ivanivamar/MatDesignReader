@@ -45,11 +45,10 @@
     <div
         class="swipe-container relative flex flex-1 transition-all transition-duration-200 transition-ease-in-out"
         [class.show-menu-mobile]="showMenusMobile"
-        (touchend)="HandleSwipe()"
-        (click)="HandleShowMenusMobile()">
+        (touchend)="HandleSwipe()">
         <div id="prev-btn" class="block md:hidden h-full action"></div>
-        <div class="swipe-element pl-2 relative w-full transition-all transition-duration-200 transition-ease-in-out">
-            <div
+        <div class="swipe-element relative w-full transition-all transition-duration-200 transition-ease-in-out">
+            <!--<div
                 class="scroll-element w-full flex justify-content-center transition-all transition-duration-200 transition-ease-in-out">
                 <div class="w-full md:w-8 transition-all transition-duration-200 transition-ease-in-out">
                     <div *ngFor="let element of pages[book.currentPage].content">
@@ -79,17 +78,18 @@
                         </h2>
                     </div>
                 </div>
-            </div>
+            </div>-->
+            <div id="viewer" (click)="HandleShowMenusMobile()" class="scroll-element w-full flex justify-content-center transition-all transition-duration-200 transition-ease-in-out"></div>
             <div class="flex md:hidden align-items-center justify-content-between py-2 pr-2">
                 <div class="w-full flex align-items-center">
-                    <span class="body-md font-medium font-color-secondary">
+                    <!--<span class="body-md font-medium font-color-secondary">
                         {{ 'NextChapterIn' | localize }}
                         {{ getPagesUntilNextChapter() }} {{ toUnderScore(l('Page')) }}{{ getPagesUntilNextChapter() > 1 ? 's' : '' }}
-                    </span>
+                    </span>-->
                 </div>
-                <span class="body-md font-medium font-color-secondary" style="width: 100px">
+                <!--<span class="body-md font-medium font-color-secondary" style="width: 100px">
                     {{ book.currentPage + 1 }} / {{ pages.length }}
-                </span>
+                </span>-->
             </div>
         </div>
         <div id="next-btn" class="block md:hidden h-full action"></div>
@@ -162,19 +162,20 @@
          class="bottombar fixed flex flex-column w-full color-surface-0 p-3 py-2 md:py-1"
          style="bottom: 0; left: 0; z-index: 99999999">
         <div class="w-full align-items-center hidden md:flex">
-            <span class="body-md font-medium font-color-secondary">
+            <!--<span class="body-md font-medium font-color-secondary">
                 {{ 'NextChapterIn' | localize }}
                 {{ getPagesUntilNextChapter() }} {{ toUnderScore(l('Page')) }}{{ getPagesUntilNextChapter() > 1 ? 's' : '' }}
-            </span>
+            </span>-->
         </div>
         <div class="flex align-items-center gap-3">
-            <mat-slider
-                style="flex-grow: 1;display: flex;"
-                [min]="0"
-                [max]="pages.length - 1"
-                [step]="1">
-                <input [(value)]="book.currentPage" matSliderThumb>
-            </mat-slider>
+            <div class="progress-bar-container">
+                <div class="progress-bar" [style]="{
+                    'width': book.percentageRead + '%'
+                }"></div>
+                <div class="progress-bar-thumb" [style]="{
+                    'left': book.percentageRead - 1 + '%'
+                }"></div>
+            </div>
             <div class="hidden md:flex align-items-center gap-3 w-max">
                 <button class="btn-icon btn-text btn-sm" (click)="prevPage()">
                     <i class="material-symbols-rounded">
@@ -182,7 +183,7 @@
                     </i>
                 </button>
                 <span class="body-md font-medium font-color-secondary">
-                    {{ book.currentPage + 1 }} / {{ pages.length }}
+                    {{ Round(book.percentageRead) }}%
                 </span>
                 <button class="btn-icon btn-text btn-sm" (click)="nextPage()">
                     <i class="material-symbols-rounded">
@@ -251,8 +252,7 @@
         </div>
 
         <div class="flex flex-column" *ngIf="searchResults.length > 0" style="overflow-y: auto">
-            <div class="panel__content__item flex-row gap-3" *ngFor="let items of searchResults"
-                 (click)="goToPage(items.page)">
+            <div class="panel__content__item flex-row gap-3" *ngFor="let items of searchResults">
                 <i class="material-symbols-rounded">
                     search
                 </i>
@@ -282,44 +282,44 @@
     [height]="'calc(100vh - 120px)'"
     (visibleChange)="showToc = false">
 
-    <div content class="flex max-h-full border-top px-0" id="tocIndex" style="height: calc(100vh - 190px)">
+    <div content class="flex max-h-full border-top px-0" id="tocIndex" style="height: calc(100vh - 190px); padding: 0 !important;">
         <div class="list-container w-full">
-            <div *ngFor="let chapter of book.toc">
+            <div *ngFor="let chapter of chapters">
                 <div
                     class="list-item square" matRipple
-                    [id]="chapter.file === book.currentChapter.file ? 'anchor' : ''"
-                    [class.active]="chapter.file === book.currentChapter.file"
+                    [id]="chapter.id === book.currentChapter.id ? 'anchor' : ''"
+                    [class.active]="chapter.id === book.currentChapter.id"
                     (click)="navigateToChapter(chapter)">
 
-                    <div class="current-indicator" *ngIf="chapter.file === book.currentChapter.file"></div>
+                    <div class="current-indicator" *ngIf="chapter.id === book.currentChapter.id"></div>
 
                     <div class="list-content">
                             <span class="list-title">
-                                {{ chapter.title }}
+                                {{ chapter.label }}
                             </span>
-                        <div class="list-subtitle">
+                        <!--<div class="list-subtitle">
                             {{ 'Page' | localize }} {{ getPageOfChapter(chapter) }}
-                        </div>
+                        </div>-->
                     </div>
                 </div>
 
-                <div class="flex flex-column pl-3" *ngIf="chapter.subItems.length > 0">
+                <div class="flex flex-column pl-3" *ngIf="chapter.subitems && chapter.subitems.length > 0">
                     <div
                         class="list-item square" matRipple
-                        [class.active]="subItem.file === book.currentChapter.file"
-                        [id]="subItem.file === book.currentChapter.file ? 'anchor' : ''"
-                        *ngFor="let subItem of chapter.subItems"
+                        [class.active]="subItem.id === book.currentChapter.id"
+                        [id]="subItem.id === book.currentChapter.id ? 'anchor' : ''"
+                        *ngFor="let subItem of chapter.subitems"
                         (click)="navigateToChapter(subItem)">
 
-                        <div class="current-indicator" *ngIf="subItem.file === book.currentChapter.file"></div>
+                        <div class="current-indicator" *ngIf="subItem.id === book.currentChapter.id"></div>
 
                         <div class="list-content">
                             <span class="list-title">
-                                {{ subItem.title }}
+                                {{ subItem.label }}
                             </span>
-                            <div class="list-subtitle">
+                            <!--<div class="list-subtitle">
                                 {{ 'Page' | localize }} {{ getPageOfChapter(subItem) }}
-                            </div>
+                            </div>-->
                         </div>
                     </div>
                 </div>

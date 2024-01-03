@@ -21,7 +21,8 @@
         &.square
             border-radius: 0
             padding-left: 52px
-            height: 64px
+            padding-top: 16px
+            padding-bottom: 16px
             width: 100%
             position: relative
             align-items: stretch
@@ -31,7 +32,8 @@
 
             .current-indicator
                 position: absolute
-                top: 17px
+                top: 50%
+                transform: translateY(-50%)
                 left: 6px
                 -webkit-margin-start: 16px
                 margin-inline-start: 16px
@@ -56,7 +58,7 @@
                 .list-title
                     font-family: $font-family-medium !important
                     color: $color-on-surface
-                    font-size: 14px
+                    font-size: 16px
                     line-height: 20px
                     letter-spacing: 0.25px
                     display: block
