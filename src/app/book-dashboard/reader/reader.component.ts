@@ -176,7 +176,11 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
 
 
         // @ts-ignore
-        await this.rendition.display(this.book.currentPage);
+        if (typeof string === this.book.currentPage && this.book.currentPage !== '') {
+            await this.rendition.display(this.book.currentPage);
+        } else {
+            await this.rendition.display();
+        }
         // @ts-ignore
         this.totalCurrentPagesChapter.current = this.rendition.currentLocation().start.displayed.page;
         // @ts-ignore
