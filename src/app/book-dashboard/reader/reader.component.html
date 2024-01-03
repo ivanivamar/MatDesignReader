@@ -80,16 +80,16 @@
                 </div>
             </div>-->
             <div id="viewer" (click)="HandleShowMenusMobile()" class="scroll-element w-full flex justify-content-center transition-all transition-duration-200 transition-ease-in-out"></div>
-            <div class="flex md:hidden align-items-center justify-content-between py-2 pr-2">
+            <div class="flex md:hidden align-items-center justify-content-between p-2">
                 <div class="w-full flex align-items-center">
-                    <!--<span class="body-md font-medium font-color-secondary">
+                    <span class="body-md font-medium font-color-secondary">
                         {{ 'NextChapterIn' | localize }}
-                        {{ getPagesUntilNextChapter() }} {{ toUnderScore(l('Page')) }}{{ getPagesUntilNextChapter() > 1 ? 's' : '' }}
-                    </span>-->
+                        {{ totalCurrentPagesChapter.untilEnd }} {{ toUnderScore(l('Page')) }}{{ totalCurrentPagesChapter.untilEnd > 1 ? 's' : '' }}
+                    </span>
                 </div>
-                <!--<span class="body-md font-medium font-color-secondary" style="width: 100px">
-                    {{ book.currentPage + 1 }} / {{ pages.length }}
-                </span>-->
+                <span class="body-md font-medium font-color-secondary" style="width: 100px">
+                    {{ Floor(book.percentageRead) }}%
+                </span>
             </div>
         </div>
         <div id="next-btn" class="block md:hidden h-full action"></div>
@@ -162,10 +162,10 @@
          class="bottombar fixed flex flex-column w-full color-surface-0 p-3 py-2 md:py-1"
          style="bottom: 0; left: 0; z-index: 99999999">
         <div class="w-full align-items-center hidden md:flex">
-            <!--<span class="body-md font-medium font-color-secondary">
+            <span class="body-md font-medium font-color-secondary">
                 {{ 'NextChapterIn' | localize }}
-                {{ getPagesUntilNextChapter() }} {{ toUnderScore(l('Page')) }}{{ getPagesUntilNextChapter() > 1 ? 's' : '' }}
-            </span>-->
+                {{ totalCurrentPagesChapter.untilEnd }} {{ toUnderScore(l('Page')) }}{{ totalCurrentPagesChapter.untilEnd > 1 ? 's' : '' }}
+            </span>
         </div>
         <div class="flex align-items-center gap-3">
             <div class="progress-bar-container">
@@ -183,7 +183,7 @@
                     </i>
                 </button>
                 <span class="body-md font-medium font-color-secondary">
-                    {{ Round(book.percentageRead) }}%
+                    {{ Floor(book.percentageRead) }}%
                 </span>
                 <button class="btn-icon btn-text btn-sm" (click)="nextPage()">
                     <i class="material-symbols-rounded">

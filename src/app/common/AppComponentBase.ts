@@ -24,6 +24,9 @@ export class AppComponentBase {
     Round(value: number, decimals: number = 0): number {
         return Number(Math.round(Number(value + 'e' + decimals)) + 'e-' + decimals);
     }
+    Floor(value: number): number {
+        return Math.floor(value);
+    }
 
     IdGenerator(): string {
         let id = '';

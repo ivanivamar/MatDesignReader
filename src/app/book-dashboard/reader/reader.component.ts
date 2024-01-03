@@ -46,6 +46,11 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
     showDefinition = false;
     isFullScreen = false;
     chapters: Array<NavItem> = [];
+    totalCurrentPagesChapter = {
+        current: 0,
+        total: 0,
+        untilEnd: 0
+    }
 
     searchTerm = '';
     searchResults: any[] = [];
@@ -172,8 +177,13 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
 
         // @ts-ignore
         await this.rendition.display(this.book.currentPage);
-        console.log("readerBook:", this.readerBook);
+        // @ts-ignore
+        this.totalCurrentPagesChapter.current = this.rendition.currentLocation().start.displayed.page;
+        // @ts-ignore
+        this.totalCurrentPagesChapter.total = this.rendition.currentLocation().start.displayed.total;
+        this.totalCurrentPagesChapter.untilEnd = this.totalCurrentPagesChapter.total - this.totalCurrentPagesChapter.current;
 
+        await this.readerBook.locations.generate(6000);
         /*await this.ParsePages(this.book.files, epubDataArrayBuffer);
         this.book.totalCurrentPage = this.pages.length;
         await this.ParseImages(this.book.images, epubDataArrayBuffer);*/
@@ -432,19 +442,24 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
         });
     }
     nextPage(): void {
-        this.rendition.next().then(r => {
-            console.log("RENDITION:", r);
-            this.updateAfterPageChange();
-        });
+        this.rendition.next();
+
+        this.updateAfterPageChange();
     }
     async updateAfterPageChange() {
-        // @ts-ignore
-        console.log("locations:", this.rendition.currentLocation());
+        console.log(this.readerBook.locations.percentageFromCfi(this.book.currentPage));
         // @ts-ignore
         this.book.currentPage = this.rendition.currentLocation().start.cfi;
+        // @ts-ignore
+        this.book.percentageRead = this.readerBook.locations.percentageFromCfi(this.book.currentPage) * 100;
+
+        // @ts-ignore
+        this.totalCurrentPagesChapter.current = this.rendition.currentLocation().start.displayed.page;
+        // @ts-ignore
+        this.totalCurrentPagesChapter.total = this.rendition.currentLocation().start.displayed.total;
+        this.totalCurrentPagesChapter.untilEnd = this.totalCurrentPagesChapter.total - this.totalCurrentPagesChapter.current;
         this.book.lastRead = new Date();
         this.setChapter();
-        await this.getPercentageRead();
         this.updateBook();
     }
     /*goToPage(page: number): void {
@@ -525,23 +540,23 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
         this.chapters.forEach((x) => {
             if (x.subitems) {
                 x.subitems.forEach((y) => {
-                    if (y.href === location.href) {
+                    if (y.href.includes(location.href)) {
                         this.book.currentChapter = {
                             id: y.id,
                             href: y.href,
                             label: y.label,
-                            parent: y.parent ? y.parent : '',
+                            parent: '',
                             subitems: y.subitems
                         };
                     }
                 });
             }
-            if (x.href === location.href) {
+            if (x.href.includes(location.href)) {
                 this.book.currentChapter = {
                     id: x.id,
                     href: x.href,
                     label: x.label,
-                    parent: x.parent ? x.parent : '',
+                    parent: '',
                     subitems: x.subitems
                 };
             }
@@ -550,6 +565,7 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
 
     navigateToChapter(chapter: NavItem): void {
         this.book.currentChapter = chapter;
+        this.book.currentChapter.parent = '';
         this.rendition.display(chapter.href).then(r => {
             this.updateAfterPageChange();
         });
@@ -565,6 +581,7 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
 
     async getPercentageRead() {
         await this.readerBook.locations.generate(1024).then(x => {
+            console.log("percentageFromCfi:", this.readerBook.locations.percentageFromCfi(this.book.currentPage));
             this.book.percentageRead = this.readerBook.locations.percentageFromCfi(this.book.currentPage) * 100;
         });
     }
