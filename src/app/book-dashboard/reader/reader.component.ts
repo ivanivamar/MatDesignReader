@@ -451,7 +451,6 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
         this.updateAfterPageChange();
     }
     async updateAfterPageChange() {
-        console.log(this.readerBook.locations.percentageFromCfi(this.book.currentPage));
         // @ts-ignore
         this.book.currentPage = this.rendition.currentLocation().start.cfi;
         // @ts-ignore
