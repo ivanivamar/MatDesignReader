@@ -2,7 +2,6 @@
     <!-- MENU -->
     <div
         [class.show-topbar-mobile]="showMenusMobile"
-        *ngIf="!isFullScreen"
         class="topbar fixed align-items-center justify-content-between color-surface-2 elevation-1 px-1 md:px-3 w-full"
         style="top: 0; left: 0; z-index: 99999999; height: 56px;">
         <div class="flex align-items-center gap-3">
@@ -22,14 +21,9 @@
                     {{ isFullScreen ? 'fullscreen_exit' : 'fullscreen' }}
                 </i>
             </button>
-            <button class="btn-icon btn-text" (click)="showSearchResults = !showSearchResults">
-                <i class="material-symbols-rounded">
-                    search
-                </i>
-            </button>
             <button class="btn-icon btn-text" (click)="toggleTocMenu()">
                 <i class="material-symbols-rounded">
-                    list_alt
+                    toc
                 </i>
             </button>
             <button class="btn-icon btn-text" (click)="showNotes = !showNotes">
@@ -48,37 +42,6 @@
         (touchend)="HandleSwipe()">
         <div id="prev-btn" class="block md:hidden h-full action"></div>
         <div class="swipe-element relative w-full transition-all transition-duration-200 transition-ease-in-out">
-            <!--<div
-                class="scroll-element w-full flex justify-content-center transition-all transition-duration-200 transition-ease-in-out">
-                <div class="w-full md:w-8 transition-all transition-duration-200 transition-ease-in-out">
-                    <div *ngFor="let element of pages[book.currentPage].content">
-                        <p [innerHTML]="element.value" class="body-sm font-medium indent"
-                           [class.whitespace]="element.value.trim().length == 0" *ngIf="element.type === 'text'"
-                           (mouseup)="onMouseUp($event)"></p>
-                        <div *ngIf="element.type === 'image'" class="flex justify-content-center">
-                            <img [src]="getImageByName(element.value)" alt=""
-                                 style="height: 100%; width: 100%; max-width: 500px;">
-                        </div>
-                        <i [innerHTML]="element.value" *ngIf="element.type === 'italic'"
-                           (mouseup)="onMouseUp($event)"></i>
-                        <em class="font-light indent" *ngIf="element.type === 'em'" (mouseup)="onMouseUp($event)">
-                            {{ element.value }}
-                        </em>
-                        <blockquote *ngIf="element.type === 'bq'" class="text-center font-light indent"
-                                    (mouseup)="onMouseUp($event)">
-                            {{ element.value }}
-                        </blockquote>
-                        <h1 *ngIf="element.type === 'heading1'" class="headline-sm font-bold text-center mb-2"
-                            (mouseup)="onMouseUp($event)">
-                            {{ element.value }}
-                        </h1>
-                        <h2 *ngIf="element.type === 'heading2'" class="headline-sm font-bold text-center mb-2"
-                            (mouseup)="onMouseUp($event)">
-                            {{ element.value }}
-                        </h2>
-                    </div>
-                </div>
-            </div>-->
             <div id="viewer" (click)="HandleShowMenusMobile()" class="scroll-element w-full flex justify-content-center transition-all transition-duration-200 transition-ease-in-out"></div>
             <div class="flex md:hidden align-items-center justify-content-between p-2">
                 <div class="w-full flex align-items-center">
@@ -87,7 +50,7 @@
                         {{ totalCurrentPagesChapter.untilEnd }} {{ toUnderScore(l('Page')) }}{{ totalCurrentPagesChapter.untilEnd > 1 ? 's' : '' }}
                     </span>
                 </div>
-                <span class="body-md font-medium font-color-secondary" style="width: 100px">
+                <span class="body-md font-medium font-color-secondary">
                     {{ Floor(book.percentageRead) }}%
                 </span>
             </div>

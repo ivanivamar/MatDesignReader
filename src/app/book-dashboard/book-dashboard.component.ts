@@ -155,7 +155,6 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
         await this.firebaseService.Create(this.selectedEpup, this.loggedUser?.uid);
         this.getEpubsFromFirestore();
         this.loading = false;
-
     }
 
     onBookDialogClose() {
@@ -216,7 +215,6 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
 
         await this.ParseToc(epubDataArrayBuffer);
         this.selectedEpup.files = await this.GetPageLocationOrder(opfFileContent, opfFileParentFolder);
-        this.showBookDialog = true;
         console.log('selectedEpup', this.selectedEpup);
     }
     async GetOpfFilePath(containerXmlContent: string) {
@@ -476,6 +474,17 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
     }
 
     showBookMenu() {
+    }
+
+    UploadCover(event: any) {
+        // check if is image:
+        if (!event.target.files[0].type.startsWith('image')) {
+            return;
+        }
+
+        this.firebaseService.uploadEpubToStorage(event.target.files[0], this.loggedUser?.uid + '/' + this.selectedEpup.id).then((url) => {
+            this.selectedEpup.cover = url;
+        });
     }
 
     async createOrUpdateBook() {
