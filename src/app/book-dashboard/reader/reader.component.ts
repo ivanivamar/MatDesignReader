@@ -1,4 +1,4 @@
-import {Component, HostListener, Injector, OnInit} from '@angular/core';
+import {AfterViewInit, Component, HostListener, Injector, OnInit} from '@angular/core';
 import {AppComponentBase} from "../../common/AppComponentBase";
 import {EpubDto, Note, NoteCategory, Page, Toc} from "../../common/interfaces/models";
 import {FirebaseService} from "../../common/services/firebase.service";
@@ -16,7 +16,10 @@ import Locations from "epubjs/types/locations";
     selector: 'app-reader',
     templateUrl: './reader.component.html',
     styleUrls: ['./reader.component.css'],
-    providers: [FirebaseService, HttpClient]
+    providers: [FirebaseService, HttpClient],
+    host: {
+        '(document:keydown)': 'handleKeyboardEvent($event)'
+    }
 })
 export class ReaderComponent extends AppComponentBase implements OnInit {
     book: EpubDto = new EpubDto();
@@ -120,63 +123,53 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
         // style the epub
         this.rendition.themes.default({
             "p": {
-                "font-family": "'Google Sans Medium', sans-serif !important",
-                "font-size": "18px !important",
-                "line-height": "28px !important",
-                "color": "#c4c7c5 !important",
                 "margin": "12px 0 !important",
-                "font-weight": "bold !important"
+                "padding": "0em",
+                "font-size": "18px !important",
+                "font-family": "'trebuchet ms', serif",
+                "font-weight": "400 !important",
+                "color": "#c4c7c5 !important",
             },
             "h1": {
-                "font-family": "'Google Sans Medium', sans-serif !important",
-                "font-size": "32px !important",
-                "line-height": "40px !important",
+                "line-height": "151.875% !important",
                 "color": "#c4c7c5 !important",
-                "margin": "0 !important",
                 "margin-bottom": "0.5rem !important",
-                "font-weight": "700 !important"
+                "font-family": "'trebuchet ms', serif",
+                "font-weight": "bold !important"
             },
             "h2": {
-                "font-family": "'Google Sans Medium', sans-serif !important",
-                "font-size": "28px !important",
-                "line-height": "36px !important",
+                "line-height": "151.875% !important",
                 "color": "#c4c7c5 !important",
-                "margin": "0 !important",
                 "margin-bottom": "0.5rem !important",
-                "font-weight": "700 !important"
+                "font-family": "'trebuchet ms', serif",
+                "font-weight": "bold !important"
             },
             "h3": {
-                "font-family": "'Google Sans Medium', sans-serif !important",
-                "font-size": "24px !important",
-                "line-height": "32px !important",
+                "line-height": "151.875% !important",
                 "color": "#c4c7c5 !important",
-                "margin": "0 !important",
                 "margin-bottom": "0.5rem !important",
-                "font-weight": "700 !important"
+                "font-family": "'trebuchet ms', serif",
+                "font-weight": "bold !important"
             },
             "blockquote": {
-                "font-family": "'Google Sans Italic', sans-serif !important",
-                "font-size": "18px !important",
-                "line-height": "28px !important",
+                "font-family": "'trebuchet ms', serif",
                 "color": "#c4c7c5 !important",
                 "margin": "12px 0 !important"
             },
             "a": {
+                "font-family": "'trebuchet ms', serif",
                 "color": "#c4c7c5 !important",
                 "text-decoration": "none !important"
             },
             "em": {
-                "font-family": "'Google Sans Italic', sans-serif !important",
-                "font-size": "18px !important",
-                "line-height": "28px !important",
+                "font-family": "'trebuchet ms', serif",
                 "color": "#c4c7c5 !important",
                 "margin": "12px 0 !important"
             }
         });
 
-
         // @ts-ignore
-        if (typeof string === this.book.currentPage && this.book.currentPage !== '') {
+        if (typeof this.book.currentPage == 'string' && this.book.currentPage !== '') {
             await this.rendition.display(this.book.currentPage);
         } else {
             await this.rendition.display();
@@ -188,9 +181,6 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
         this.totalCurrentPagesChapter.untilEnd = this.totalCurrentPagesChapter.total - this.totalCurrentPagesChapter.current;
 
         await this.readerBook.locations.generate(6000);
-        /*await this.ParsePages(this.book.files, epubDataArrayBuffer);
-        this.book.totalCurrentPage = this.pages.length;
-        await this.ParseImages(this.book.images, epubDataArrayBuffer);*/
     }
 
     private storeChapters() {
@@ -428,7 +418,6 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
     }
 
     // Listen for keydown events globally on the document
-    @HostListener('document:keydown', ['$event'])
     handleKeyboardEvent(event: KeyboardEvent): void {
         switch (event.key) {
             case 'ArrowLeft':
