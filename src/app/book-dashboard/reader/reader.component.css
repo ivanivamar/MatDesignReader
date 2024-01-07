@@ -33,7 +33,7 @@
     height: var(--doc-height);
     border-radius: 6px;
     box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
-    transform: scale(0.85);
+    transform: scale(0.8);
 }
 
 .swipe-element {

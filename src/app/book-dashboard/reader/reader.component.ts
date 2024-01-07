@@ -83,6 +83,8 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
                     this.loggedUser = user;
                 });
                 const id = window.location.pathname.split('/')[2];
+                const doc = document.documentElement;
+                doc.style.setProperty('--doc-height', `${window.innerHeight}px`);
 
                 from(this.firebaseService.GetById(id, this.user.id)).subscribe(async (book) => {
                     this.book = book as EpubDto;
@@ -94,8 +96,6 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
                     await this.DynamicParser(this.epubData);
                     this.updateBook();
                     await this.getLocalizationFileData();
-                    const doc = document.documentElement
-                    doc.style.setProperty('--doc-height', `${window.innerHeight}px`)
                 });
             }
         });

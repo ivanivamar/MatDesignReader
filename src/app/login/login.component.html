@@ -1,9 +1,9 @@
-<div class="container flex flex-column p-5" *ngIf="!loading">
-    <h1 class="headline-lg mb-7">
+<div class="container flex flex-column p-2 md:p-5" *ngIf="!loading">
+    <h1 class="headline-lg mb-5">
         {{ 'MaterialReader' | localize }}
     </h1>
 
-    <div class="p-3 border-round-lg border flex flex-column w-30rem mx-auto" *ngIf="!showRegister">
+    <div class="p-3 border-round-lg border flex flex-column md:w-30rem mx-auto" *ngIf="!showRegister">
         <form (ngSubmit)="login()">
             <span class="font-medium text-xl block">
                 {{ 'Login' | localize }}
