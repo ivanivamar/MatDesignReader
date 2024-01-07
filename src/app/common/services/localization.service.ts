@@ -23,7 +23,6 @@ export class LocalizationService {
             map((dataString) => {
                 // Parse the JSON string into an object
                 const dataObject = JSON.parse(dataString);
-                console.log('Localization data loaded', dataObject);
                 return dataObject;
             }),
             tap((data) => this.localizationDataSubject.next(data)),
