@@ -3,6 +3,7 @@ import {LocalizationService} from "./services/localization.service";
 import {Observable} from "rxjs";
 import {map} from "rxjs/operators";
 import {Injector} from "@angular/core";
+import {IUser, UserDto} from "./interfaces/models";
 
 export class AppComponentBase {
     language: string = navigator.language;
@@ -10,6 +11,7 @@ export class AppComponentBase {
     localizationService: LocalizationService;
     CookieNames = CookieNames;
     loggedUser: User | null = null;
+    user: UserDto = new UserDto();
 
     constructor(
         injector: Injector

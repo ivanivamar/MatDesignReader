@@ -56,14 +56,14 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
             if (!user) {
                 this.router.navigate(['login']);
             } else {
-                this.loggedUser = user;
-                console.log("USER:", this.loggedUser);
+                await this.firebaseService.getUserById(user.uid).then(async (user: any) => {
+                    this.user = user;
+                    this.loggedUser = user;
+                });
                 await this.getEpubsFromFirestore();
                 await this.getShelves();
                 await this.getLocalizationFileData();
-                let title = this.l('YourLibrary');
-                console.log("title:", title);
-                this.titleService.setTitle(title);
+                this.titleService.setTitle("Material Reader");
                 this.loading = false;
             }
         });
@@ -71,7 +71,7 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
 
     async getEpubsFromFirestore() {
         this.books = [];
-        from(this.firebaseService.GetAllBooks(this.loggedUser?.uid)).subscribe(r => {
+        from(this.firebaseService.GetAllBooks(this.user.id)).subscribe(r => {
             r.forEach((doc: any) => {
                 this.books.push(doc.data());
             });
@@ -84,7 +84,7 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
     }
 
     async getShelves() {
-        from(this.firebaseService.GetAllShelves(this.loggedUser?.uid)).subscribe(r => {
+        from(this.firebaseService.GetAllShelves(this.user.id)).subscribe(r => {
             this.shelves = r;
             console.log("this.shelves:", this.shelves);
         });
@@ -144,7 +144,7 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
 
         this.selectedEpup = new EpubDto();
         this.selectedEpup.id = this.IdGenerator();
-        const epubUrl = await this.firebaseService.uploadEpubToStorage(event.target.files[0], this.loggedUser?.uid);
+        const epubUrl = await this.firebaseService.uploadEpubToStorage(event.target.files[0], this.user.id + '/' + this.selectedEpup.id);
         this.selectedEpup.url = epubUrl;
         const epubData = await this.downloadEpub(epubUrl)
         await this.DynamicParser(epubData);
@@ -152,7 +152,7 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
         this.loadingProgress = 100;
         this.loadingMessage = 'Uploading to firestore...';
 
-        await this.firebaseService.Create(this.selectedEpup, this.loggedUser?.uid);
+        await this.firebaseService.Create(this.selectedEpup, this.user.id);
         this.getEpubsFromFirestore();
         this.loading = false;
     }
@@ -174,6 +174,8 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
             return;
         }
 
+        let readerBook = this.firebaseService.getBook(epubDataArrayBuffer);
+
         this.loadingProgress = 20;
         this.loadingMessage = 'Parsing epub...';
 
@@ -190,11 +192,17 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
         this.loadingProgress = 40;
         this.loadingMessage = 'Getting metadata...';
 
-        const metadata = await this.GetMetadata(opfFileContent, opfFileParentFolder);
-        this.selectedEpup.title = metadata.title ? metadata.title : '';
-        this.selectedEpup.cover = metadata.cover ? metadata.cover : '';
+        const meta = await this.GetMetadata(opfFileContent, opfFileParentFolder);
+        this.selectedEpup.cover = meta.cover ? meta.cover : '';
+        readerBook.loaded.metadata.then((metadata) => {
+            this.selectedEpup.title = metadata.title ? metadata.title : '';
+            this.selectedEpup.creator = metadata.creator ? metadata.creator : '';
+            this.selectedEpup.publisher = metadata.publisher ? metadata.publisher : '';
+            this.selectedEpup.date = metadata.modified_date ? metadata.modified_date : '';
+            this.selectedEpup.language = metadata.language ? metadata.language : '';
+        });
 
-        this.firebaseService.getGoogleBooks(this.selectedEpup.title).subscribe((data) => {
+        /*this.firebaseService.getGoogleBooks(this.selectedEpup.title).subscribe((data) => {
             // find first element which saleInfo is not "NOT_FOR_SALE"
             let trueData = data.items.find((item: any) => item.saleInfo.saleability !== 'NOT_FOR_SALE');
             this.selectedEpup.description = trueData.volumeInfo.description;
@@ -202,19 +210,14 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
             this.selectedEpup.language = trueData.volumeInfo.language;
             this.selectedEpup.date = new Date(trueData.volumeInfo.publishedDate).getFullYear().toString();
             this.selectedEpup.publisher = trueData.volumeInfo.publisher;
-        });
+            this.selectedEpup.creator = trueData.volumeInfo.creator;
+        });*/
 
         this.loadingProgress = 60;
-        this.loadingMessage = 'Getting images...';
+        this.loadingMessage = 'Getting cover...';
 
         const imagesLocation = await this.GetImagesLocation(opfFileContent, opfFileParentFolder);
         await this.SendImagesToStorage(imagesLocation, epubDataArrayBuffer);
-
-        this.loadingProgress = 80;
-        this.loadingMessage = 'Getting pages...';
-
-        await this.ParseToc(epubDataArrayBuffer);
-        this.selectedEpup.files = await this.GetPageLocationOrder(opfFileContent, opfFileParentFolder);
         console.log('selectedEpup', this.selectedEpup);
     }
     async GetOpfFilePath(containerXmlContent: string) {
@@ -237,31 +240,8 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
             const metadata: any = {};
 
             if (metadataElement) {
-                const titleElement = metadataElement.querySelector('title');
-                const creatorElement = metadataElement.querySelector('creator');
-                const publisherElement = metadataElement.querySelector('publisher');
-                const contributorElement = metadataElement.querySelector('contributor');
-                const dateElement = metadataElement.querySelector('date');
-                const languageElement = metadataElement.querySelector('language');
                 const coverElement = metadataElement.querySelector('meta[name="cover"]');
-
-                if (titleElement) {
-                    metadata.title = titleElement.textContent;
-                }
-                if (creatorElement) {
-                    metadata.creator = creatorElement.textContent;
-                }
-                if (publisherElement) {
-                    metadata.publisher = publisherElement.textContent;
-                } else if (contributorElement) {
-                    metadata.publisher = contributorElement.textContent;
-                }
-                if (languageElement) {
-                    metadata.language = languageElement.textContent;
-                }
-                if (dateElement) {
-                    metadata.date = dateElement.textContent;
-                }
+                console.log("coverElement:", coverElement);
                 if (coverElement) {
                     const coverId = coverElement.getAttribute('content');
                     const coverItemElement = opfXmlDoc.querySelector(`item[id="${coverId}"]`);
@@ -329,7 +309,7 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
                 });
                 const blob = new Blob([imageFile], {type: image.mediaType});
                 const file = new File([blob], image.href.split('/')[image.href.split('/').length - 1], {type: image.mediaType});
-                const url = await this.firebaseService.uploadEpubToStorage(file, this.loggedUser?.uid + '/' + this.selectedEpup.id);
+                const url = await this.firebaseService.uploadEpubToStorage(file, this.user.id + '/' + this.selectedEpup.id);
                 this.selectedEpup.cover = url;
             }
         }
@@ -482,16 +462,16 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
             return;
         }
 
-        this.firebaseService.uploadEpubToStorage(event.target.files[0], this.loggedUser?.uid + '/' + this.selectedEpup.id).then((url) => {
+        this.firebaseService.uploadEpubToStorage(event.target.files[0], this.user.id + '/' + this.selectedEpup.id).then((url) => {
             this.selectedEpup.cover = url;
         });
     }
 
     async createOrUpdateBook() {
         if (this.isBookCreation) {
-            await this.firebaseService.Create(this.selectedEpup, this.loggedUser?.uid);
+            await this.firebaseService.Create(this.selectedEpup, this.user.id);
         } else {
-            await this.firebaseService.Update(this.selectedEpup, this.loggedUser?.uid);
+            await this.firebaseService.Update(this.selectedEpup, this.user.id);
         }
 
         await this.getEpubsFromFirestore();
@@ -519,7 +499,7 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
 
     async addShelf() {
         this.newShelf.id = this.IdGenerator();
-        await this.firebaseService.CreateShelf(this.newShelf, this.loggedUser?.uid);
+        await this.firebaseService.CreateShelf(this.newShelf, this.user.id);
         this.shelves.push(this.newShelf);
         this.newShelf.bookIds.push(this.selectedEpup.id);
         this.newShelf = new ShelvesDto();
@@ -528,7 +508,7 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
 
     async updateShelves() {
         for (const shelf of this.shelves) {
-            await this.firebaseService.UpdateShelf(shelf, this.loggedUser?.uid);
+            await this.firebaseService.UpdateShelf(shelf, this.user.id);
         }
         this.showShelvesModal = false;
         this.newShelf = new ShelvesDto();
@@ -536,7 +516,7 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
     }
 
     async deleteShelf(shelf: ShelvesDto) {
-        await this.firebaseService.DeleteShelf(shelf.id, this.loggedUser?.uid);
+        await this.firebaseService.DeleteShelf(shelf.id, this.user.id);
         await this.getShelves();
     }
 
@@ -546,10 +526,10 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
         // remove book from shelf if exists
         for (const shelf of this.shelves) {
             shelf.bookIds = shelf.bookIds.filter((bId) => bId !== book.id);
-            await this.firebaseService.UpdateShelf(shelf, this.loggedUser?.uid);
+            await this.firebaseService.UpdateShelf(shelf, this.user.id);
         }
 
-        await this.firebaseService.Delete(book.id, this.loggedUser?.uid);
+        await this.firebaseService.Delete(book.id, this.user.id);
         this.showBookDialog = false;
         this.selectedEpup.showMenu = false;
         this.selectedEpup = new EpubDto();

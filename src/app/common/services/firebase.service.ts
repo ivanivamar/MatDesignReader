@@ -3,9 +3,9 @@ import {initializeApp} from "firebase/app";
 import {getStorage, ref, uploadBytes, getDownloadURL, getMetadata} from "firebase/storage";
 import {addDoc, collection, deleteDoc, doc, getDoc, getDocs, getFirestore, query, setDoc, updateDoc, where} from "firebase/firestore";
 import {combineLatest, map, Observable} from "rxjs";
-import {IEpub, ShelvesDto} from "../interfaces/models";
+import {IEpub, IUser, ShelvesDto} from "../interfaces/models";
 import {HttpClient} from "@angular/common/http";
-import {GoogleAuthProvider, getAuth, signInWithPopup} from "firebase/auth";
+import {GoogleAuthProvider, getAuth, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import {AppComponentBase} from "../AppComponentBase";
 import {LocalizationService} from "./localization.service";
 import Epub, {Book} from 'epubjs';
@@ -38,6 +38,65 @@ export class FirebaseService {
     // Auth:
     googleLogin() {
         return signInWithPopup(this.auth, new GoogleAuthProvider());
+    }
+    async createUser(email: string, password: string): Promise<any> {
+        let result = null;
+        await createUserWithEmailAndPassword(this.auth, email, password)
+            .then(async (userCredential) => {
+                // Signed up
+                const user = userCredential.user;
+                console.log("%c createUser user:", "color: green; font-size: 16px;", user);
+                let userDto = {
+                    id: user.uid,
+                    name: '',
+                    email: user.email,
+                    password: password,
+                    textSize: 16,
+                    darkTheme: false,
+                    fontFamily: 'trebuchet ms, sans-serif',
+                    language: 'es'
+                } as IUser;
+
+                await setDoc(doc(this.db, "users", user.uid), userDto);
+                result = userDto;
+            })
+            .catch((error) => {
+                console.log("%c createUser error:", "color: red; font-size: 16px;", error);
+                result = null;
+            });
+        return result;
+    }
+    async login(email: string, password: string): Promise<any> {
+        signInWithEmailAndPassword(this.auth, email, password)
+            .then((userCredential) => {
+                return true;
+            })
+            .catch((error) => {
+                console.log("%c createUser error:", "color: red; font-size: 16px;", error);
+                return false;
+            });
+    }
+    async getUserById(id: string): Promise<any> {
+        const docRef = doc(this.db, "users", id);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+            return docSnap.data() as IUser;
+        } else {
+            return null;
+        }
+    }
+    async updateUser(user: IUser): Promise<any> {
+        const docRef = doc(this.db, "users", user.id);
+        await updateDoc(docRef, {
+            name: user.name,
+            email: user.email,
+            password: user.password,
+            textSize: user.textSize,
+            darkTheme: user.darkTheme,
+            fontFamily: user.fontFamily,
+            language: user.language,
+            profilePicture: user.profilePicture
+        });
     }
 
     async isLoggedIn(): Promise<any> {
@@ -122,8 +181,6 @@ export class FirebaseService {
             date: epub.date,
             cover: epub.cover,
             url: epub.url,
-            files: epub.files,
-            images: epub.images,
             currentPage: epub.currentPage,
             totalCurrentPage: epub.totalCurrentPage,
             currentChapter: epub.currentChapter,

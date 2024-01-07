@@ -94,6 +94,14 @@ export class MInputComponent extends AppComponentBase {
                     this.error = true;
                 }
                 break;
+            case 'text':
+                // check for valid password
+                if (this.showingPassword) {
+                    if (!this.validatePassword(this.value)) {
+                        this.error = true;
+                    }
+                }
+                break;
             default:
                 break;
         }

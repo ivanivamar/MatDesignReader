@@ -4,6 +4,7 @@ import {FirebaseService} from "./common/services/firebase.service";
 import {Router} from "@angular/router";
 import {LocalizationService} from "./common/services/localization.service";
 import {AppComponentBase} from "./common/AppComponentBase";
+import {UserDto} from "./common/interfaces/models";
 
 @Component({
     selector: 'app-root',
@@ -15,7 +16,6 @@ export class AppComponent extends AppComponentBase implements OnInit {
     title = 'MaterialReader';
     loading = false;
     showProfileMenu = false;
-    user: User | null = null;
 
     constructor(
         injector: Injector,
@@ -28,7 +28,9 @@ export class AppComponent extends AppComponentBase implements OnInit {
     ngOnInit(): void {
         this.loading = true;
         this.firebaseService.isLoggedIn().then(async user => {
-            this.user = user;
+            await this.firebaseService.getUserById(user.uid).then(async (user: any) => {
+                this.user = user;
+            });
             await this.getLocalizationFileData();
             this.loading = false;
         });

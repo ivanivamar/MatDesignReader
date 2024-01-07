@@ -81,3 +81,27 @@ export class ShelvesDto {
     books: IEpub[] = [];
     lastRead: Date = new Date();
 }
+
+export interface IUser {
+    id: string;
+    name: string;
+    email: string;
+    password: string;
+    profilePicture: string;
+    textSize: number;
+    darkTheme: boolean;
+    fontFamily: string;
+    language: string;
+}
+
+export class UserDto {
+    id: string = '';
+    name: string = '';
+    email: string = '';
+    password: string = '';
+    profilePicture: string = '';
+    textSize: number = 0;
+    darkTheme: boolean = false;
+    fontFamily: string = 'trebuchet ms, sans-serif';
+    language: string = '';
+}

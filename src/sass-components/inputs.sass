@@ -95,6 +95,7 @@ input[type="checkbox"]
     border-radius: 8px
     height: 48px
     transition: all 0.2s ease-in-out
+    width: 100%
 
     &:disabled
         opacity: 0.5
@@ -225,3 +226,13 @@ input[type="checkbox"]
     width: 14px !important
     left: -5px !important
     top: 0 !important
+
+.mdc-switch .mdc-switch__handle::before,
+.mdc-switch:enabled .mdc-switch__track::before
+    background-color: $color-surface-2 !important
+
+.mdc-switch.mdc-switch--selected:enabled .mdc-switch__handle::after
+    background: $color-primary !important
+
+.mdc-switch.mdc-switch--selected:enabled .mdc-switch__icon
+    color: $color-on-primary !important

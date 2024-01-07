@@ -3,11 +3,163 @@
         {{ 'MaterialReader' | localize }}
     </h1>
 
-    <div class="w-full flex align-items-center justify-content-center">
-        <button class="btn google-btn" (click)="login()">
-            <img src="https://cdn.iconscout.com/icon/free/png-256/free-google-1772223-1507807.png" alt="Google" class="google-icon">
-            {{ 'SignInGoogle' | localize }}
-        </button>
+    <div class="p-3 border-round-lg border flex flex-column w-30rem mx-auto" *ngIf="!showRegister">
+        <form (ngSubmit)="login()">
+            <span class="font-medium text-xl block">
+                {{ 'Login' | localize }}
+            </span>
+            <span class="font-color-secondary text-sm block mt-1">
+                {{ 'LoginSubtitle' | localize }}
+            </span>
+
+            <m-input
+                [name]="'login-email'"
+                class="mt-4 block"
+                [icon]="'email'"
+                [label]="l('Email')"
+                [(value)]="user.email"
+                [disabled]="loading"
+                [inputType]="'email'"
+                [required]="true"></m-input>
+            <m-input
+                [name]="'login-password'"
+                class="mt-3 block"
+                [icon]="'password'"
+                [label]="l('Password')"
+                [(value)]="user.password"
+                [disabled]="loading"
+                [inputType]="'password'"
+                [showPassword]="true"
+                [helperText]="l('PasswordHelperText')"
+                [required]="true"></m-input>
+
+            <a class="mt-3 block cursor-pointer" (click)="showRegister = true">
+                {{ 'CreateAccount' | localize }}
+            </a>
+
+            <button type="submit" class="btn btn-filled w-full mt-1" [disabled]="!checkLogin()">
+                <i class="material-symbols-rounded">login</i>
+                {{ 'Login' | localize }}
+            </button>
+        </form>
+    </div>
+
+    <div class="p-3 border-round-lg border flex flex-column w-30rem mx-auto" *ngIf="showRegister">
+        <form (ngSubmit)="register()" *ngIf="!showRegisterStep">
+            <span class="font-medium text-xl block">
+                {{ 'Register' | localize }}
+            </span>
+            <span class="font-color-secondary text-sm block mt-1">
+                {{ 'RegisterSubtitle' | localize }}
+            </span>
+
+            <m-input
+                [name]="'register-email'"
+                class="mt-4 block"
+                [icon]="'email'"
+                [label]="l('Email')"
+                [(value)]="user.email"
+                [disabled]="loading"
+                [inputType]="'email'"
+                [required]="true"></m-input>
+            <m-input
+                [name]="'register-password'"
+                class="mt-3 block"
+                [icon]="'password'"
+                [label]="l('Password')"
+                [(value)]="user.password"
+                [disabled]="loading"
+                [inputType]="'password'"
+                [showPassword]="true"
+                [helperText]="l('PasswordHelperText')"
+                [required]="true"></m-input>
+            <m-input
+                [name]="'register-password-confirm'"
+                class="mt-1 block"
+                [icon]="confirmPassword === '' ? 'lock' : (confirmPassword === user.password ? 'check' : 'close')"
+                [label]="l('PasswordConfirm')"
+                [(value)]="confirmPassword"
+                [disabled]="loading"
+                [inputType]="'password'"
+                [showPassword]="true"
+                [required]="true"></m-input>
+
+            <a class="mt-3 block cursor-pointer" (click)="showRegister = false">
+                {{ 'AlreadyHaveAccount' | localize }}
+            </a>
+
+            <button type="submit" class="btn btn-filled w-full mt-1" [disabled]="!checkRegister()">
+                <i class="material-symbols-rounded">arrow_forward</i>
+                {{ 'Register' | localize }}
+            </button>
+        </form>
+        <ng-container *ngIf="showRegisterStep">
+            <span class="font-medium text-xl block">
+                {{ 'AdditionalInfo' | localize }}
+            </span>
+
+            <div class="w-full flex align-items-center justify-content-center mt-5">
+                <div class="border-circle color-surface-2 relative" style="height: 100px; width: 100px">
+                    <img [src]="user.profilePicture" alt="UserProfile" class="h-full w-full border-circle" *ngIf="user.profilePicture !== ''">
+                    <button class="btn-icon btn-filled btn-sm absolute bottom-0 right-0" (click)="profilePic.click()">
+                        <i class="material-symbols-rounded">edit</i>
+                    </button>
+                    <input type="file" accept="image/*" #profilePic (change)="uploadProfilePicture($event)" class="hidden">
+                </div>
+            </div>
+
+            <m-input
+                [name]="'register-firstname'"
+                class="mt-4 block"
+                [label]="l('Username')"
+                [(value)]="user.name"
+                [disabled]="loading"
+                [required]="true"></m-input>
+
+            <span class="font-medium text-lg block mt-3">
+                {{ 'ReaderSettings' | localize }}
+            </span>
+
+            <div class="form-group mt-2">
+                <span class="text-base">
+                    {{ 'DarkTheme' | localize }}
+                </span>
+                <mat-slide-toggle
+                    [color]="'#A8C7FA'"
+                    [checked]="user.darkTheme"
+                ></mat-slide-toggle>
+            </div>
+
+            <div class="form-group">
+                <span class="text-base">
+                    {{ 'FontStyle' | localize }}
+                </span>
+
+                <div class="flex align-items-center gap-3">
+                    <div
+                        class="font-box border p-3 border-round-lg flex align-items-center justify-content-center w-full cursor-pointer"
+                        [class.border-primary]="user.fontFamily === 'trebuchet ms, sans-serif'"
+                        (click)="user.fontFamily = 'trebuchet ms, sans-serif'">
+                        <span class="text-2xl" style="font-family: 'trebuchet ms', sans-serif">
+                            Aa
+                        </span>
+                    </div>
+                    <div
+                        class="font-box border p-3 border-round-lg flex align-items-center justify-content-center w-full cursor-pointer"
+                        [class.border-primary]="user.fontFamily === 'serif'"
+                        (click)="user.fontFamily = 'serif'">
+                        <span class="text-2xl" style="font-family: 'times new roman', serif">
+                            Aa
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-filled w-full mt-1" (click)="saveSettings()" [disabled]="user.name.trim().length === 0">
+                <i class="material-symbols-rounded">save</i>
+                {{ 'Save' | localize }}
+            </button>
+        </ng-container>
     </div>
 </div>
 
