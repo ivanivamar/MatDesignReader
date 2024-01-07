@@ -74,15 +74,17 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
     }
 
     ngOnInit() {
-        this.firebaseService.isLoggedIn().then(user => {
+        this.firebaseService.isLoggedIn().then(async user => {
             if (!user) {
                 this.router.navigate(['login']);
             } else {
-                this.setCookie(this.CookieNames.loggedUser, user.uid);
-                this.loggedUser = user;
+                await this.firebaseService.getUserById(user.uid).then(async (user: any) => {
+                    this.user = user;
+                    this.loggedUser = user;
+                });
                 const id = window.location.pathname.split('/')[2];
 
-                from(this.firebaseService.GetById(id, this.loggedUser?.uid)).subscribe(async (book) => {
+                from(this.firebaseService.GetById(id, this.user.id)).subscribe(async (book) => {
                     this.book = book as EpubDto;
                     console.log("BOOK:", this.book);
                     this.titleService.setTitle(this.book.title);
@@ -126,7 +128,7 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
                 "margin": "12px 0 !important",
                 "padding": "0em",
                 "font-size": "18px !important",
-                "font-family": "'trebuchet ms', serif",
+                "font-family": this.user.fontFamily + " !important",
                 "font-weight": "400 !important",
                 "color": "#c4c7c5 !important",
             },
@@ -134,35 +136,35 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
                 "line-height": "151.875% !important",
                 "color": "#c4c7c5 !important",
                 "margin-bottom": "0.5rem !important",
-                "font-family": "'trebuchet ms', serif",
+                "font-family": this.user.fontFamily + " !important",
                 "font-weight": "bold !important"
             },
             "h2": {
                 "line-height": "151.875% !important",
                 "color": "#c4c7c5 !important",
                 "margin-bottom": "0.5rem !important",
-                "font-family": "'trebuchet ms', serif",
+                "font-family": this.user.fontFamily + " !important",
                 "font-weight": "bold !important"
             },
             "h3": {
                 "line-height": "151.875% !important",
                 "color": "#c4c7c5 !important",
                 "margin-bottom": "0.5rem !important",
-                "font-family": "'trebuchet ms', serif",
+                "font-family": this.user.fontFamily + " !important",
                 "font-weight": "bold !important"
             },
             "blockquote": {
-                "font-family": "'trebuchet ms', serif",
+                "font-family": this.user.fontFamily + " !important",
                 "color": "#c4c7c5 !important",
                 "margin": "12px 0 !important"
             },
             "a": {
-                "font-family": "'trebuchet ms', serif",
+                "font-family": this.user.fontFamily + " !important",
                 "color": "#c4c7c5 !important",
                 "text-decoration": "none !important"
             },
             "em": {
-                "font-family": "'trebuchet ms', serif",
+                "font-family": this.user.fontFamily + " !important",
                 "color": "#c4c7c5 !important",
                 "margin": "12px 0 !important"
             }
@@ -564,7 +566,7 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
     }
 
     updateBook(): void {
-        this.firebaseService.Update(this.book, this.loggedUser?.uid);
+        this.firebaseService.Update(this.book, this.user.id);
     }
 
     GoToHome(): void {

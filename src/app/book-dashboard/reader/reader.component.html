@@ -266,9 +266,9 @@
                     </div>
                 </div>
 
-                <div class="flex flex-column pl-3" *ngIf="chapter.subitems && chapter.subitems.length > 0">
+                <div class="flex flex-column" *ngIf="chapter.subitems && chapter.subitems.length > 0">
                     <div
-                        class="list-item square" matRipple
+                        class="mat-ripple list-item square pl-7" matRipple
                         [class.active]="subItem.id === book.currentChapter.id"
                         [id]="subItem.id === book.currentChapter.id ? 'anchor' : ''"
                         *ngFor="let subItem of chapter.subitems"
