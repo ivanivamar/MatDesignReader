@@ -95,37 +95,6 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
         });
     }
 
-    toggleMenu(event: Event, book: EpubDto) {
-        event.stopPropagation();
-        event.preventDefault();
-        book.showMenu = !book.showMenu;
-    }
-
-    editShelves(event: Event, book: EpubDto) {
-        event.stopPropagation();
-        event.preventDefault();
-        this.selectedEpup = book;
-        book.showMenu = false;
-        this.showShelvesModal = true;
-    }
-
-    GoToReader(book: IEpub): void {
-        this.router.navigate(['reader', book.id]);
-    }
-
-    handleLinkClick() {
-        // Your link click logic here
-        console.log('Link clicked!');
-    }
-
-    getUrlFromImageArray(imageName: string): string {
-        let name = imageName.split('/')[imageName.split('/').length - 1];
-        //@ts-ignore
-        const image = this.images.find((i) => i.file.name === name);
-        //@ts-ignore
-        return image ? image.url : '';
-    }
-
     async Upload(event: any) {
         this.loading = true;
         this.bookCreationStepsIndex = 0;
@@ -310,14 +279,6 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
         this.selectedEpup = new EpubDto();
         this.bookCreationStepsIndex = 0;
         this.isBookCreation = false;
-    }
-
-    editBook(event: Event, book: EpubDto) {
-        event.stopPropagation();
-        event.preventDefault();
-        book.showMenu = false;
-        this.selectedEpup = book;
-        this.showBookDialog = true;
     }
 
     async updateShelves() {
