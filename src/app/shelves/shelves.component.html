@@ -19,25 +19,14 @@
     <div class="card-set grid-cols-4 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 xl:grid-cols-16" *ngIf="selectedShelf.name !== ''">
         <ng-container
             *ngFor="let book of selectedShelf.books; let index = index">
-            <a matRipple
-               class="card gap-2 h-full no-underline relative"
-               [routerLink]="['/books/', book.id]">
-                <img class="border-round-sm" [src]="book.cover" alt="{{book.title}}">
-                <div class="card-body flex-column justify-content-end h-full w-full pt-0">
-                    <div class="flex justify-content-between">
-                        <div class="flex flex-column gap-2">
-                            <span class="card-title">{{book.title}}</span>
-                        </div>
-                    </div>
-                    <span class="card-text">{{book.creator}}</span>
-                    <div class="flex align-items-center gap-2 mt-1">
-                        <div class="progress-bar-container flex-1">
-                            <div class="progress-bar" [style]="{width: Round(book.percentageRead) + '%'}"></div>
-                        </div>
-                        <span class="text-sm font-color-secondary font-medium">{{Round(book.percentageRead)}}%</span>
-                    </div>
-                </div>
-            </a>
+            <book-card
+                [fromShelves]="true"
+                [userX]="user"
+                [book]="book"
+                [shelves]="shelves"
+                (updateShelves)="getShelves()"
+                (removeFromShelf)="removeBookFromShelf(book.id)">
+            </book-card>
         </ng-container>
     </div>
 

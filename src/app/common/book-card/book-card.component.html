@@ -1,0 +1,156 @@
+<a matRipple class="card gap-2 h-full no-underline relative" longPress (mouseLongPress)="showBookMenu()"
+    [routerLink]="['/reader/', book.id]">
+    <img class="border-round-sm" [src]="book.cover" alt="{{book.title}}">
+    <div class="card-body flex-column justify-content-end h-full w-full pt-0">
+        <div class="flex justify-content-between">
+            <div class="flex flex-column gap-2">
+                <span class="card-title">{{book.title}}</span>
+            </div>
+        </div>
+        <span class="card-text">{{book.creator}}</span>
+        <div class="flex align-items-center gap-2 mt-1">
+            <div class="progress-bar-container flex-1">
+                <div class="progress-bar" [style]="{width: Round(book.percentageRead) + '%'}"></div>
+            </div>
+            <span class="text-sm font-color-secondary font-medium">{{Round(book.percentageRead)}}%</span>
+        </div>
+    </div>
+</a>
+
+<div class="menu-container" [class.open]="book.showMenu">
+    <div class="overlay" (click)="book.showMenu = false"></div>
+    <div class="menu">
+        <div class="menu-header align-items-center gap-3">
+            <span class="font-medium max-w-18rem">
+                {{book.title}}
+            </span>
+            <button class="btn-icon btn-text btn-sm" (click)="book.showMenu = false">
+                <i class="material-symbols-rounded">close</i>
+            </button>
+        </div>
+        <div class="menu-item" matRipple (click)="showBookDialog = true; book.showMenu = false">
+            <i class="material-symbols-rounded">edit</i>
+            {{ 'Edit' | localize }}
+        </div>
+        <div class="menu-item" *ngIf="fromShelves" matRipple (click)="removeFromShelf.emit()">
+            <i class="material-symbols-rounded">playlist_remove</i>
+            {{ 'RemoveFromShelf' | localize }}
+        </div>
+        <div class="menu-item text-red-500" matRipple (click)="deleteBook($event)">
+            <i class="material-symbols-rounded text-red-500">delete</i>
+            {{ 'Delete' | localize }}
+        </div>
+    </div>
+</div>
+
+<m-dialog
+    [(visible)]="showBookDialog"
+    [header]="book.title"
+    [width]="'800px'"
+    (visibleChange)="onBookDialogClose()">
+
+    <div content>
+        <div class="tab-container mb-3">
+            <div class="tab" matRipple [class.active]="bookCreationStepsIndex == 0" (click)="bookCreationStepsIndex = 0">
+                <div class="tab-content">
+                    <i class="material-symbols-rounded">info</i>
+                    <span>{{ 'Info' | localize }}</span>
+                </div>
+            </div>
+            <div class="tab" *ngIf="!fromShelves" matRipple [class.active]="bookCreationStepsIndex == 1" (click)="bookCreationStepsIndex = 1">
+                <div class="tab-content">
+                    <i class="material-symbols-rounded">shelves</i>
+                    <span>{{ 'Shelves' | localize }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div [ngSwitch]="bookCreationStepsIndex">
+            <div *ngSwitchCase="0" class="grid">
+                <div class="col-6 md:col-3 relative">
+                    <img class="last-book-img h-full w-full" [src]="book.cover" alt="{{book.title}}"/>
+                    <button class="btn-icon btn-filled btn-sm absolute top-0 right-0" (click)="coverInput.click()">
+                        <i class="material-symbols-rounded">edit</i>
+                    </button>
+                    <input type="file" class="hidden" #coverInput name="cover" id="cover" accept="image/*" (change)="UploadCover($event)">
+                </div>
+                <div class="col-12 md:col-9">
+                    <div class="flex flex-column gap-3">
+                        <m-input
+                            class="w-full"
+                            [inputType]="'text'"
+                            [name]="'title'"
+                            [label]="l('BookTitle')"
+                            [(value)]="book.title"></m-input>
+
+                        <div class="flex align-items-center gap-3">
+                            <m-input
+                                class="w-full"
+                                [inputType]="'text'"
+                                [name]="'creator'"
+                                [label]="l('BookAuthor')"
+                                [(value)]="book.creator"></m-input>
+
+                            <m-input
+                                class="w-full"
+                                [inputType]="'text'"
+                                [name]="'publisher'"
+                                [label]="l('BookPublisher')"
+                                [(value)]="book.publisher"></m-input>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div *ngSwitchCase="1">
+                <div class="list-container">
+                    <div
+                        class="list-item justify-content-between"
+                        *ngFor="let shelf of shelves">
+                        <div class="flex align-items-center gap-3">
+                            <input
+                                type="checkbox"
+                                [id]="shelf.name"
+                                [checked]="checkIfHasBook(shelf)"
+                                (change)="toggleShelf(shelf); UpdateShelves()">
+                            <label [for]="shelf.name" class="font-medium">{{shelf.name}}</label>
+                        </div>
+
+                        <button class="btn-icon text-btn" (click)="deleteShelf(shelf)">
+                            <i class="material-symbols-rounded">delete</i>
+                        </button>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="flex align-items-center justify-content-between">
+                        <m-input
+                            class="flex flex-1"
+                            [inputType]="'text'"
+                            [name]="'newShelfName'"
+                            [label]="'ShelfName'"
+                            [showClear]="true"
+                            [(value)]="newShelf.name"></m-input>
+
+                        <button class="btn-icon btn-filled ml-3" (click)="addShelf()">
+                            <i class="material-symbols-rounded">add</i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div footer class="justify-content-between">
+        <button class="btn btn-outlined danger" (click)="deleteBook($event)">
+            <i class="material-symbols-rounded">delete</i>
+            {{ 'Delete' | localize }}
+        </button>
+        <div class="flex align-items-center gap-2">
+            <button class="btn btn-outlined" (click)="onBookDialogClose()">
+                <i class="material-symbols-rounded">close</i>
+                {{ 'Close' | localize }}
+            </button>
+            <button class="btn btn-filled" (click)="UpdateBook()">
+                <i class="material-symbols-rounded">save</i>
+                {{ 'Save' | localize }}
+            </button>
+        </div>
+    </div>
+</m-dialog>

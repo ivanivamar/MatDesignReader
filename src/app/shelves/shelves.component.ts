@@ -36,7 +36,10 @@ export class ShelvesComponent extends AppComponentBase implements OnInit {
             if (!user) {
                 await this.router.navigate(['login']);
             } else {
-                this.loggedUser = user;
+                await this.firebaseService.getUserById(user.uid).then(async (user: any) => {
+                    this.user = user;
+                    this.loggedUser = user;
+                });
                 this.titleService.setTitle('Your Shelves');
                 await this.getShelves();
             }
@@ -44,8 +47,9 @@ export class ShelvesComponent extends AppComponentBase implements OnInit {
     }
 
     async getShelves() {
+        this.loading = true;
         this.shelves = [];
-        from(this.firebaseService.GetAllShelves(this.loggedUser?.uid)).subscribe(r => {
+        from(this.firebaseService.GetAllShelves(this.user.id)).subscribe(r => {
             this.shelves = r;
             // order by title
             this.shelves.sort((a, b) => (a.name > b.name) ? 1 : -1);
@@ -63,11 +67,10 @@ export class ShelvesComponent extends AppComponentBase implements OnInit {
         this.selectedShelf = new ShelvesDto();
     }
 
-    logout(): void {
-        this.firebaseService.logout().then(() => {
-            this.router.navigate(['login']);
-        });
+    removeBookFromShelf(bookId: string) {
+        console.log('remove book from shelf');
+        this.selectedShelf.bookIds = this.selectedShelf.bookIds.filter((bId) => bId !== bookId);
+        this.firebaseService.UpdateShelf(this.selectedShelf, this.user.id);
+        this.selectedShelf.books = this.selectedShelf.books.filter((b) => b.id !== bookId);
     }
-
-    protected readonly ShelvesDto = ShelvesDto;
 }
