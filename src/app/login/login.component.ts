@@ -11,6 +11,9 @@ import {AppComponentBase} from "../common/AppComponentBase";
 })
 export class LoginComponent extends AppComponentBase implements OnInit {
     loading = false;
+    showRegister = false;
+    confirmPassword = '';
+    showRegisterStep = false;
 
     constructor(
         injector: Injector,
@@ -25,21 +28,60 @@ export class LoginComponent extends AppComponentBase implements OnInit {
         await this.firebaseService.isLoggedIn().then(async user => {
             if (user) {
                 this.router.navigate(['']);
-            } else {
-                await this.getLocalizationFileData();
             }
+            await this.getLocalizationFileData();
             this.loading = false;
         });
     }
-
+    checkLogin(): boolean {
+        if (this.user.email === undefined || this.user.email === null || this.user.email.trim() === '') {
+            return false;
+        }
+        if (this.user.password === undefined || this.user.password === null || this.user.password.trim() === '') {
+            return false;
+        }
+        return true;
+    }
     login() {
-        this.firebaseService.googleLogin().then(() => {
-            this.firebaseService.isLoggedIn().then(user => {
-                if (user) {
-                    this.setCookie(this.CookieNames.loggedUser, user.uid);
-                    this.router.navigate(['']);
-                }
-            });
+        this.firebaseService.login(this.user.email, this.user.password);
+    }
+
+    checkRegister(): boolean {
+        if (this.user.email === undefined || this.user.email === null || this.user.email.trim() === '') {
+            return false;
+        }
+        if (this.user.password === undefined || this.user.password === null || this.user.password.trim() === '') {
+            return false;
+        }
+        if (this.confirmPassword === undefined || this.confirmPassword === null || this.confirmPassword.trim() === '') {
+            return false;
+        }
+        if (this.user.password !== this.confirmPassword) {
+            return false;
+        }
+        return true;
+    }
+    register() {
+        this.firebaseService.createUser(this.user.email, this.user.password).then((result: any) => {
+            this.showRegisterStep = true;
+            this.user = result;
+        });
+    }
+
+    uploadProfilePicture(event: any) {
+        // check if is image:
+        if (!event.target.files[0].type.startsWith('image')) {
+            return;
+        }
+
+        this.firebaseService.uploadEpubToStorage(event.target.files[0], this.user.id + '/profilePicture').then((url) => {
+            this.user.profilePicture = url;
+        });
+    }
+
+    saveSettings() {
+        this.firebaseService.updateUser(this.user).then(() => {
+            this.router.navigate(['']);
         });
     }
 }

@@ -1,4 +1,4 @@
-import {Component, Injector, OnInit} from '@angular/core';
+import {Component, HostListener, Injector, OnInit} from '@angular/core';
 import {catchError, from, map, Observable, tap} from "rxjs";
 import {Content, IEpub, EpubDto, Page, ShelvesDto, Toc} from "../common/interfaces/models";
 import * as JSZip from "jszip";
@@ -41,6 +41,8 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
     searchFilter = '';
     showSearch = false;
 
+    isUserScrolling = false;
+
     constructor(
         injector: Injector,
         private firebaseService: FirebaseService,
@@ -56,22 +58,20 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
             if (!user) {
                 this.router.navigate(['login']);
             } else {
-                this.loggedUser = user;
-                console.log("USER:", this.loggedUser);
+                await this.firebaseService.getUserById(user.uid).then(async (user: any) => {
+                    this.user = user;
+                    this.loggedUser = user;
+                });
                 await this.getEpubsFromFirestore();
-                await this.getShelves();
                 await this.getLocalizationFileData();
-                let title = this.l('YourLibrary');
-                console.log("title:", title);
-                this.titleService.setTitle(title);
-                this.loading = false;
+                this.titleService.setTitle("Material Reader");
             }
         });
     }
 
     async getEpubsFromFirestore() {
         this.books = [];
-        from(this.firebaseService.GetAllBooks(this.loggedUser?.uid)).subscribe(r => {
+        await from(this.firebaseService.GetAllBooks(this.user.id)).subscribe(async r => {
             r.forEach((doc: any) => {
                 this.books.push(doc.data());
             });
@@ -80,27 +80,19 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
                 //@ts-ignore
                 return b.lastRead.seconds - a.lastRead.seconds;
             });
+
+            
+            await this.getShelves();
         });
     }
 
     async getShelves() {
-        from(this.firebaseService.GetAllShelves(this.loggedUser?.uid)).subscribe(r => {
+        this.loading = true;
+        await from(this.firebaseService.GetAllShelves(this.user.id)).subscribe(r => {
             this.shelves = r;
+            this.loading = false;
             console.log("this.shelves:", this.shelves);
         });
-    }
-
-    checkIfHasBook(shelf: ShelvesDto, book: EpubDto): boolean {
-        let hasBook = false;
-
-        if (shelf.bookIds.length > 0) {
-            shelf.bookIds.forEach((bId: string) => {
-                if (bId === book.id) {
-                    hasBook = true;
-                }
-            });
-        }
-        return hasBook;
     }
 
     toggleMenu(event: Event, book: EpubDto) {
@@ -144,7 +136,7 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
 
         this.selectedEpup = new EpubDto();
         this.selectedEpup.id = this.IdGenerator();
-        const epubUrl = await this.firebaseService.uploadEpubToStorage(event.target.files[0], this.loggedUser?.uid);
+        const epubUrl = await this.firebaseService.uploadEpubToStorage(event.target.files[0], this.user.id + '/' + this.selectedEpup.id);
         this.selectedEpup.url = epubUrl;
         const epubData = await this.downloadEpub(epubUrl)
         await this.DynamicParser(epubData);
@@ -152,7 +144,7 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
         this.loadingProgress = 100;
         this.loadingMessage = 'Uploading to firestore...';
 
-        await this.firebaseService.Create(this.selectedEpup, this.loggedUser?.uid);
+        await this.firebaseService.Create(this.selectedEpup, this.user.id);
         this.getEpubsFromFirestore();
         this.loading = false;
     }
@@ -160,7 +152,6 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
     onBookDialogClose() {
         this.showBookDialog = false;
         this.selectedEpup = new EpubDto();
-        this.bookCreationStepsIndex = 0;
         this.isBookCreation = false;
     }
 
@@ -173,6 +164,8 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
         if (!epubDataArrayBuffer) {
             return;
         }
+
+        let readerBook = this.firebaseService.getBook(epubDataArrayBuffer);
 
         this.loadingProgress = 20;
         this.loadingMessage = 'Parsing epub...';
@@ -190,31 +183,21 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
         this.loadingProgress = 40;
         this.loadingMessage = 'Getting metadata...';
 
-        const metadata = await this.GetMetadata(opfFileContent, opfFileParentFolder);
-        this.selectedEpup.title = metadata.title ? metadata.title : '';
-        this.selectedEpup.cover = metadata.cover ? metadata.cover : '';
-
-        this.firebaseService.getGoogleBooks(this.selectedEpup.title).subscribe((data) => {
-            // find first element which saleInfo is not "NOT_FOR_SALE"
-            let trueData = data.items.find((item: any) => item.saleInfo.saleability !== 'NOT_FOR_SALE');
-            this.selectedEpup.description = trueData.volumeInfo.description;
-            this.selectedEpup.pages = trueData.volumeInfo.pageCount;
-            this.selectedEpup.language = trueData.volumeInfo.language;
-            this.selectedEpup.date = new Date(trueData.volumeInfo.publishedDate).getFullYear().toString();
-            this.selectedEpup.publisher = trueData.volumeInfo.publisher;
+        const meta = await this.GetMetadata(opfFileContent, opfFileParentFolder);
+        this.selectedEpup.cover = meta.cover ? meta.cover : '';
+        readerBook.loaded.metadata.then((metadata) => {
+            this.selectedEpup.title = metadata.title ? metadata.title : '';
+            this.selectedEpup.creator = metadata.creator ? metadata.creator : '';
+            this.selectedEpup.publisher = metadata.publisher ? metadata.publisher : '';
+            this.selectedEpup.date = metadata.modified_date ? metadata.modified_date : '';
+            this.selectedEpup.language = metadata.language ? metadata.language : '';
         });
 
         this.loadingProgress = 60;
-        this.loadingMessage = 'Getting images...';
+        this.loadingMessage = 'Getting cover...';
 
         const imagesLocation = await this.GetImagesLocation(opfFileContent, opfFileParentFolder);
         await this.SendImagesToStorage(imagesLocation, epubDataArrayBuffer);
-
-        this.loadingProgress = 80;
-        this.loadingMessage = 'Getting pages...';
-
-        await this.ParseToc(epubDataArrayBuffer);
-        this.selectedEpup.files = await this.GetPageLocationOrder(opfFileContent, opfFileParentFolder);
         console.log('selectedEpup', this.selectedEpup);
     }
     async GetOpfFilePath(containerXmlContent: string) {
@@ -237,31 +220,8 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
             const metadata: any = {};
 
             if (metadataElement) {
-                const titleElement = metadataElement.querySelector('title');
-                const creatorElement = metadataElement.querySelector('creator');
-                const publisherElement = metadataElement.querySelector('publisher');
-                const contributorElement = metadataElement.querySelector('contributor');
-                const dateElement = metadataElement.querySelector('date');
-                const languageElement = metadataElement.querySelector('language');
                 const coverElement = metadataElement.querySelector('meta[name="cover"]');
-
-                if (titleElement) {
-                    metadata.title = titleElement.textContent;
-                }
-                if (creatorElement) {
-                    metadata.creator = creatorElement.textContent;
-                }
-                if (publisherElement) {
-                    metadata.publisher = publisherElement.textContent;
-                } else if (contributorElement) {
-                    metadata.publisher = contributorElement.textContent;
-                }
-                if (languageElement) {
-                    metadata.language = languageElement.textContent;
-                }
-                if (dateElement) {
-                    metadata.date = dateElement.textContent;
-                }
+                console.log("coverElement:", coverElement);
                 if (coverElement) {
                     const coverId = coverElement.getAttribute('content');
                     const coverItemElement = opfXmlDoc.querySelector(`item[id="${coverId}"]`);
@@ -329,169 +289,20 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
                 });
                 const blob = new Blob([imageFile], {type: image.mediaType});
                 const file = new File([blob], image.href.split('/')[image.href.split('/').length - 1], {type: image.mediaType});
-                const url = await this.firebaseService.uploadEpubToStorage(file, this.loggedUser?.uid + '/' + this.selectedEpup.id);
+                const url = await this.firebaseService.uploadEpubToStorage(file, this.user.id + '/' + this.selectedEpup.id);
                 this.selectedEpup.cover = url;
             }
-        }
-    }
-    async ParseToc(epubDataArrayBuffer: ArrayBuffer) {
-        // search for .ncx file
-        const zip = new JSZip();
-        let ncxFile: string = '';
-        const epubData = await zip.loadAsync(epubDataArrayBuffer);
-        await zip.loadAsync(epubDataArrayBuffer).then((epub) => {
-            epub.forEach((relativePath, zipEntry) => {
-                if (zipEntry.name.endsWith('.ncx')) {
-                    ncxFile = zipEntry.name;
-                }
-            });
-        });
-        if (ncxFile === '') {
-            return;
-        }
-        const tocFile = await epubData.file(ncxFile)!.async('string');
-        if (!tocFile) {
-            return;
-        }
-
-        const parser = new DOMParser();
-        const ncxXmlDoc = parser.parseFromString(tocFile, 'application/xml');
-        console.log("ncxXmlDoc:", ncxXmlDoc);
-        const navMap = ncxXmlDoc.querySelector('navMap');
-        if (!navMap) {
-            return;
-        }
-        // format for object Toc
-        const toc: Toc[] = [];
-        // loop children of navMap
-        /*if (navMap.children.length > 0) {
-            for (let i = 0; i < navMap.children.length; i++) {
-                const navPoint = navMap.children[i];
-                if (navPoint.children.length > 0) {
-                    const tocItem: Toc = {
-                        title: '',
-                        file: '',
-                        subItems: []
-                    };
-                    for (let j = 0; j < navPoint.children.length; j++) {
-                        const navPointChild = navPoint.children[j];
-                        if (navPointChild.nodeName === 'navLabel') {
-                            tocItem.title = navPointChild.children[0].textContent!;
-                        } else if (navPointChild.nodeName === 'content') {
-                            tocItem.file = navPointChild.getAttribute('src')!;
-                        } else if (navPointChild.nodeName === 'navPoint') {
-                            const subItem: Toc = {
-                                title: '',
-                                file: '',
-                                subItems: []
-                            };
-                            for (let k = 0; k < navPointChild.children.length; k++) {
-                                const navPointChildChild = navPointChild.children[k];
-                                if (navPointChildChild.nodeName === 'navLabel') {
-                                    subItem.title = navPointChildChild.children[0].textContent!;
-                                } else if (navPointChildChild.nodeName === 'content') {
-                                    subItem.file = navPointChildChild.getAttribute('src')!;
-                                }
-                            }
-                            tocItem.subItems.push(subItem);
-                        }
-                    }
-                    this.selectedEpup.toc.push(tocItem);
-                }
-            }
-        }*/
-
-        this.selectedEpup.currentChapter = {
-            id: '',
-            href: '',
-            label: '',
-            parent: '',
-            subitems: []
-        };
-    }
-    async GetPageLocationOrder(opfFileContent: string, opfFileParentFolder: string) {
-        try {
-            const parser = new DOMParser();
-            const opfXmlDoc = parser.parseFromString(opfFileContent, 'application/xml');
-            const manifestElement = opfXmlDoc.querySelector('manifest');
-            const spineElement = opfXmlDoc.querySelector('spine');
-            const pageLocationOrder: any[] = [];
-            const finalPageLocationOrder: string[] = [];
-
-            if (manifestElement) {
-                const itemElements = manifestElement.querySelectorAll('item');
-
-                itemElements.forEach((itemElement) => {
-                    const mediaType = itemElement.getAttribute('media-type');
-                    const href = itemElement.getAttribute('href');
-
-                    if (mediaType && href && mediaType === 'application/xhtml+xml') {
-                        let temp = this.IsNullOrEmpty(opfFileParentFolder) ? href : opfFileParentFolder + '/' + href
-                        pageLocationOrder.push({
-                            id: itemElement.getAttribute('id')!,
-                            href: temp
-                        });
-                    } else {
-                        console.warn('Skipping item with missing or invalid attributes:', itemElement);
-                    }
-                });
-            } else {
-                console.error('Manifest element not found in OPF file.');
-            }
-
-            if (spineElement) {
-                const itemRefElements = spineElement.querySelectorAll('itemref');
-
-                itemRefElements.forEach((itemRefElement) => {
-                    const idref = itemRefElement.getAttribute('idref');
-
-                    if (idref) {
-                        this.filesOrder.push(idref);
-                    } else {
-                        console.warn('Skipping itemref with missing or invalid attributes:', itemRefElement);
-                    }
-                });
-            }
-            console.log("pageLocationOrder:", pageLocationOrder);
-            this.filesOrder.forEach((file) => {
-                pageLocationOrder.forEach((page) => {
-                    if (file == page.id) {
-                        finalPageLocationOrder.push(page.href);
-                        // remove page from array
-                        pageLocationOrder.splice(pageLocationOrder.indexOf(page), 1);
-                    }
-                });
-            });
-
-            return finalPageLocationOrder;
-        } catch (error) {
-            console.error('Error parsing OPF XML:', error);
-            return [];
         }
     }
     async downloadEpub(epubUrl: string): Promise<Observable<ArrayBuffer>> {
         return this.http.get(epubUrl, {responseType: 'arraybuffer'});
     }
 
-    showBookMenu() {
-    }
-
-    UploadCover(event: any) {
-        // check if is image:
-        if (!event.target.files[0].type.startsWith('image')) {
-            return;
-        }
-
-        this.firebaseService.uploadEpubToStorage(event.target.files[0], this.loggedUser?.uid + '/' + this.selectedEpup.id).then((url) => {
-            this.selectedEpup.cover = url;
-        });
-    }
-
     async createOrUpdateBook() {
         if (this.isBookCreation) {
-            await this.firebaseService.Create(this.selectedEpup, this.loggedUser?.uid);
+            await this.firebaseService.Create(this.selectedEpup, this.user.id);
         } else {
-            await this.firebaseService.Update(this.selectedEpup, this.loggedUser?.uid);
+            await this.firebaseService.Update(this.selectedEpup, this.user.id);
         }
 
         await this.getEpubsFromFirestore();
@@ -509,51 +320,13 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
         this.showBookDialog = true;
     }
 
-    toggleShelf(shelf: ShelvesDto, book: EpubDto) {
-        if (shelf.bookIds.includes(book.id)) {
-            shelf.bookIds = shelf.bookIds.filter((bId) => bId !== book.id);
-        } else {
-            shelf.bookIds.push(book.id);
-        }
-    }
-
-    async addShelf() {
-        this.newShelf.id = this.IdGenerator();
-        await this.firebaseService.CreateShelf(this.newShelf, this.loggedUser?.uid);
-        this.shelves.push(this.newShelf);
-        this.newShelf.bookIds.push(this.selectedEpup.id);
-        this.newShelf = new ShelvesDto();
-        await this.updateShelves();
-    }
-
     async updateShelves() {
         for (const shelf of this.shelves) {
-            await this.firebaseService.UpdateShelf(shelf, this.loggedUser?.uid);
+            await this.firebaseService.UpdateShelf(shelf, this.user.id);
         }
         this.showShelvesModal = false;
         this.newShelf = new ShelvesDto();
         await this.getShelves();
-    }
-
-    async deleteShelf(shelf: ShelvesDto) {
-        await this.firebaseService.DeleteShelf(shelf.id, this.loggedUser?.uid);
-        await this.getShelves();
-    }
-
-    async deleteBook(event: Event, book: IEpub): Promise<void> {
-        event.stopPropagation();
-        event.preventDefault();
-        // remove book from shelf if exists
-        for (const shelf of this.shelves) {
-            shelf.bookIds = shelf.bookIds.filter((bId) => bId !== book.id);
-            await this.firebaseService.UpdateShelf(shelf, this.loggedUser?.uid);
-        }
-
-        await this.firebaseService.Delete(book.id, this.loggedUser?.uid);
-        this.showBookDialog = false;
-        this.selectedEpup.showMenu = false;
-        this.selectedEpup = new EpubDto();
-        await this.getEpubsFromFirestore();
     }
 
     bookSearch(book: EpubDto): boolean {

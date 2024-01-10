@@ -15,7 +15,7 @@
                 {{ book.title }}
             </span>
         </div>
-        <div class="flex align-items-center">
+        <div class="flex align-items-center gap-2">
             <button class="btn-icon btn-text hidden md:flex" (click)="fullScreen()">
                 <i class="material-symbols-rounded">
                     {{ isFullScreen ? 'fullscreen_exit' : 'fullscreen' }}
@@ -185,57 +185,7 @@
             </div>
         </div>
     </div>
-</div>
-<m-dialog
-    [(visible)]="showSearchResults"
-    [showMask]="false"
-    [header]="l('Search')"
-    [width]="'400px'"
-    [panel]="true"
-    [height]="'calc(100vh - 120px)'"
-    (visibleChange)="showSearchResults = false">
-
-    <div content class="flex flex-column max-h-full border-top" style="height: calc(100vh - 190px)">
-        <div class="flex flex-column w-full gap-2">
-            <form class="flex m-2 flex-column gap-2" (submit)="getSearchResults()">
-                <m-input class="w-full" [name]="'SearchOnBook'" [autofocus]="true" [(value)]="searchTerm"
-                         [icon]="'search'" (onClear)="searchResults = []" [showClear]="true"
-                         placeholder="{{ 'Search' | localize }}..."></m-input>
-
-                <span *ngIf="searchResults.length > 0">
-                {{ searchResults.length }} {{ 'ResultsInBook' | localize }}
-            </span>
-            </form>
-
-            <div *ngIf="searchResults.length === 0" class="flex flex-column gap-2">
-                <span class="text-center font-medium font-color-secondary">
-                    {{ 'NoResults' | localize }}
-                </span>
-            </div>
-        </div>
-
-        <div class="flex flex-column" *ngIf="searchResults.length > 0" style="overflow-y: auto">
-            <div class="panel__content__item flex-row gap-3" *ngFor="let items of searchResults">
-                <i class="material-symbols-rounded">
-                    search
-                </i>
-
-                <div class="flex flex-column gap-2">
-                    <div class="flex flex-column gap-1">
-                        <span class="title-lg">
-                            {{ items.chapter }}
-                        </span>
-                        <span class="title-sm font-regular">
-                           {{ 'Page' | localize }} {{ items.page + 1 }}
-                        </span>
-                    </div>
-                    <span class="title-md panel__content__item__value" [innerHTML]="items.content"></span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-</m-dialog>
+</div>¡
 <m-dialog
     [(visible)]="showToc"
     [showMask]="false"
@@ -266,9 +216,9 @@
                     </div>
                 </div>
 
-                <div class="flex flex-column pl-3" *ngIf="chapter.subitems && chapter.subitems.length > 0">
+                <div class="flex flex-column" *ngIf="chapter.subitems && chapter.subitems.length > 0">
                     <div
-                        class="list-item square" matRipple
+                        class="mat-ripple list-item square pl-7" matRipple
                         [class.active]="subItem.id === book.currentChapter.id"
                         [id]="subItem.id === book.currentChapter.id ? 'anchor' : ''"
                         *ngFor="let subItem of chapter.subitems"
