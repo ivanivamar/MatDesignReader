@@ -264,6 +264,10 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
             case 'ArrowRight':
                 this.nextPage();
                 break;
+                // key f
+            case 'f':
+                this.fullScreen();
+                break;
         }
     }
 
@@ -418,6 +422,8 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
             this.isFullScreen = true;
             document.documentElement.requestFullscreen();
         }
+        this.rendition.destroy();
+        this.DynamicParser(this.epubData);
     }
 
     HandleSwipe() {

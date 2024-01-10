@@ -1,7 +1,7 @@
 <div *ngIf="!loading" class="flex w-full">
     <!-- MENU -->
     <div
-        [class.show-topbar-mobile]="showMenusMobile"
+        [class.show-topbar-mobile]="showMenusMobile" *ngIf="!isFullScreen"
         class="topbar fixed align-items-center justify-content-between color-surface-2 elevation-1 px-1 md:px-3 w-full"
         style="top: 0; left: 0; z-index: 99999999; height: 56px;">
         <div class="flex align-items-center gap-3">
@@ -42,7 +42,7 @@
 
     <!-- READER -->
     <div
-        class="swipe-container relative flex flex-1 transition-all transition-duration-200 transition-ease-in-out"
+        class="swipe-container relative flex flex-1 transition-all transition-duration-200 transition-ease-in-out" [class.mt-0]="isFullScreen" [class.mb-0]="isFullScreen"
         [class.show-menu-mobile]="showMenusMobile"
         (touchend)="HandleSwipe()">
         <div id="prev-btn" class="block md:hidden h-full action"></div>
