@@ -147,7 +147,12 @@ input[type="checkbox"]
                 color: $color-on-surface-variant
         
         textarea
-            resize: none
+            resize: vertical
+
+        ::-webkit-resizer
+            background-color: $color-surface-1
+            color: $color-on-surface
+            border-radius: 4px
 
         .input-actions
             button
