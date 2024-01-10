@@ -1,15 +1,15 @@
-import {AfterViewInit, Component, HostListener, Injector, OnInit} from '@angular/core';
-import {AppComponentBase} from "../../common/AppComponentBase";
-import {EpubDto, Note, NoteCategory, Page, Toc} from "../../common/interfaces/models";
-import {FirebaseService} from "../../common/services/firebase.service";
-import {from, Observable} from "rxjs";
-import {Router} from "@angular/router";
-import {HttpClient} from "@angular/common/http";
+import { AfterViewInit, Component, HostListener, Injector, OnInit } from '@angular/core';
+import { AppComponentBase } from "../../common/AppComponentBase";
+import { EpubDto, Note, NoteCategory, Page, Toc } from "../../common/interfaces/models";
+import { FirebaseService } from "../../common/services/firebase.service";
+import { from, Observable } from "rxjs";
+import { Router } from "@angular/router";
+import { HttpClient } from "@angular/common/http";
 import * as JSZip from "jszip";
-import {Title} from "@angular/platform-browser";
-import {Book} from "epubjs";
-import {Rendition} from "epubjs";
-import Navigation, {NavItem} from "epubjs/types/navigation";
+import { Title } from "@angular/platform-browser";
+import { Book } from "epubjs";
+import { Rendition } from "epubjs";
+import Navigation, { NavItem } from "epubjs/types/navigation";
 import Locations from "epubjs/types/locations";
 
 @Component({
@@ -60,6 +60,8 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
     showNotes = false;
     edittingNoteId = '';
 
+    showSettings = false;
+
     constructor(
         injector: Injector,
         private firebaseService: FirebaseService,
@@ -98,7 +100,7 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
         });
     }
     async downloadEpub(epubUrl: string): Promise<Observable<ArrayBuffer>> {
-        return this.http.get(epubUrl, {responseType: 'arraybuffer'});
+        return this.http.get(epubUrl, { responseType: 'arraybuffer' });
     }
     async DynamicParser(epubData: Observable<ArrayBuffer>): Promise<void> {
         // get Arraybuffer from Observable
@@ -119,54 +121,7 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
             height: '100%',
             snap: true
         });
-        // style the epub
-        this.rendition.themes.default({
-            "p": {
-                "margin": "12px 0 !important",
-                "padding": "0em",
-                "font-size": "18px !important",
-                "font-family": this.user.fontFamily + " !important",
-                "font-weight": "400 !important",
-                "color": "#c4c7c5 !important",
-                "line-height": "151.875% !important"
-            },
-            "h1": {
-                "line-height": "151.875% !important",
-                "color": "#c4c7c5 !important",
-                "margin-bottom": "0.5rem !important",
-                "font-family": this.user.fontFamily + " !important",
-                "font-weight": "bold !important"
-            },
-            "h2": {
-                "line-height": "151.875% !important",
-                "color": "#c4c7c5 !important",
-                "margin-bottom": "0.5rem !important",
-                "font-family": this.user.fontFamily + " !important",
-                "font-weight": "bold !important"
-            },
-            "h3": {
-                "line-height": "151.875% !important",
-                "color": "#c4c7c5 !important",
-                "margin-bottom": "0.5rem !important",
-                "font-family": this.user.fontFamily + " !important",
-                "font-weight": "bold !important"
-            },
-            "blockquote": {
-                "font-family": this.user.fontFamily + " !important",
-                "color": "#c4c7c5 !important",
-                "margin": "12px 0 !important"
-            },
-            "a": {
-                "font-family": this.user.fontFamily + " !important",
-                "color": "#c4c7c5 !important",
-                "text-decoration": "none !important"
-            },
-            "em": {
-                "font-family": this.user.fontFamily + " !important",
-                "color": "#c4c7c5 !important",
-                "margin": "12px 0 !important"
-            }
-        });
+        this.setTheme();
 
         // @ts-ignore
         if (typeof this.book.currentPage == 'string' && this.book.currentPage !== '') {
@@ -181,6 +136,115 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
         this.totalCurrentPagesChapter.untilEnd = this.totalCurrentPagesChapter.total - this.totalCurrentPagesChapter.current;
 
         await this.readerBook.locations.generate(6000);
+    }
+
+    setTheme() {
+        console.log("SETTING THEME", this.user.textSize);
+        // style the epub
+        if (this.user.darkTheme) {
+            this.rendition.themes.default({
+                "body": {
+                    "background-color": "unset !important"
+                },
+                "p": {
+                    "margin": "12px 0 !important",
+                    "padding": "0em",
+                    "font-size": this.user.textSize + "px !important",
+                    "font-family": this.user.fontFamily + " !important",
+                    "font-weight": "400 !important",
+                    "color": "#c4c7c5 !important",
+                    "line-height": "151.875% !important"
+                },
+                "h1": {
+                    "line-height": "151.875% !important",
+                    "color": "#c4c7c5 !important",
+                    "margin-bottom": "0.5rem !important",
+                    "font-family": this.user.fontFamily + " !important",
+                    "font-weight": "bold !important"
+                },
+                "h2": {
+                    "line-height": "151.875% !important",
+                    "color": "#c4c7c5 !important",
+                    "margin-bottom": "0.5rem !important",
+                    "font-family": this.user.fontFamily + " !important",
+                    "font-weight": "bold !important"
+                },
+                "h3": {
+                    "line-height": "151.875% !important",
+                    "color": "#c4c7c5 !important",
+                    "margin-bottom": "0.5rem !important",
+                    "font-family": this.user.fontFamily + " !important",
+                    "font-weight": "bold !important"
+                },
+                "blockquote": {
+                    "font-family": this.user.fontFamily + " !important",
+                    "color": "#c4c7c5 !important",
+                    "margin": "12px 0 !important"
+                },
+                "a": {
+                    "font-family": this.user.fontFamily + " !important",
+                    "color": "#c4c7c5 !important",
+                    "text-decoration": "none !important"
+                },
+                "em": {
+                    "font-family": this.user.fontFamily + " !important",
+                    "color": "#c4c7c5 !important",
+                    "margin": "12px 0 !important"
+                }
+            });
+        } else {
+            this.rendition.themes.default({
+                "body": {
+                    "background-color": "#fff !important"
+                },
+                "p": {
+                    "margin": "12px 0 !important",
+                    "padding": "0em",
+                    "font-size": this.user.textSize + "px !important",
+                    "font-family": this.user.fontFamily + " !important",
+                    "font-weight": "400 !important",
+                    "color": "#000 !important",
+                    "line-height": "151.875% !important"
+                },
+                "h1": {
+                    "line-height": "151.875% !important",
+                    "color": "#000 !important",
+                    "margin-bottom": "0.5rem !important",
+                    "font-family": this.user.fontFamily + " !important",
+                    "font-weight": "bold !important"
+                },
+                "h2": {
+                    "line-height": "151.875% !important",
+                    "color": "#000 !important",
+                    "margin-bottom": "0.5rem !important",
+                    "font-family": this.user.fontFamily + " !important",
+                    "font-weight": "bold !important"
+                },
+                "h3": {
+                    "line-height": "151.875% !important",
+                    "color": "#000 !important",
+                    "margin-bottom": "0.5rem !important",
+                    "font-family": this.user.fontFamily + " !important",
+                    "font-weight": "bold !important"
+                },
+                "blockquote": {
+                    "font-family": this.user.fontFamily + " !important",
+                    "color": "#000 !important",
+                    "margin": "12px 0 !important"
+                },
+                "a": {
+                    "font-family": this.user.fontFamily + " !important",
+                    "color": "#000 !important",
+                    "text-decoration": "none !important"
+                },
+                "em": {
+                    "font-family": this.user.fontFamily + " !important",
+                    "color": "#000 !important",
+                    "margin": "12px 0 !important"
+                }
+            });
+        }
+
     }
 
     private storeChapters() {
@@ -227,6 +291,17 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
         this.book.lastRead = new Date();
         this.setChapter();
         this.updateBook();
+    }
+
+    async updateUser(event?: any) {
+        console.log("UPDATE USER:", this.user, event);
+        if (event) {
+            this.user.darkTheme = event.checked;
+        }
+        await this.firebaseService.updateUser(this.user);
+        // refresh book
+        this.rendition.destroy();
+        this.DynamicParser(this.epubData);
     }
 
     toggleTocMenu() {
@@ -401,26 +476,26 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
     }
 }
 export interface Dictionary {
-    word:      string;
-    phonetic:  string;
+    word: string;
+    phonetic: string;
     phonetics: Phonetic[];
-    origin:    string;
-    meanings:  Meaning[];
+    origin: string;
+    meanings: Meaning[];
 }
 
 export interface Meaning {
     partOfSpeech: string;
-    definitions:  Definition[];
+    definitions: Definition[];
 }
 
 export interface Definition {
     definition: string;
-    example:    string;
-    synonyms:   any[];
-    antonyms:   any[];
+    example: string;
+    synonyms: any[];
+    antonyms: any[];
 }
 
 export interface Phonetic {
-    text:   string;
+    text: string;
     audio?: string;
 }

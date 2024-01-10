@@ -15,10 +15,15 @@
                 {{ book.title }}
             </span>
         </div>
-        <div class="flex align-items-center gap-2">
+        <div class="flex align-items-center gap-2 mr-3">
             <button class="btn-icon btn-text hidden md:flex" (click)="fullScreen()">
                 <i class="material-symbols-rounded">
                     {{ isFullScreen ? 'fullscreen_exit' : 'fullscreen' }}
+                </i>
+            </button>
+            <button class="btn-icon btn-text" (click)="showSettings = !showSettings">
+                <i class="material-symbols-rounded">
+                    text_format
                 </i>
             </button>
             <button class="btn-icon btn-text" (click)="toggleTocMenu()">
@@ -122,7 +127,7 @@
 
     <!-- BOTTOM BAR -->
     <div [class.show-bottombar-mobile]="showMenusMobile"
-         class="bottombar fixed flex flex-column w-full color-surface-0 p-3 py-2 md:py-1"
+         class="bottombar fixed flex flex-column w-full color-surface-0 p-3 py-3 md:py-1"
          style="bottom: 0; left: 0; z-index: 99999999">
         <div class="w-full align-items-center hidden md:flex">
             <span class="body-md font-medium font-color-secondary">
@@ -185,7 +190,8 @@
             </div>
         </div>
     </div>
-</div>¡
+</div>
+
 <m-dialog
     [(visible)]="showToc"
     [showMask]="false"
@@ -236,6 +242,84 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+</m-dialog>
+
+<m-dialog
+    [(visible)]="showSettings"
+    [showMask]="false"
+    [header]="l('VisualizationSettings')"
+    [width]="'400px'"
+    [panel]="true"
+    [height]="'calc(100vh - 120px)'"
+    (visibleChange)="showSettings = false">
+
+    <div content class="flex flex-column max-h-full border-top py-3 gap-5" style="height: calc(100vh - 190px);">
+        <div class="w-full flex align-items-center justify-content-between mt-3 md:mt-0">
+            <span class="flex flex-1 font-medium text-lg">
+                {{ 'DarkTheme' | localize }}
+            </span>
+
+            <mat-slide-toggle
+                [color]="'#A8C7FA'"
+                [checked]="user.darkTheme"
+                (change)="updateUser($event)"
+            ></mat-slide-toggle>
+        </div>
+
+        <div class="form-group">
+            <span class="text-base font-medium">
+                {{ 'FontStyle' | localize }}
+            </span>
+
+            <div class="flex align-items-center gap-5">
+                <div
+                    class="font-box border p-3 border-round-lg flex align-items-center justify-content-center w-full cursor-pointer"
+                    [class.border-primary]="user.fontFamily === 'trebuchet ms, sans-serif'"
+                    (click)="user.fontFamily = 'trebuchet ms, sans-serif'; updateUser()">
+                    <span class="text-2xl" style="font-family: 'trebuchet ms', sans-serif">
+                        Aa
+                    </span>
+                </div>
+                <div
+                    class="font-box border p-3 border-round-lg flex align-items-center justify-content-center w-full cursor-pointer"
+                    [class.border-primary]="user.fontFamily === 'serif'"
+                    (click)="user.fontFamily = 'serif'; updateUser()">
+                    <span class="text-2xl" style="font-family: 'times new roman', serif">
+                        Aa
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <span class="text-base font-medium">
+                {{ 'FontSize' | localize }}
+            </span>
+
+            <div class="flex align-items-center gap-5">
+                <button
+                    class="font-box color-surface-2 border p-3 border-round-lg flex align-items-center justify-content-center w-full cursor-pointer"
+                    (click)="user.textSize = user.textSize - 2; updateUser()"
+                    [disabled]="user.textSize === 10">
+                    <i class="text-base material-symbols-rounded text-white">
+                        title
+                    </i>
+                </button>
+                <span class="text-base font-medium">
+                    {{ user.textSize }}px
+                </span>
+                <button
+                    class="font-box color-surface-2 border p-3 border-round-lg flex align-items-center justify-content-center w-full cursor-pointer"
+                    (click)="user.textSize = user.textSize + 2; updateUser()"
+                    [disabled]="user.textSize === 30">
+                    <i class="text-xl material-symbols-rounded text-white">
+                        title
+                    </i>
+                </button>
             </div>
         </div>
     </div>
