@@ -1,4 +1,5 @@
-<div class="sidebar justify-content-between" *ngIf="!loading" [class.hidden]="router.url.includes('reader') || router.url.includes('login')">
+<div class="sidebar justify-content-between" *ngIf="!loading"
+    [class.hidden]="router.url.includes('reader') || router.url.includes('login')">
     <div class="section ml-3 md:ml-0 md:mt-3 flex flex-row md:flex-column gap-3">
         <a class="sidebar-item h-full md:h-auto" [routerLink]="['/books']" [routerLinkActive]="['active']">
             <i class="material-symbols-rounded">library_books</i>
@@ -12,12 +13,13 @@
         </a>
     </div>
 
-    <div class="dropdown flex mr-3 md:mr-0" [class.open]="showProfileMenu">
-        <div
-            (click)="showProfileMenu = !showProfileMenu"
+    <div class="dropdown flex mr-3 md:mr-0 mb-2" [class.open]="showProfileMenu">
+        <div (click)="showProfileMenu = !showProfileMenu"
             class="dropbtn border-circle p-0 align-items-center justify-content-center"
             style="width: 50px; height: 50px">
-            <img [src]="user?.profilePicture" alt="Profile Picture" class="border-circle" style="width: 40px; height: 40px">
+            <img [src]="user.profilePicture" *ngIf="user.profilePicture != ''" alt="Profile Picture"
+                class="border-circle" style="width: 40px; height: 40px">
+            <i class="material-symbols-rounded" *ngIf="user.profilePicture == ''">account_circle</i>
         </div>
         <div class="dropdown-content top right-0 md:left-0">
             <div class="dropdown-item flex align-items-center gap-3">
@@ -35,5 +37,7 @@
         </div>
     </div>
 </div>
+
+<div class="overlay" *ngIf="showProfileMenu" (click)="showProfileMenu = !showProfileMenu"></div>
 
 <router-outlet></router-outlet>
