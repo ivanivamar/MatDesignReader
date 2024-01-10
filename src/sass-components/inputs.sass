@@ -129,7 +129,8 @@ input[type="checkbox"]
                 color: #DC2626
                 font-size: 16px
 
-        input
+        input,
+        textarea
             padding: 0
             border: 0
             color: $color-on-surface
@@ -144,6 +145,9 @@ input[type="checkbox"]
 
             &::placeholder
                 color: $color-on-surface-variant
+        
+        textarea
+            resize: none
 
         .input-actions
             button
@@ -155,6 +159,12 @@ input[type="checkbox"]
                     font-size: 16px
                     color: $color-on-surface
                     font-weight: bold
+
+    &.textarea
+        height: auto
+
+        .floating-label
+            top: 12px
 
     &.active
         border-color: $color-primary
