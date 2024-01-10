@@ -21,7 +21,7 @@
     scroll-snap-type: x mandatory;
     width: 100%;
     transition: transform 0.3s ease-in-out;
-    height: calc(100vh - 116px);
+    height: calc(100vh - 136px);
     margin-top: 56px;
     margin-bottom: 60px;
 }
@@ -33,7 +33,7 @@
     height: var(--doc-height);
     border-radius: 6px;
     box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
-    transform: scale(0.85);
+    transform: scale(0.8);
 }
 
 .swipe-element {

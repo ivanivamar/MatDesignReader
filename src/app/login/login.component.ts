@@ -44,7 +44,7 @@ export class LoginComponent extends AppComponentBase implements OnInit {
     }
     login() {
         this.firebaseService.login(this.user.email, this.user.password).then(() => {
-            this.router.navigate(['']);
+            location.reload();
         });
     }
 

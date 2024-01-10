@@ -1,4 +1,4 @@
-import {Component, Injector, OnInit} from '@angular/core';
+import {Component, HostListener, Injector, OnInit} from '@angular/core';
 import {catchError, from, map, Observable, tap} from "rxjs";
 import {Content, IEpub, EpubDto, Page, ShelvesDto, Toc} from "../common/interfaces/models";
 import * as JSZip from "jszip";
@@ -40,6 +40,8 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
 
     searchFilter = '';
     showSearch = false;
+
+    isUserScrolling = false;
 
     constructor(
         injector: Injector,
@@ -202,17 +204,6 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
             this.selectedEpup.language = metadata.language ? metadata.language : '';
         });
 
-        /*this.firebaseService.getGoogleBooks(this.selectedEpup.title).subscribe((data) => {
-            // find first element which saleInfo is not "NOT_FOR_SALE"
-            let trueData = data.items.find((item: any) => item.saleInfo.saleability !== 'NOT_FOR_SALE');
-            this.selectedEpup.description = trueData.volumeInfo.description;
-            this.selectedEpup.pages = trueData.volumeInfo.pageCount;
-            this.selectedEpup.language = trueData.volumeInfo.language;
-            this.selectedEpup.date = new Date(trueData.volumeInfo.publishedDate).getFullYear().toString();
-            this.selectedEpup.publisher = trueData.volumeInfo.publisher;
-            this.selectedEpup.creator = trueData.volumeInfo.creator;
-        });*/
-
         this.loadingProgress = 60;
         this.loadingMessage = 'Getting cover...';
 
@@ -314,146 +305,13 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
             }
         }
     }
-    async ParseToc(epubDataArrayBuffer: ArrayBuffer) {
-        // search for .ncx file
-        const zip = new JSZip();
-        let ncxFile: string = '';
-        const epubData = await zip.loadAsync(epubDataArrayBuffer);
-        await zip.loadAsync(epubDataArrayBuffer).then((epub) => {
-            epub.forEach((relativePath, zipEntry) => {
-                if (zipEntry.name.endsWith('.ncx')) {
-                    ncxFile = zipEntry.name;
-                }
-            });
-        });
-        if (ncxFile === '') {
-            return;
-        }
-        const tocFile = await epubData.file(ncxFile)!.async('string');
-        if (!tocFile) {
-            return;
-        }
-
-        const parser = new DOMParser();
-        const ncxXmlDoc = parser.parseFromString(tocFile, 'application/xml');
-        console.log("ncxXmlDoc:", ncxXmlDoc);
-        const navMap = ncxXmlDoc.querySelector('navMap');
-        if (!navMap) {
-            return;
-        }
-        // format for object Toc
-        const toc: Toc[] = [];
-        // loop children of navMap
-        /*if (navMap.children.length > 0) {
-            for (let i = 0; i < navMap.children.length; i++) {
-                const navPoint = navMap.children[i];
-                if (navPoint.children.length > 0) {
-                    const tocItem: Toc = {
-                        title: '',
-                        file: '',
-                        subItems: []
-                    };
-                    for (let j = 0; j < navPoint.children.length; j++) {
-                        const navPointChild = navPoint.children[j];
-                        if (navPointChild.nodeName === 'navLabel') {
-                            tocItem.title = navPointChild.children[0].textContent!;
-                        } else if (navPointChild.nodeName === 'content') {
-                            tocItem.file = navPointChild.getAttribute('src')!;
-                        } else if (navPointChild.nodeName === 'navPoint') {
-                            const subItem: Toc = {
-                                title: '',
-                                file: '',
-                                subItems: []
-                            };
-                            for (let k = 0; k < navPointChild.children.length; k++) {
-                                const navPointChildChild = navPointChild.children[k];
-                                if (navPointChildChild.nodeName === 'navLabel') {
-                                    subItem.title = navPointChildChild.children[0].textContent!;
-                                } else if (navPointChildChild.nodeName === 'content') {
-                                    subItem.file = navPointChildChild.getAttribute('src')!;
-                                }
-                            }
-                            tocItem.subItems.push(subItem);
-                        }
-                    }
-                    this.selectedEpup.toc.push(tocItem);
-                }
-            }
-        }*/
-
-        this.selectedEpup.currentChapter = {
-            id: '',
-            href: '',
-            label: '',
-            parent: '',
-            subitems: []
-        };
-    }
-    async GetPageLocationOrder(opfFileContent: string, opfFileParentFolder: string) {
-        try {
-            const parser = new DOMParser();
-            const opfXmlDoc = parser.parseFromString(opfFileContent, 'application/xml');
-            const manifestElement = opfXmlDoc.querySelector('manifest');
-            const spineElement = opfXmlDoc.querySelector('spine');
-            const pageLocationOrder: any[] = [];
-            const finalPageLocationOrder: string[] = [];
-
-            if (manifestElement) {
-                const itemElements = manifestElement.querySelectorAll('item');
-
-                itemElements.forEach((itemElement) => {
-                    const mediaType = itemElement.getAttribute('media-type');
-                    const href = itemElement.getAttribute('href');
-
-                    if (mediaType && href && mediaType === 'application/xhtml+xml') {
-                        let temp = this.IsNullOrEmpty(opfFileParentFolder) ? href : opfFileParentFolder + '/' + href
-                        pageLocationOrder.push({
-                            id: itemElement.getAttribute('id')!,
-                            href: temp
-                        });
-                    } else {
-                        console.warn('Skipping item with missing or invalid attributes:', itemElement);
-                    }
-                });
-            } else {
-                console.error('Manifest element not found in OPF file.');
-            }
-
-            if (spineElement) {
-                const itemRefElements = spineElement.querySelectorAll('itemref');
-
-                itemRefElements.forEach((itemRefElement) => {
-                    const idref = itemRefElement.getAttribute('idref');
-
-                    if (idref) {
-                        this.filesOrder.push(idref);
-                    } else {
-                        console.warn('Skipping itemref with missing or invalid attributes:', itemRefElement);
-                    }
-                });
-            }
-            console.log("pageLocationOrder:", pageLocationOrder);
-            this.filesOrder.forEach((file) => {
-                pageLocationOrder.forEach((page) => {
-                    if (file == page.id) {
-                        finalPageLocationOrder.push(page.href);
-                        // remove page from array
-                        pageLocationOrder.splice(pageLocationOrder.indexOf(page), 1);
-                    }
-                });
-            });
-
-            return finalPageLocationOrder;
-        } catch (error) {
-            console.error('Error parsing OPF XML:', error);
-            return [];
-        }
-    }
     async downloadEpub(epubUrl: string): Promise<Observable<ArrayBuffer>> {
         return this.http.get(epubUrl, {responseType: 'arraybuffer'});
     }
 
-    showBookMenu() {
+    showBookMenu(book: EpubDto) {
+        this.selectedEpup = book;
+        this.selectedEpup.showMenu = true;
     }
 
     UploadCover(event: any) {

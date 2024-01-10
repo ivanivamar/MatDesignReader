@@ -16,10 +16,7 @@ import Locations from "epubjs/types/locations";
     selector: 'app-reader',
     templateUrl: './reader.component.html',
     styleUrls: ['./reader.component.css'],
-    providers: [FirebaseService, HttpClient],
-    host: {
-        '(document:keydown)': 'handleKeyboardEvent($event)'
-    }
+    providers: [FirebaseService, HttpClient]
 })
 export class ReaderComponent extends AppComponentBase implements OnInit {
     book: EpubDto = new EpubDto();
@@ -83,6 +80,8 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
                     this.loggedUser = user;
                 });
                 const id = window.location.pathname.split('/')[2];
+                const doc = document.documentElement;
+                doc.style.setProperty('--doc-height', `${window.innerHeight}px`);
 
                 from(this.firebaseService.GetById(id, this.user.id)).subscribe(async (book) => {
                     this.book = book as EpubDto;
@@ -94,8 +93,6 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
                     await this.DynamicParser(this.epubData);
                     this.updateBook();
                     await this.getLocalizationFileData();
-                    const doc = document.documentElement
-                    doc.style.setProperty('--doc-height', `${window.innerHeight}px`)
                 });
             }
         });
@@ -131,6 +128,7 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
                 "font-family": this.user.fontFamily + " !important",
                 "font-weight": "400 !important",
                 "color": "#c4c7c5 !important",
+                "line-height": "151.875% !important"
             },
             "h1": {
                 "line-height": "151.875% !important",
@@ -192,234 +190,8 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
         });
     }
 
-    async ParsePages(pageLocationOrder: string[], epubDataArrayBuffer: ArrayBuffer) {
-        const zip = new JSZip();
-        const epubData = await zip.loadAsync(epubDataArrayBuffer);
-        console.log('epubData:', epubData);
-        let index = 0;
-        this.loadingMessage = 'Parsing pages...';
-        while (index < pageLocationOrder.length - 1) {
-            const pageFile = await epubData.file(pageLocationOrder[index])!.async('string');
-            const parser = new DOMParser();
-            const pageXmlDoc = parser.parseFromString(pageFile, 'application/xml');
-
-            if (this.currentFile !== pageLocationOrder[index]) {
-                if (this.currentFile !== '') {
-                    this.pages.push(this.currentPage);
-                }
-                // @ts-ignore
-                this.currentFile = pageLocationOrder[index];
-                this.currentPage = { file: this.currentFile, content: [] };
-                this.currentNodeCount = 0;
-            }
-            this.currentPage.file = pageLocationOrder[index];
-            await this.ParsePage(pageLocationOrder[index], pageXmlDoc);
-            index++;
-            // add more percentage to loading bar based on how many pages have been parsed
-            this.loadingProgress = Math.round((index / pageLocationOrder.length) * 100);
-        }
-    }
-    async ParsePage(file: string, pageXmlDoc: Document) {
-        const bodyElement = pageXmlDoc.querySelector('body');
-
-        if (bodyElement) {
-            if (bodyElement.children.length > 0) {
-                this.CheckChildrenNodes(bodyElement.children);
-            } else {
-                console.error('Body element has no children:', bodyElement);
-            }
-        }
-    }
-    CheckChildrenNodes(children: any) {
-        for (let i = 0; i < children.length; i++) {
-            switch (children[i].tagName.toLowerCase()) {
-                case 'img':
-                    const elementContent = children[i].getAttribute('src');
-
-                    if (this.currentNodeCount + 1 <= this.maxNodesPerPage) {
-                        this.currentPage.content.push({
-                            type: 'image',
-                            value: elementContent.split('/')[elementContent.split('/').length - 1]
-                        });
-                        this.currentNodeCount++;
-                    } else {
-                        this.pages.push(this.currentPage);
-                        // @ts-ignore
-                        this.currentPage = { file: this.currentFile, content: [{ type: 'image', value: elementContent }] };
-                        this.currentNodeCount = 1;
-                    }
-                    break;
-                case 'image':
-                    const elementContent2 = children[i].getAttribute('xlink:href');
-
-                    if (this.currentNodeCount + 1 <= this.maxNodesPerPage) {
-                        // @ts-ignore
-                        this.currentPage.content.push({
-                            type: 'image',
-                            value: elementContent2.split('/')[elementContent2.split('/').length - 1]
-                        });
-                        this.currentNodeCount++;
-                    } else {
-                        this.pages.push(this.currentPage);
-                        // @ts-ignore
-                        this.currentPage = { file: this.currentFile, content: [{ type: 'image', value: elementContent2 }] };
-                        this.currentNodeCount = 1;
-                    }
-                    break;
-                case 'p':
-                    const elementContent3 = children[i].innerHTML;
-                    if (this.currentNodeCount + 1 <= this.maxNodesPerPage) {
-                        // @ts-ignore
-                        this.currentPage.content.push({
-                            type: 'text',
-                            value: elementContent3
-                        });
-                        this.currentNodeCount++;
-                    } else {
-                        this.pages.push(this.currentPage);
-                        // @ts-ignore
-                        this.currentPage = {
-                            file: this.currentFile,
-                            content: [{type: 'text', value: elementContent3}]
-                        };
-                        this.currentNodeCount = 1;
-                    }
-                    break;
-                case 'blockquote':
-                    const elementContentBQ = children[i].textContent;
-                    if (this.currentNodeCount + 1 <= this.maxNodesPerPage) {
-                        // @ts-ignore
-                        this.currentPage.content.push({
-                            type: 'bq',
-                            value: elementContentBQ
-                        });
-                        this.currentNodeCount++;
-                    } else {
-                        this.pages.push(this.currentPage);
-                        // @ts-ignore
-                        this.currentPage = {
-                            file: this.currentFile,
-                            content: [{type: 'text', value: elementContentBQ}]
-                        };
-                        this.currentNodeCount = 1;
-                    }
-                    break;
-                /*case 'i':
-                    const elementContentI = children[i].textContent;
-                    if (this.currentNodeCount + 1 <= this.maxNodesPerPage) {
-                        // @ts-ignore
-                        this.currentPage.content.push({
-                            type: 'italic',
-                            value: elementContentI
-                        });
-                        this.currentNodeCount++;
-                    } else {
-                        this.pages.push(this.currentPage);
-                        // @ts-ignore
-                        this.currentPage = { file: this.currentFile, content: [{ type: 'italic', value: elementContentI }] };
-                        this.currentNodeCount = 1;
-                    }
-                    break;
-                case 'b':
-                    const elementContentB = children[i].textContent;
-                    if (this.currentNodeCount + 1 <= this.maxNodesPerPage) {
-                        // @ts-ignore
-                        this.currentPage.content.push({
-                            type: 'bold',
-                            value: elementContentB
-                        });
-                        this.currentNodeCount++;
-                    } else {
-                        this.pages.push(this.currentPage);
-                        // @ts-ignore
-                        this.currentPage = { file: this.currentFile, content: [{ type: 'bold', value: elementContentB }] };
-                        this.currentNodeCount = 1;
-                    }
-                    break;*/
-                case 'h1':
-                    const elementContent4 = children[i].textContent;
-
-                    if (this.currentNodeCount + 1 <= this.maxNodesPerPage) {
-                        // @ts-ignore
-                        this.currentPage.content.push({
-                            type: 'heading1',
-                            value: elementContent4
-                        });
-                        this.currentNodeCount++;
-                    } else {
-                        this.pages.push(this.currentPage);
-                        // @ts-ignore
-                        this.currentPage = { file: this.currentFile, content: [{ type: 'heading1', value: elementContent4 }] };
-                        this.currentNodeCount = 1;
-                    }
-                    break;
-                case 'h2':
-                    const elementContent5 = children[i].textContent;
-
-                    if (this.currentNodeCount + 1 <= this.maxNodesPerPage) {
-                        // @ts-ignore
-                        this.currentPage.content.push({
-                            type: 'heading2',
-                            value: elementContent5
-                        });
-                        this.currentNodeCount++;
-                    } else {
-                        this.pages.push(this.currentPage);
-                        // @ts-ignore
-                        this.currentPage = { file: this.currentFile, content: [{ type: 'heading2', value: elementContent5 }] };
-                        this.currentNodeCount = 1;
-                    }
-                    break;
-                case 'h3':
-                    const elementContent6 = children[i].textContent;
-
-                    if (this.currentNodeCount + 1 <= this.maxNodesPerPage) {
-                        // @ts-ignore
-                        this.currentPage.content.push({
-                            type: 'heading2',
-                            value: elementContent6
-                        });
-                        this.currentNodeCount++;
-                    } else {
-                        this.pages.push(this.currentPage);
-                        // @ts-ignore
-                        this.currentPage = { file: this.currentFile, content: [{ type: 'heading2', value: elementContent6 }] };
-                        this.currentNodeCount = 1;
-                    }
-                    break;
-            }
-            if (children[i].children.length > 0) {
-                this.CheckChildrenNodes(children[i].children);
-            }
-        }
-    }
-    async ParseImages(imageLocationOrder: any[], epubDataArrayBuffer: ArrayBuffer) {
-        this.loadingMessage = 'Parsing images...';
-        this.loadingProgress = 0;
-        const zip = new JSZip();
-        let index = 0;
-        for (const image of imageLocationOrder) {
-            // make Blob from ArrayBuffer
-            const imageFile = await zip.loadAsync(epubDataArrayBuffer).then((epub) => {
-                return epub.file(image.href)!.async('arraybuffer');
-            });
-            const imageBlob = new Blob([imageFile], {type: image.mediaType});
-            const url = URL.createObjectURL(imageBlob);
-            this.imagesInFile.push({
-                name: image,
-                fileUrl: url
-            });
-            index++;
-            // add more percentage to loading bar based on how many images have been parsed
-            this.loadingProgress = Math.round((index / imageLocationOrder.length) * 100);
-        }
-    }
-    getImageByName(name: string): string {
-        let finalName = name.split('/').pop();
-        return this.imagesInFile.find(x => x.name.href.split('/').pop() === finalName)!.fileUrl;
-    }
-
     // Listen for keydown events globally on the document
+    @HostListener('document:keydown', ['$event'])
     handleKeyboardEvent(event: KeyboardEvent): void {
         switch (event.key) {
             case 'ArrowLeft':
@@ -456,21 +228,6 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
         this.setChapter();
         this.updateBook();
     }
-    /*goToPage(page: number): void {
-        this.book.currentPage = page;
-        this.book.lastRead = new Date();
-        this.setChapter();
-        this.getPercentageRead();
-        this.updateBook();
-        // scroll to top of page
-        window.scrollTo(0, 0);
-        window.scrollTo(0, 0);
-
-        // if mobile, hide menu
-        if (window.innerWidth < 768) {
-            this.showSearchResults = false;
-        }
-    }*/
 
     toggleTocMenu() {
         this.showToc = !this.showToc;
@@ -488,43 +245,6 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
     getPageOfChapter(chapter: Toc): number {
         const page = this.pages.find(x => x.file.split('/').pop() === chapter.file.split('/').pop());
         return this.pages.indexOf(page!);
-    }
-
-    getSearchResults(): void {
-        /*this.searchResults = [];
-        if (this.searchTerm.length > 0) {
-            for (let i = 0; i < this.pages.length; i++) {
-                for (let j = 0; j < this.pages[i].content.length; j++) {
-                    if (this.pages[i].content[j].type === 'text') {
-                        if (this.pages[i].content[j].value.toLowerCase().includes(this.searchTerm.toLowerCase())) {
-                            this.searchResults.push({
-                                page: i,
-                                chapter: this.getChapterOfPageFromToc(i),
-                                content: this.pages[i].content[j].value
-                            });
-                        }
-                    }
-                }
-            }
-        }*/
-    }
-
-    getChapterOfPageFromToc(page: number) {
-        /*const pageFile = this.pages[page].file.split('/').pop();
-        let chapter = '';
-        this.book.toc.forEach((x) => {
-            if (x.subItems.length > 0) {
-                x.subItems.forEach((y) => {
-                    if (y.file.split('/').pop() === pageFile) {
-                        chapter = x.title;
-                    }
-                });
-            }
-            if (x.file.split('/').pop() === pageFile) {
-                chapter = x.title;
-            }
-        });
-        return chapter;*/
     }
 
     setChapter(): void {
