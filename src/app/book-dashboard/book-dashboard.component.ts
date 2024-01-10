@@ -63,17 +63,15 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
                     this.loggedUser = user;
                 });
                 await this.getEpubsFromFirestore();
-                await this.getShelves();
                 await this.getLocalizationFileData();
                 this.titleService.setTitle("Material Reader");
-                this.loading = false;
             }
         });
     }
 
     async getEpubsFromFirestore() {
         this.books = [];
-        from(this.firebaseService.GetAllBooks(this.user.id)).subscribe(r => {
+        await from(this.firebaseService.GetAllBooks(this.user.id)).subscribe(async r => {
             r.forEach((doc: any) => {
                 this.books.push(doc.data());
             });
@@ -82,27 +80,19 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
                 //@ts-ignore
                 return b.lastRead.seconds - a.lastRead.seconds;
             });
+
+            
+            await this.getShelves();
         });
     }
 
     async getShelves() {
-        from(this.firebaseService.GetAllShelves(this.user.id)).subscribe(r => {
+        this.loading = true;
+        await from(this.firebaseService.GetAllShelves(this.user.id)).subscribe(r => {
             this.shelves = r;
+            this.loading = false;
             console.log("this.shelves:", this.shelves);
         });
-    }
-
-    checkIfHasBook(shelf: ShelvesDto, book: EpubDto): boolean {
-        let hasBook = false;
-
-        if (shelf.bookIds.length > 0) {
-            shelf.bookIds.forEach((bId: string) => {
-                if (bId === book.id) {
-                    hasBook = true;
-                }
-            });
-        }
-        return hasBook;
     }
 
     toggleMenu(event: Event, book: EpubDto) {
@@ -162,7 +152,6 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
     onBookDialogClose() {
         this.showBookDialog = false;
         this.selectedEpup = new EpubDto();
-        this.bookCreationStepsIndex = 0;
         this.isBookCreation = false;
     }
 
@@ -309,22 +298,6 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
         return this.http.get(epubUrl, {responseType: 'arraybuffer'});
     }
 
-    showBookMenu(book: EpubDto) {
-        this.selectedEpup = book;
-        this.selectedEpup.showMenu = true;
-    }
-
-    UploadCover(event: any) {
-        // check if is image:
-        if (!event.target.files[0].type.startsWith('image')) {
-            return;
-        }
-
-        this.firebaseService.uploadEpubToStorage(event.target.files[0], this.user.id + '/' + this.selectedEpup.id).then((url) => {
-            this.selectedEpup.cover = url;
-        });
-    }
-
     async createOrUpdateBook() {
         if (this.isBookCreation) {
             await this.firebaseService.Create(this.selectedEpup, this.user.id);
@@ -347,23 +320,6 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
         this.showBookDialog = true;
     }
 
-    toggleShelf(shelf: ShelvesDto, book: EpubDto) {
-        if (shelf.bookIds.includes(book.id)) {
-            shelf.bookIds = shelf.bookIds.filter((bId) => bId !== book.id);
-        } else {
-            shelf.bookIds.push(book.id);
-        }
-    }
-
-    async addShelf() {
-        this.newShelf.id = this.IdGenerator();
-        await this.firebaseService.CreateShelf(this.newShelf, this.user.id);
-        this.shelves.push(this.newShelf);
-        this.newShelf.bookIds.push(this.selectedEpup.id);
-        this.newShelf = new ShelvesDto();
-        await this.updateShelves();
-    }
-
     async updateShelves() {
         for (const shelf of this.shelves) {
             await this.firebaseService.UpdateShelf(shelf, this.user.id);
@@ -371,27 +327,6 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
         this.showShelvesModal = false;
         this.newShelf = new ShelvesDto();
         await this.getShelves();
-    }
-
-    async deleteShelf(shelf: ShelvesDto) {
-        await this.firebaseService.DeleteShelf(shelf.id, this.user.id);
-        await this.getShelves();
-    }
-
-    async deleteBook(event: Event, book: IEpub): Promise<void> {
-        event.stopPropagation();
-        event.preventDefault();
-        // remove book from shelf if exists
-        for (const shelf of this.shelves) {
-            shelf.bookIds = shelf.bookIds.filter((bId) => bId !== book.id);
-            await this.firebaseService.UpdateShelf(shelf, this.user.id);
-        }
-
-        await this.firebaseService.Delete(book.id, this.user.id);
-        this.showBookDialog = false;
-        this.selectedEpup.showMenu = false;
-        this.selectedEpup = new EpubDto();
-        await this.getEpubsFromFirestore();
     }
 
     bookSearch(book: EpubDto): boolean {

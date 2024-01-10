@@ -69,7 +69,7 @@ export class FirebaseService {
     async login(email: string, password: string): Promise<any> {
         signInWithEmailAndPassword(this.auth, email, password)
             .then((userCredential) => {
-                return true;
+                location.reload();
             })
             .catch((error) => {
                 console.log("%c createUser error:", "color: red; font-size: 16px;", error);

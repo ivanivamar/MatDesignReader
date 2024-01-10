@@ -26,6 +26,7 @@ import {MatSliderModule} from "@angular/material/slider";
 import {DragDropModule} from "@angular/cdk/drag-drop";
 import {MatRippleModule} from '@angular/material/core';
 import {MatSlideToggleModule} from '@angular/material/slide-toggle';
+import { BookCardComponent } from './common/book-card/book-card.component';
 
 @NgModule({
     declarations: [
@@ -43,6 +44,7 @@ import {MatSlideToggleModule} from '@angular/material/slide-toggle';
         BookDetailComponent,
         MMenuComponent,
         LongPressDirective,
+        BookCardComponent,
     ],
     imports: [
         BrowserModule,
