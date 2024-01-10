@@ -15,6 +15,10 @@
             <span class="text-sm font-color-secondary font-medium">{{Round(book.percentageRead)}}%</span>
         </div>
     </div>
+    
+    <button class="btn-icon btn-filled btn-sm align-items-center absolute edit-btn" style="top: 8px; right:8px" (click)="editBook($event)">
+        <i class="material-symbols-rounded">edit</i>
+    </button>
 </a>
 
 <div class="menu-container" [class.open]="book.showMenu">

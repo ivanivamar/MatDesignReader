@@ -40,6 +40,12 @@ export class BookCardComponent extends AppComponentBase implements OnInit {
         this.book.showMenu = !this.book.showMenu;
     }
 
+    editBook(event: Event) {
+        event.preventDefault();
+        event.stopPropagation();
+        this.showBookDialog = true;
+    }
+
     onBookDialogClose() {
         this.showBookDialog = false;
         this.bookCreationStepsIndex = 0;
