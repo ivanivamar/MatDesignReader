@@ -1,5 +1,4 @@
-<a matRipple class="card gap-2 h-full no-underline relative" longPress (mouseLongPress)="showBookMenu()"
-    [routerLink]="['/reader/', book.id]">
+<a matRipple class="card gap-2 h-full no-underline relative" (click)="onBookSelected.emit(book)">
     <img class="border-round-sm" [src]="book.cover" alt="{{book.title}}">
     <div class="card-body flex-column justify-content-end h-full w-full pt-0">
         <div class="flex justify-content-between">

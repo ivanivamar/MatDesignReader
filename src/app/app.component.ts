@@ -5,6 +5,7 @@ import {Router} from "@angular/router";
 import {LocalizationService} from "./common/services/localization.service";
 import {AppComponentBase} from "./common/AppComponentBase";
 import {UserDto} from "./common/interfaces/models";
+import { IMenuOption } from './common/m-menu/m-menu.component';
 
 @Component({
     selector: 'app-root',
@@ -16,6 +17,24 @@ export class AppComponent extends AppComponentBase implements OnInit {
     title = 'MaterialReader';
     loading = false;
     showProfileMenu = false;
+
+    menuOptions: IMenuOption[] = [
+        {
+            label: 'Profile',
+            icon: 'person',
+            action: () => {
+                this.router.navigate(['profile']);
+            },
+        },
+        {
+            label: 'Logout',
+            icon: 'logout',
+            action: () => {
+                this.logout();
+            },
+        }
+    ];
+    showSidebar = false;
 
     constructor(
         injector: Injector,

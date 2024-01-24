@@ -1,6 +1,11 @@
-<div class="sidebar justify-content-between" *ngIf="!loading"
+<div class="sidebar" [class.open]="showSidebar" *ngIf="!loading"
     [class.hidden]="router.url.includes('reader') || router.url.includes('login')">
-    <div class="section ml-3 md:ml-0 md:mt-3 flex flex-row md:flex-column gap-3">
+
+    <button class="btn-icon btn-text btnmenu" matRipple (click)="showSidebar = !showSidebar">
+        <i class="material-symbols-rounded">menu</i>
+    </button>
+
+    <div class="section flex flex-row md:flex-column gap-3">
         <a class="sidebar-item h-full md:h-auto" [routerLink]="['/books']" [routerLinkActive]="['active']">
             <i class="material-symbols-rounded">library_books</i>
             <span class="sidebar-item-text">
@@ -13,31 +18,20 @@
         </a>
     </div>
 
-    <div class="dropdown flex mr-3 md:mr-0 mb-2" [class.open]="showProfileMenu">
-        <div (click)="showProfileMenu = !showProfileMenu"
-            class="dropbtn border-circle p-0 align-items-center justify-content-center"
-            style="width: 50px; height: 50px">
+    <m-menu [options]="menuOptions">
+        <div
+            menubtn 
+            matRipple
+            class="dropbtn border-circle p-0 align-items-center justify-content-center cursor-pointer">
             <img [src]="user.profilePicture" *ngIf="user.profilePicture != ''" alt="Profile Picture"
                 class="border-circle" style="width: 40px; height: 40px">
             <i class="material-symbols-rounded" *ngIf="user.profilePicture == ''">account_circle</i>
         </div>
-        <div class="dropdown-content top right-0 md:left-0">
-            <div class="dropdown-item flex align-items-center gap-3">
-                <i class="material-symbols-rounded">account_circle</i>
-                <span>
-                    {{ 'Profile' | localize }}
-                </span>
-            </div>
-            <div class="dropdown-item flex align-items-center gap-3" (click)="logout()">
-                <i class="material-symbols-rounded">logout</i>
-                <span>
-                    {{ 'Logout' | localize }}
-                </span>
-            </div>
-        </div>
-    </div>
+    </m-menu>
 </div>
 
 <div class="overlay" *ngIf="showProfileMenu" (click)="showProfileMenu = !showProfileMenu"></div>
 
-<router-outlet></router-outlet>
+<div [style]="showSidebar ? 'margin-left: 80px;transition: all 0.2s ease-in-out 0s;' : 'margin-left: 0px;transition: all 0.2s ease-in-out 0s;'">
+    <router-outlet></router-outlet>
+</div>

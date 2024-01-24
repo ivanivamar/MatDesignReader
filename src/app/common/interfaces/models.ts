@@ -105,3 +105,11 @@ export class UserDto {
     fontFamily: string = 'trebuchet ms, sans-serif';
     language: string = '';
 }
+
+export interface IDropdownOption {
+    value: any;
+    icon?: string;
+    iconColor?: string;
+    label: string;
+    selected?: boolean;
+}

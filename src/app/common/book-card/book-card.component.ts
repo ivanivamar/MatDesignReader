@@ -15,6 +15,7 @@ export class BookCardComponent extends AppComponentBase implements OnInit {
     @Input() userX: UserDto = new UserDto();
     @Input() book: any;
     @Input() shelves: ShelvesDto[] = [];
+    @Output() onBookSelected: EventEmitter<EpubDto> = new EventEmitter<EpubDto>();
     @Output() onBookChanged: EventEmitter<EpubDto> = new EventEmitter<EpubDto>();
     @Output() updateShelves: EventEmitter<void> = new EventEmitter<void>();
     @Output() removeFromShelf: EventEmitter<void> = new EventEmitter<void>();

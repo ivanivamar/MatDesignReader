@@ -1,31 +1,32 @@
-<input type="file" #fileInput class="hidden" name="epub" id="epub" accept=".epub" (change)="Upload($event)">
-<button class="fab" (click)="fileInput.click()">
-    <i class="material-symbols-rounded">cloud_upload</i>
-</button>
+
 
 <div
-    class="fixed slidedown animation-duration-200 top-0 left-0 w-full flex color-surface-2 elevation-1 p-2 align-items-center gap-2"
-    *ngIf="showSearch"
-    style="z-index: 9999999999999;">
-    <m-input class="w-full flex-1" [inputType]="'text'" [icon]="'search'" [name]="'search'" [label]="'Search'"
-             [(value)]="searchFilter" [showClear]="true"></m-input>
-    <button class="btn-icon btn-text" (click)="showSearch = false">
-        <i class="material-symbols-rounded">close</i>
-    </button>
+    class="fixed md:hidden slidedown animation-duration-200 top-0 left-0 w-full p-3"
+    style="z-index: 99999999;">
+    <div class="w-full flex align-items-center gap-3 color-surface-2 border-round-md elevation-1 px-3">
+        <i class="material-symbols-rounded">search</i>
+        <input type="text" class="border-none" style="color: #fff;flex: 1 1 0;" [placeholder]="l('Search')" [(ngModel)]="searchFilter">
+        <button class="btn-icon btn-text" *ngIf="searchFilter.length > 0" (click)="searchFilter = ''">
+            <i class="material-symbols-rounded">close</i>
+        </button>
+    </div>
 </div>
 
-<main *ngIf="!loading">
-    <div class="flex align-items-center justify-content-between mb-3">
-        <div class="flex align-items-center gap-3">
-            <img src="assets/android-chrome-512x512.png" alt="Logo" class="" style="width: 50px; height: 50px;">
-            <h1 class="headline-lg">
-                {{ 'MyBooks' | localize }}
-            </h1>
-            <m-input class="w-18rem hidden md:block" [inputType]="'text'" [icon]="'search'" [name]="'search'" [label]="'Search'"
-                     [(value)]="searchFilter" [showClear]="true"></m-input>
-            <button class="btn-icon btn-text btn-sm md:hidden" (click)="showSearch = true">
+<main *ngIf="!loading" class="mt-7 md:mt-0">
+    <input type="file" #fileInput class="hidden" name="epub" id="epub" accept=".epub" (change)="Upload($event)">
+    <button class="fab" (click)="fileInput.click()">
+        <i class="material-symbols-rounded">cloud_upload</i>
+    </button>
+    <div class="hidden md:flex align-items-center justify-content-between mb-3">
+        <div></div>
+        <div class="searchbar flex align-items-center gap-3">
+            <div class="flex align-items-center color-surface-2 px-3 w-full" style="border-radius: 25px 25px 25px 25px;">
                 <i class="material-symbols-rounded">search</i>
-            </button>
+                <input type="text" class="border-none" style="color: #fff;flex: 1 1 0;" [placeholder]="l('Search')" [(ngModel)]="searchFilter">
+                <button class="btn-icon btn-text btn-sm" *ngIf="searchFilter.length > 0" (click)="searchFilter = ''">
+                    <i class="material-symbols-rounded">close</i>
+                </button>
+            </div>
         </div>
 
         <span class="text-base font-color-secondary font-medium">
@@ -33,18 +34,62 @@
         </span>
     </div>
 
-    <div class="card-set grid-cols-4 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 xl:grid-cols-16">
-        <ng-container
-            *ngFor="let book of books">
-            <book-card 
-                *ngIf="bookSearch(book)"
-                [userX]="user"
-                [book]="book"
-                [shelves]="shelves"
-                (onBookChanged)="getEpubsFromFirestore()"
-                (updateShelves)="updateShelves()">
-            </book-card>
-        </ng-container>
+    <div class="flex gap-3">
+        <div class="card-set grid-cols-4 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 xl:grid-cols-16" style="flex: 1 1 0; transition: all 0.3s ease-in-out;">
+            <ng-container
+                *ngFor="let book of books">
+                <book-card 
+                    *ngIf="bookSearch(book)"
+                    [userX]="user"
+                    [book]="book"
+                    [shelves]="shelves"
+                    (onBookSelected)="selectedEpup = $event; showBookDetails = true;"
+                    (onBookChanged)="getEpubsFromFirestore()"
+                    (updateShelves)="updateShelves()">
+                </book-card>
+            </ng-container>
+        </div>
+        <div [class.open]="showBookDetails" class="book-details">
+            <div class="pb-2 flex align-items-center justify-content-end">
+                <button class="btn-icon btn-text" (click)="showBookDetails = false">
+                    <i class="material-symbols-rounded">close</i>
+                </button>
+            </div>
+
+            <div class="flex gap-3">
+                <div class="flex flex-column gap-2">
+                    <span class="title-lg">
+                        {{selectedEpup.title}}
+                    </span>
+                    <span class="text-sm color-on-surface-variant">
+                        {{selectedEpup.creator}}
+                    </span>
+
+                    <div class="flex flex-column gap-1">
+                        <span class="text-sm color-on-surface-variant">
+                            {{ 'BookPublisher' | localize }}:
+                        </span>
+                        <span class="text-sm">
+                            {{selectedEpup.publisher}}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="flex-1 flex align-items-center justify-content-center">
+                    <img class="book-details-img" [src]="selectedEpup.cover" alt="{{selectedEpup.title}}">
+                </div>
+            </div>
+
+            <span class="text-lg mt-3">
+                {{selectedEpup.description}}
+            </span>
+
+            <div class="flex align-items-center fixed w-full absolute p-3" style="bottom: 16px;left:0;">
+                <a class="btn btn-filled w-full p-4" [routerLink]="['/reader/', selectedEpup.id]">
+                    {{ 'ReadNow' | localize }}
+                </a>
+            </div>
+        </div>
     </div>
 </main>
 

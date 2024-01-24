@@ -28,6 +28,7 @@ import {MatRippleModule} from '@angular/material/core';
 import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 import { BookCardComponent } from './common/book-card/book-card.component';
 import { MTextareaComponent } from './common/m-textarea/m-textarea.component';
+import { MDropdownComponent } from './common/m-dropdown/m-dropdown.component';
 
 @NgModule({
     declarations: [
@@ -47,6 +48,7 @@ import { MTextareaComponent } from './common/m-textarea/m-textarea.component';
         MMenuComponent,
         LongPressDirective,
         BookCardComponent,
+        MDropdownComponent,
     ],
     imports: [
         BrowserModule,

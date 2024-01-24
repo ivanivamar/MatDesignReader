@@ -12,7 +12,7 @@ import {LocalizationService} from "../common/services/localization.service";
 @Component({
     selector: 'app-book-dashboard',
     templateUrl: './book-dashboard.component.html',
-    styleUrls: ['./book-dashboard.component.css'],
+    styleUrls: ['./book-dashboard.component.sass'],
     providers: [FirebaseService, HttpClient, LocalizationService]
 })
 export class BookDashboardComponent extends AppComponentBase implements OnInit {
@@ -42,12 +42,13 @@ export class BookDashboardComponent extends AppComponentBase implements OnInit {
     showSearch = false;
 
     isUserScrolling = false;
+    showBookDetails = false;
 
     constructor(
         injector: Injector,
         private firebaseService: FirebaseService,
         private http: HttpClient,
-        private router: Router,
+        public router: Router,
         private titleService: Title,
     ) {
         super(injector);
