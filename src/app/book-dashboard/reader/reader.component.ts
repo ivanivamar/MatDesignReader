@@ -111,7 +111,6 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
         if (!epubDataArrayBuffer) {
             return;
         }
-        this.loading = false;
 
         this.readerBook = this.firebaseService.getBook(epubDataArrayBuffer);
         this.storeChapters();
@@ -135,7 +134,11 @@ export class ReaderComponent extends AppComponentBase implements OnInit {
         this.totalCurrentPagesChapter.total = this.rendition.currentLocation().start.displayed.total;
         this.totalCurrentPagesChapter.untilEnd = this.totalCurrentPagesChapter.total - this.totalCurrentPagesChapter.current;
 
-        await this.readerBook.locations.generate(6000);
+        await this.readerBook.locations.generate(6000)
+        if (window.innerWidth <= 768) {
+            this.rendition.resize(window.innerWidth, window.innerHeight - 6);
+        }
+        this.loading = false;
     }
 
     setTheme() {

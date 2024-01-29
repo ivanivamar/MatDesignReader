@@ -89,8 +89,8 @@
         margin: 0;
     }
     .scroll-element {
-        overflow-y: auto !important;
-        height: calc(100% - 36px) !important;
+        overflow-y: hidden !important;
+        height: calc(100% - 31px) !important;
     }
 
     .topbar {
